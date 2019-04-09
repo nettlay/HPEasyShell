@@ -1,0 +1,540 @@
+appPath:
+    easyShellPath: C:\Program Files\HP\HP Easy Shell\HPEasyShellConfig.exe
+createWebsites:
+    test1:
+        EmbaedPaneName: YouTube.*
+        Name: YouTueTest1
+        Address: https://youtube.com
+        DefaultHome: True
+        UseIE: False
+        IEFullScreen: False
+        EmbedIE: False
+        AllCloseEmbedIE: False
+    test2:
+        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        Name: HPDTOTest2
+        Address: http://15.83.240.126
+        DefaultHome: False
+        UseIE: True
+        IEFullScreen: False
+        EmbedIE: False
+        AllCloseEmbedIE: False
+    test3:
+        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        Name: HPDTOTest3
+        Address: http://15.83.240.126
+        DefaultHome: False
+        UseIE: True
+        IEFullScreen: True
+        EmbedIE: False
+        AllCloseEmbedIE: False
+    test4:
+        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        Name: HPDTOTest4
+        Address: http://15.83.240.126
+        DefaultHome: True
+        UseIE: True
+        IEFullScreen: True
+        EmbedIE: True
+        AllCloseEmbedIE: False
+    test5:
+        EmbaedPaneName: Google.*
+        Name: GoogleTest5
+        Address: https://www.google.com.hk/
+        DefaultHome: False
+        UseIE: True
+        IEFullScreen: True
+        EmbedIE: True
+        AllCloseEmbedIE: True
+    test6:
+        EmbaedPaneName: Google.*
+        Name: GoogleTest5
+        Address: https://www.google.com.hk/
+        DefaultHome: False
+        UseIE: True
+        IEFullScreen: True
+        EmbedIE: True
+        AllCloseEmbedIE: True
+    editWebsite:
+        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        Name: HPDTOEditTest
+        Address: http://15.83.240.126
+        DefaultHome: False
+        UseIE: True
+        IEFullScreen: This
+        EmbedIE: True
+        AllCloseEmbedIE: False
+    standardWebsite:
+        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        Name: HPDTOStandard
+        Address: http://15.83.240.126
+        DefaultHome: False
+        UseIE: False
+        IEFullScreen: False
+        EmbedIE: False
+        AllCloseEmbedIE: False
+createApp:
+    test1: 
+        WindowName: Untitled - Notepad
+        Name: Notepad
+        Path: 
+            - C:\windows\system32\notepad.exe
+        Argument: None
+        Launchdelay: 20
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 0
+        Maximized: 0
+        Adminonly: 0
+        Hidemissapp: 0
+    test2: 
+        WindowName: C:\\windows\\system32\\cmd.exe
+        Name: CMD
+        Path: 
+            - C:\windows\system32\cmd.exe
+        Argument: None
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 1
+        Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 0
+    test3: 
+        WindowName: HP DTO Performance test Test_Scripts query - Internet Explorer
+        Name: IExplore
+        Path: 
+            - C:\Program Files\internet explorer\iexplore.exe
+        Argument: http://15.83.240.126
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 1
+        Persistent: 0
+        Maximized: 0
+        Adminonly: 0
+        Hidemissapp: 0
+    test4: 
+        WindowName: Power Media Player
+        Name: CyberLink
+        Path: 
+            - C:\Program Files (x86)\CyberLink\PowerDVD14\PDVDLP.exe
+            - C:\Program Files\CyberLink\PowerDVD14\PDVDLP.exe
+        Argument: None
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 0
+        Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 0
+    test5: 
+        WindowName: Foxit Reader
+        Name: FoxitReader
+        Path: 
+            - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
+            - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
+        Argument: None
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 1
+        Persistent: 0
+        Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 0
+    test6: 
+        WindowName: VMware Horizon Client
+        Name: VMware
+        Path: 
+            - C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe
+            - C:\Program Files\VMware\VMware Horizon View Client\vmware-view.exe
+        Argument: None
+        Launchdelay: 20
+        Exitaction: None
+        Autolaunch: 1
+        Persistent: 1
+        Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 0
+    test7: 
+        WindowName: Untitled - Notepad
+        Name: Notepad-AdminOnly
+        Path: 
+            - C:\windows\system32\notepad.exe
+        Argument: None
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 0
+        Maximized: 0
+        Adminonly: 1
+        Hidemissapp: 0
+    test8: 
+        WindowName: Administrator.*
+        Name: CMD-HideMissApp
+        Path: 
+            - C:\Eroorpath
+        Argument: None
+        Launchdelay: None
+        Exitaction: None
+        Autolaunch: 1
+        Persistent: 1
+        Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 1
+    editApp: 
+        WindowName: Foxit Reader
+        Name: FoxitReaderModified
+        Path: 
+            - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
+            - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
+        Argument: None
+        Launchdelay: 20
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 1
+        Maximized: 0
+        Adminonly: 0
+        Hidemissapp: 0
+    standardApp: # This is for create a application demo
+        WindowName: Untitled - Notepad
+        Name: StandardApp
+        Path: 
+            - C:\windows\system32\notepad.exe
+        Argument: None
+        Launchdelay: 0
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 0
+        Maximized: 0
+        Adminonly: 0
+        Hidemissapp: 0
+userInterface:
+    test1: # Turn ON All the settings
+       - DisplayTitle:ON
+       - DisplayApp:ON
+       - DisplayConnections:ON
+       - DisplayStoreFront:ON
+       - DisplayWebsites:ON
+       - DisplayBrowser:ON
+       - DisplayAddress:ON
+       - DisplayNavigation:ON
+       - DisplayHome:ON
+       - DisplayAdmin:ON
+       - DisplayPower:ON
+       - AllowLock:ON
+       - AllowLogoff:ON
+       - AllowRestart:ON
+       - AllowShutDown:ON
+       - DisplayVKeyboard:ON
+       - EnableLTKeyboard:ON
+       - DisplayTime:ON
+       - DisplayIP:ON
+       - DisplayMAC:ON
+       - EnableTaskSwitcher:ON
+       - Permanent:ON
+       - DisplaySwitcherTime:ON
+       - DisplayBattery:ON
+       - DisplayCellular:ON
+       - DisplayNetwork:ON
+       - DisplaySound:ON
+       - DisplaySoundIconInteraction:ON
+       - DisplayWifi:ON
+       - DisplayWifiInterAction:ON
+       - DisplayWriteFilter:ON
+       - DisplayWriteFilterInteraction:ON
+       - HideEasyShell:ON
+       - EnableCustom:ON
+       - EnableSmartcard:ON
+        # User settings
+       - AllowUserSetting:ON
+       - AllowMouse:ON
+       - AllowKeyboard:ON
+       - AllowDisplay:ON
+       - AllowSound:ON
+       - AllowRegion:ON
+       - AllowNetworkConn:ON
+       - AllowDateTime:ON
+       - AllowEasyAccess:ON
+       - AllowIEProperty:ON
+       - AllowWifiConfig:ON
+    test2: # Turn OFF All the settings
+       - DisplayTitle:OFF
+       - DisplayApp:OFF
+       - DisplayConnections:OFF
+       - DisplayStoreFront:OFF
+       - DisplayWebsites:OFF
+       - DisplayBrowser:OFF
+       - DisplayAddress:OFF
+       - DisplayNavigation:OFF
+       - DisplayHome:OFF
+       - DisplayAdmin:OFF
+       - DisplayPower:OFF
+       - AllowLock:OFF
+       - AllowLogoff:OFF
+       - AllowRestart:OFF
+       - AllowShutDown:OFF
+       - DisplayVKeyboard:OFF
+       - EnableLTKeyboard:OFF
+       - DisplayTime:OFF
+       - DisplayIP:OFF
+       - DisplayMAC:OFF
+       - EnableTaskSwitcher:OFF
+       - Permanent:OFF
+       - DisplaySwitcherTime:OFF
+       - DisplayBattery:OFF
+       - DisplayCellular:OFF
+       - DisplayNetwork:OFF
+       - DisplaySound:OFF
+       - DisplaySoundIconInteraction:OFF
+       - DisplayWifi:OFF
+       - DisplayWifiInterAction:OFF
+       - DisplayWriteFilter:OFF
+       - DisplayWriteFilterInteraction:OFF
+       - HideEasyShell:OFF
+       - EnableCustom:OFF
+       - EnableSmartcard:OFF
+        # User settings
+       - AllowUserSetting:OFF
+       - AllowMouse:OFF
+       - AllowKeyboard:OFF
+       - AllowDisplay:OFF
+       - AllowSound:OFF
+       - AllowRegion:OFF
+       - AllowNetworkConn:OFF
+       - AllowDateTime:OFF
+       - AllowEasyAccess:OFF
+       - AllowIEProperty:OFF
+       - AllowWifiConfig:OFF    
+    test3: 
+       - DisplayTitle:ON
+       - DisplayApp:OFF
+       - DisplayConnections:ON
+       - DisplayStoreFront:OFF
+       - DisplayWebsites:ON
+       - DisplayBrowser:OFF
+       - DisplayAddress:ON
+       - DisplayNavigation:OFF
+       - DisplayHome:ON
+       - DisplayAdmin:OFF
+       - DisplayPower:ON
+       - AllowLock:OFF
+       - AllowLogoff:ON
+       - AllowRestart:OFF
+       - AllowShutDown:ON
+       - DisplayVKeyboard:OFF
+       - EnableLTKeyboard:ON
+       - DisplayTime:OFF
+       - DisplayIP:ON
+       - DisplayMAC:OFF
+       - EnableTaskSwitcher:ON
+       - Permanent:OFF
+       - DisplaySwitcherTime:ON
+       - DisplayBattery:OFF
+       - DisplayCellular:ON
+       - DisplayNetwork:OFF
+       - DisplaySound:ON
+       - DisplaySoundIconInteraction:OFF
+       - DisplayWifi:ON
+       - DisplayWifiInterAction:OFF
+       - DisplayWriteFilter:OFF
+       - DisplayWriteFilterInteraction:OFF
+       - HideEasyShell:ON
+       - EnableCustom:OFF
+       - EnableSmartcard:ON
+        # User settings
+       - AllowUserSetting:OFF
+       - AllowMouse:ON
+       - AllowKeyboard:OFF
+       - AllowDisplay:ON
+       - AllowSound:OFF
+       - AllowRegion:ON
+       - AllowNetworkConn:OFF
+       - AllowDateTime:ON
+       - AllowEasyAccess:OFF
+       - AllowIEProperty:ON
+       - AllowWifiConfig:OFF    
+    test4: 
+       - DisplayTitle:ON
+       - DisplayApp:ON
+       - DisplayConnections:ON
+       - DisplayStoreFront:OFF
+       - DisplayWebsites:OFF
+       - DisplayBrowser:OFF
+       - DisplayAddress:ON
+       - DisplayNavigation:ON
+       - DisplayHome:ON
+       - DisplayAdmin:ON
+       - DisplayPower:OFF
+       - AllowLock:OFF
+       - AllowLogoff:OFF
+       - AllowRestart:ON
+       - AllowShutDown:ON
+       - DisplayVKeyboard:ON
+       - EnableLTKeyboard:OFF
+       - DisplayTime:OFF
+       - DisplayIP:OFF
+       - DisplayMAC:ON
+       - EnableTaskSwitcher:ON
+       - Permanent:ON
+       - DisplaySwitcherTime:ON
+       - DisplayBattery:OFF
+       - DisplayCellular:OFF
+       - DisplayNetwork:OFF
+       - DisplaySound:ON
+       - DisplaySoundIconInteraction:ON
+       - DisplayWifi:ON
+       - DisplayWifiInterAction:ON
+       - DisplayWriteFilter:ON
+       - DisplayWriteFilterInteraction:OFF
+       - HideEasyShell:OFF
+       - EnableCustom:OFF
+       - EnableSmartcard:ON
+        # User settings
+       - AllowUserSetting:ON
+       - AllowMouse:ON
+       - AllowKeyboard:OFF
+       - AllowDisplay:OFF
+       - AllowSound:OFF
+       - AllowRegion:ON
+       - AllowNetworkConn:ON
+       - AllowDateTime:ON
+       - AllowEasyAccess:OFF
+       - AllowIEProperty:OFF
+       - AllowWifiConfig:OFF    
+    test5: 
+       - DisplayTitle:ON
+       - DisplayApp:ON
+       - DisplayConnections:ON
+       - DisplayStoreFront:ON
+       - DisplayWebsites:ON
+       - DisplayBrowser:ON
+       - DisplayAddress:ON
+       - DisplayNavigation:ON
+       - DisplayHome:ON
+       - DisplayAdmin:ON
+       - DisplayPower:ON
+       - AllowLock:ON
+       - AllowLogoff:ON
+       - AllowRestart:ON
+       - AllowShutDown:ON
+       - DisplayVKeyboard:ON
+       - EnableLTKeyboard:ON
+       - DisplayTime:ON
+       - DisplayIP:ON
+       - DisplayMAC:ON
+       - EnableTaskSwitcher:ON
+       - Permanent:ON
+       - DisplaySwitcherTime:ON
+       - DisplayBattery:ON
+       - DisplayCellular:ON
+       - DisplayNetwork:ON
+       - DisplaySound:ON
+       - DisplaySoundIconInteraction:ON
+       - DisplayWifi:ON
+       - DisplayWifiInterAction:ON
+       - DisplayWriteFilter:ON
+       - DisplayWriteFilterInteraction:ON
+       - HideEasyShell:ON
+       - EnableCustom:ON
+       - EnableSmartcard:ON
+        # User settings
+       - AllowUserSetting:OFF
+       - AllowMouse:OFF
+       - AllowKeyboard:OFF
+       - AllowDisplay:OFF
+       - AllowSound:OFF
+       - AllowRegion:OFF
+       - AllowNetworkConn:OFF
+       - AllowDateTime:OFF
+       - AllowEasyAccess:OFF
+       - AllowIEProperty:OFF
+       - AllowWifiConfig:OFF   
+    test6: 
+       - DisplayTitle:ON
+       - DisplayApp:ON
+       - DisplayConnections:ON
+       - DisplayStoreFront:ON
+       - DisplayWebsites:ON
+       - DisplayBrowser:ON
+       - DisplayAddress:ON
+       - DisplayNavigation:ON
+       - DisplayHome:ON
+       - DisplayAdmin:ON
+       - DisplayPower:ON
+       - AllowLock:ON
+       - AllowLogoff:ON
+       - AllowRestart:ON
+       - AllowShutDown:ON
+       - DisplayVKeyboard:OFF
+       - EnableLTKeyboard:OFF
+       - DisplayTime:OFF
+       - DisplayIP:OFF
+       - DisplayMAC:OFF
+       - EnableTaskSwitcher:OFF
+       - Permanent:OFF
+       - DisplaySwitcherTime:OFF
+       - DisplayBattery:OFF
+       - DisplayCellular:OFF
+       - DisplayNetwork:OFF
+       - DisplaySound:OFF
+       - DisplaySoundIconInteraction:OFF
+       - DisplayWifi:OFF
+       - DisplayWifiInterAction:OFF
+       - DisplayWriteFilter:OFF
+       - DisplayWriteFilterInteraction:OFF
+       - HideEasyShell:OFF
+       - EnableCustom:OFF
+       - EnableSmartcard:OFF
+        # User settings
+       - AllowUserSetting:OFF
+       - AllowMouse:ON
+       - AllowKeyboard:ON
+       - AllowDisplay:ON
+       - AllowSound:ON
+       - AllowRegion:ON
+       - AllowNetworkConn:ON
+       - AllowDateTime:ON
+       - AllowEasyAccess:ON
+       - AllowIEProperty:ON
+       - AllowWifiConfig:ON
+createRDP:
+    test1:
+        Name: RFXWin10
+        Hostname: rfxw10-1.sh.dto
+        Username: zhao.sam
+        Launchdelay: 0
+        Arguments: None
+        Autolaunch: OFF
+        Persistent: OFF
+createView:
+    standardView:
+        Name: standardView
+        Hostname: xd562svr01.sh.dto
+        Launchdelay: 0
+        Argument: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Layout: fullscreen
+        ConnUSBStartup: OFF
+        ConnUSBInsertion: OFF
+        Username: zhao.sam
+        Password: zhao123
+        Domain: sh.dto
+        DesktopName: None
+createStoreFront:
+    standardStore:
+        Name: standardStore
+        URL: fcxds.sh.dto
+        SelectStore: False
+        StoreName: fcxds.sh.dto
+        Launchdelay: 0
+        LogonMethod: Username and password
+        Username: test
+        Password: passwd
+        Domain: sh.dto
+        HideDomain: OFF
+        CustomLogon: None
+        Autolaunch: OFF
+        ConnectionTimeout: 60
+        DesktopToolbar: OFF
+        

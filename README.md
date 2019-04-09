@@ -1,2 +1,1 @@
-# HPEasyShell
-hpeasyshell automation
+# Functional-dell-Easy-Shell-Test
