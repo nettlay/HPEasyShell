@@ -506,6 +506,14 @@ createRDP:
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
+    edit:
+      Name: editRFXwin10
+      Hostname: rfxw10-1.sh.dto
+      Username: zhao.sam
+      Launchdelay: 0
+      Arguments: None
+      Autolaunch: OFF
+      Persistent: OFF
 createView:
     standardView:
         Name: standardView

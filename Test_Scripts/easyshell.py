@@ -24,21 +24,74 @@ class EasyShellTest:
         self.sections = YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
         self.appPath = self.sections['appPath']['easyShellPath']
 
+    def create(self):
+        pass
+
+    def edit(self):
+        pass
+
+    def check(self):
+        pass
+
     # ------------------------------ Utils -------------------------------------------
     def Logfile(self, rs):
         TxtUtils(os.path.join(self.log_path, "easyShellLog.txt"),
                  'a').set_msg("[{}]:{}\n".format(time.ctime(), rs))
 
-    def Utils(self):
-        # Only interface
-        pass
+    def utils(self, profile='', op='exist', item='normal'):
+        """
+        :param profile:  test profile, [test1,test2,,standardApp...]
+        :param op: test option [exist | notexist | edit | delete |launch]
+        :param item: specific for connection, if item=connection, connection button element=textcontrol.getparent,
+                else element=textcontrol.getparent.getparent
+        :return: Bool
+        """
+        time.sleep(3)
+        test = self.sections['createApp'][profile]
+        name = test["Name"]
+        if op.upper() == 'NOTEXIST':
+            if TextMethod(Name=name).Exists(0, 0):
+                self.Logfile('Check {}-{} Not Exist Fail'.format(profile, name))
+                return False
+            else:
+                self.Logfile('Check {}-{} Not Exist PASS'.format(profile, name))
+                return True
+        if TextMethod(Name=name).Exists(0, 0):
+            txt = TextMethod(Name=name)
+        else:
+            print("{}-{} Not Exist".format(profile, name))
+            return False
+        if 'CONN' in item.upper():
+            appControl = txt.GetParentControl()
+        else:
+            appControl = txt.GetParentControl().GetParentControl()
+        launch = txt # type=txtcontrol
+        edit = appControl.ButtonControl(AutomationId='editButton')
+        delete = appControl.ButtonControl(AutomationId='deleteButton')
+        if op.upper() == 'LAUNCH':
+            launch.Click()
+            return True
+        elif op.upper() == 'EDIT':
+            edit.Click()
+            return True
+        elif op.upper() == 'DELETE':
+            try:
+                delete.Click()
+                getElement('DeleteYes').Click()
+                getElement('APPLY').Click()
+                return True
+            except:
+                self.Logfile("[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
+                return False
+        else:
+            return True
 
 
 class UserInterfacSettings(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
 
-    def ModifySettings(self, profile):
+    def modify(self, profile):
         """
         :param profile: one of test parameters' combination
         """
@@ -78,7 +131,7 @@ class UserInterfacSettings(EasyShellTest):
         self.Logfile('[PASS] Modify user interface settings')
         return flag
 
-    def CheckSettings(self, profile):
+    def check(self, profile):
         flag = True
         # ---Below test use yml, list type can be test in order --------
         content = self.sections
@@ -420,7 +473,7 @@ class UserSettings(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
 
-    def ModifySettings(self, profile):
+    def modify(self, profile):
         """
         :param profile: one of test parameters' combination
         """
@@ -460,7 +513,7 @@ class UserSettings(EasyShellTest):
         self.Logfile('[PASS] Modify user settings')
         return flag
 
-    def CheckSettings(self, profile):
+    def check(self, profile):
         flag = True
         # ---Below test use yml, list type can be test in order --------
         content = self.sections
@@ -679,7 +732,7 @@ class Background(EasyShellTest):
                 file = 'customBG'
                 getElement('AllowUserSetting').Enable()
                 getElement('EnableCustom').Enable()
-                getElement('BGFileLocationButton').Invoke()
+                getElement('BGFileLocationButton').GetInvokePattern().Invoke()
                 getElement('BGFileURLEdit').SetValue(os.path.join(self.misc, "%s.jpg" % file))
                 getElement('BGFileOpen').Click()
                 getElement('APPLY').Click()
@@ -690,15 +743,15 @@ class Background(EasyShellTest):
                 for i in UserSettings_Dict.values():
                     i.Enable()
                 getElement('EnableCustom').Disable()
-                getElement('SelectTheme').Invoke()
+                getElement('SelectTheme').GetInvokePattern().Invoke()
                 # -------------------select listitem by match the name----------------
                 bgcomb = getElement('BGTheme')
                 bgcomb.Click()
                 time.sleep(3)
                 txt = TextMethod(RegexName='.*%s.*' % bg)
                 txt.Click()
-                getElement('OK').Invoke()
-                getElement('APPLY').Invoke()
+                getElement('OK').GetInvokePattern().Invoke()
+                getElement('APPLY').Click()
                 self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
                 return True
         except:
@@ -729,7 +782,7 @@ class Shell_Application(EasyShellTest):
         EasyShellTest.__init__(self)
 
     # --------------- Applications Creation --------------------
-    def CheckApp(self, profile):
+    def check(self, profile):
         self.Logfile('-------------Begin to Check Application --------------')
         flag = True
         content = YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
@@ -769,7 +822,7 @@ class Shell_Application(EasyShellTest):
                 self.Utils(profile, "launch")
                 if Launchdelay == "None" or Launchdelay is None:
                     for i in range(5):
-                        if QAUtil.WindowMethod(RegexName=WindowName).Exists(0, 0):
+                        if WindowMethod(RegexName=WindowName).Exists(0, 0):
                             break
                         else:
                             continue
@@ -831,12 +884,11 @@ class Shell_Application(EasyShellTest):
             self.Logfile("[Failed]:App {} App Check\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
-    def CreateApp(self, profile):
+    def create(self, profile):
         """
         profile is a test configuration name, it is a dict for app options, load from easyshell_testdata.yaml
         """
-        content = self.sections
-        test = content['createApp'][profile]
+        test = self.sections['createApp'][profile]
         Name = test["Name"]
         Paths = test['Path']
         for i in Paths:
@@ -845,13 +897,13 @@ class Shell_Application(EasyShellTest):
                 break
             else:
                 Path = "ErrorPath"
-        Argument = test['Argument']
-        Launchdelay = test['Launchdelay']
-        Autolaunch = test['Autolaunch']
-        Persistent = test['Persistent']
-        Maximized = test['Maximized']
-        Adminonly = test['Adminonly']
-        Hidemissapp = test['Hidemissapp']
+        argument = test['Argument']
+        launchdelay = test['Launchdelay']
+        autolaunch = test['Autolaunch']
+        persistent = test['Persistent']
+        maximized = test['Maximized']
+        adminonly = test['Adminonly']
+        hidemissapp = test['Hidemissapp']
         try:
             for app_path in self.appPath:
                 if os.path.exists(app_path):
@@ -860,12 +912,15 @@ class Shell_Application(EasyShellTest):
                 else:
                     continue
             for i in range(10):
-                if not MAIN_WINDOW.Exists(1, 1):
+                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(1, 1):
                     time.sleep(1)
                     continue
                 else:
                     print('app get window')
                     break
+            if not getElement('KiosMode').Exists(0, 0):
+                self.Logfile('EasyShell is not launch correctly')
+                return False
             getElement('KioskMode').Enable()
             getElement('DisplayTitle').Enable()
             getElement('DisplayApp').Enable()
@@ -879,41 +934,41 @@ class Shell_Application(EasyShellTest):
             QAUtils.SendKeys(Path)
             QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Argument == "None":
+            if argument == "None":
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
-                QAUtils.SendKeys(Argument)
+                QAUtils.SendKeys(argument)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Launchdelay == "None":
+            if launchdelay == "None":
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_DELETE)
-                QAUtils.SendKeys(str(Launchdelay))
+                QAUtils.SendKeys(str(launchdelay))
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Autolaunch:
+            if autolaunch:
                 QAUtils.SendKey(QAUtils.Keys().VK_SPACE)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Persistent == 0:
+            if persistent == 0:
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_SPACE)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Maximized == 0:
+            if maximized == 0:
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_SPACE)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Adminonly == 0:
+            if adminonly == 0:
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_SPACE)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
-            if Hidemissapp == 0:
+            if hidemissapp == 0:
                 QAUtils.SendKey(QAUtils.Keys().VK_TAB)
             else:
                 QAUtils.SendKey(QAUtils.Keys().VK_SPACE)
@@ -928,7 +983,7 @@ class Shell_Application(EasyShellTest):
             self.Logfile("[FAIL]:App {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
-    def EditModifyApp(self, newProfile, oldProfile):
+    def edit(self, newProfile, oldProfile):
         try:
             test = YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
             old = test['createApp'][oldProfile]
@@ -972,7 +1027,7 @@ class Shell_Application(EasyShellTest):
             # Wait HP easy shell launch
             time.sleep(3)
             for i in range(10):
-                if not MAIN_WINDOW.Exists(1, 1):
+                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(1, 1):
                     time.sleep(1)
                     continue
                 else:
@@ -1036,41 +1091,6 @@ class Shell_Application(EasyShellTest):
             self.Logfile("[FAIL]:App {} Edit\nErrors:\n{}\n".format(newProfile, traceback.format_exc()))
             return False
 
-    def Utils(self, profile='', op='exist'):
-        time.sleep(3)
-        with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = safe_load(f)
-            test = test['createApp'][profile]
-            name = test["Name"]
-
-        if TextMethod(Name=name).Exists(0, 0):
-            txt = TextMethod(Name=name)
-        else:
-            print("didn't get element")
-            return False
-        appControl = txt.GetParentControl().GetParentControl()
-        launch = appControl.ButtonControl(AutomationId='launchButton')
-        edit = appControl.ButtonControl(AutomationId='editButton')
-        delete = appControl.ButtonControl(AutomationId='deleteButton')
-        if op.upper() == 'LAUNCH':
-            launch.Invoke()
-            return True
-        elif op.upper() == 'EDIT':
-            edit.Invoke()
-            return True
-        elif op.upper() == 'DELETE':
-            try:
-                delete.Invoke()
-                getElement('DeleteYes').Click()
-                getElement('APPLY').Click()
-                return True
-            except:
-                self.Logfile("[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
-                return False
-        elif op.upper() == 'EXIST':
-            return True
-        else:
-            pass
 
 
 class Shell_Websites(EasyShellTest):
@@ -1080,7 +1100,7 @@ class Shell_Websites(EasyShellTest):
     #   ---------------- Website Creation --------------------------
     def CreateWebsite(self, profile):
         with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = safe_load(f)
+            test = yaml.safe_load(f)
             test = test['createWebsites'][profile]
             Name = test["Name"]
             Address = test['Address']
@@ -1098,7 +1118,7 @@ class Shell_Websites(EasyShellTest):
                         continue
                 self.Logfile('---------------Begin to Create website------------')
                 for i in range(10):
-                    if not MAIN_WINDOW.Exists(1, 1):
+                    if not EasyShell_Wnd['MAIN_WINDOW'].Exists(1, 1):
                         continue
                     else:
                         print('web Get windows')
@@ -1113,7 +1133,7 @@ class Shell_Websites(EasyShellTest):
                 getElement('WebSites').Click()
                 if self.Utils(profile, 'Exist'):
                     self.Utils(profile, 'Delete')
-                getElement('WebsiteAdd').Invoke()
+                getElement('WebsiteAdd').Click()
                 time.sleep(3)
                 print(Name)
                 QAUtils.SendKeys(Name)
@@ -1248,7 +1268,7 @@ class Shell_Websites(EasyShellTest):
         Make sure Home Default is the same with OldProfile
         """
         with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = safe_load(f)
+            test = yaml.safe_load(f)
             new = test['createWebsites'][newProfile]
             old = test['createWebsites'][oldProfile]
             newName = new["Name"]
@@ -1270,7 +1290,7 @@ class Shell_Websites(EasyShellTest):
                 else:
                     continue
             for i in range(10):
-                if not MAIN_WINDOW.Exists(0, 0):
+                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(0, 0):
                     time.sleep(1)
                     continue
                 else:
@@ -1365,7 +1385,7 @@ class Shell_Websites(EasyShellTest):
     def Utils(self, profile='', op='exist'):
         time.sleep(3)
         with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = safe_load(f)
+            test = yaml.safe_load(f)
             test = test['createWebsites'][profile]
             name = test["Name"]
             if TextMethod(Name=name).Exists(1, 1):
@@ -1379,14 +1399,14 @@ class Shell_Websites(EasyShellTest):
             edit = websiteControl.ButtonControl(AutomationId='editButton')
             delete = websiteControl.ButtonControl(AutomationId='deleteButton')
             if op.upper() == 'LAUNCH':
-                launch.Invoke()
+                launch.Click()
                 return True
             elif op .upper() == 'EDIT':
-                edit.Invoke()
+                edit.Click()
                 return True
             elif op.upper() == 'DELETE':
                 try:
-                    delete.Invoke()
+                    delete.Click()
                     getElement('DeleteYes').Click()
                     getElement('APPLY').Click()
                     return True
@@ -1396,7 +1416,7 @@ class Shell_Websites(EasyShellTest):
             elif op.upper() == 'EXIST':
                 return True
             elif op.upper() == 'DEFAULT':
-                default.Invoke()
+                default.Click()
                 return True
             else:
                 pass
@@ -1432,7 +1452,7 @@ class Shell_StoreFront(EasyShellTest):
                 else:
                     continue
             for i in range(10):
-                if not MAIN_WINDOW.Exists(1, 1):
+                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(1, 1):
                     continue
                 else:
                     print('store get window')
@@ -1508,40 +1528,6 @@ class Shell_StoreFront(EasyShellTest):
             self.Logfile("[FAIL]:Storfront {} Create\nErrors:\n{}\n".format(Name, e))
             return False
 
-    def Utils(self, profile='', op='exist'):
-        time.sleep(3)
-        test = YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
-        test = test['createStoreFront'][profile]
-        name = test["Name"]
-        if TextMethod(Name=name).Exists(0, 0):
-            txt = TextMethod(Name=name)
-        else:
-            print("didn't get element")
-            return False
-        appControl = txt.GetParentControl().GetParentControl()
-        launch = appControl.ButtonControl(AutomationId='LaunchButton')
-        edit = appControl.ButtonControl(AutomationId='EditButton')
-        delete = appControl.ButtonControl(AutomationId='DeleteButton')
-        if op.upper() == 'LAUNCH':
-            launch.Invoke()
-            return True
-        elif op.upper() == 'EDIT':
-            edit.Invoke()
-            return True
-        elif op.upper() == 'DELETE':
-            try:
-                delete.Invoke()
-                getElement('DeleteYes').Click()
-                getElement('APPLY').Click()
-                return True
-            except:
-                self.Logfile("[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
-                return False
-        elif op.upper() == 'EXIST':
-            return True
-        else:
-            pass
-
 
 class Shell_View(EasyShellTest):
     def __init__(self):
@@ -1570,7 +1556,7 @@ class Shell_View(EasyShellTest):
                     CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            MAIN_WINDOW.waitExists(10)
+            EasyShell_Wnd['MAIN_WINDOW'].waitExists(10)
             getElement('KioskMode').Enable()
             getElement('DisplayTitle').Enable()
             getElement('DisplayConnections').Enable()
@@ -1632,41 +1618,6 @@ class Shell_View(EasyShellTest):
             self.Logfile("[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
-    def Utils(self, profile='', op='exist'):
-        time.sleep(3)
-        with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = safe_load(f)
-            test = test['createView'][profile]
-            name = test["Name"]
-        if TextMethod(Name=name).Exists(0, 0):
-            txt = TextMethod(Name=name)
-        else:
-            print("didn't get element")
-            return False
-        appControl = txt.GetParentControl().GetParentControl()
-        launch = appControl.ButtonControl(AutomationId='launchButton')
-        edit = appControl.ButtonControl(AutomationId='editButton')
-        delete = appControl.ButtonControl(AutomationId='deleteButton')
-        if op.upper() == 'LAUNCH':
-            launch.Invoke()
-            return True
-        elif op.upper() == 'EDIT':
-            edit.Invoke()
-            return True
-        elif op.upper() == 'DELETE':
-            try:
-                delete.Invoke()
-                getElement('DeleteYes').Click()
-                getElement('APPLY').Click()
-                return True
-            except Exception as e:
-                self.Logfile("[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, e))
-                return False
-        elif op.upper() == 'EXIST':
-            return True
-        else:
-            pass
-
 
 class Shell_RDP(EasyShellTest):
     def __init__(self):
@@ -1689,7 +1640,7 @@ class TaskSwitcher(EasyShellTest):
                 break
             else:
                 continue
-        MAIN_WINDOW.waitExists(10)
+        EasyShell_Wnd['MAIN_WINDOW'].waitExists(10)
         getElement('KioskMode').Enable()
         getElement('EnableTaskSwitcher').Enable()
         getElement('Permanent').Enable()
@@ -1820,3 +1771,8 @@ class TaskSwitcher(EasyShellTest):
             '''
 
 
+
+if __name__ == '__main__':
+    # Shell_Application().CheckApp('test1')
+    # Shell_StoreFront().CreateStoreFront('standardStore')
+    pass

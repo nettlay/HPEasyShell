@@ -1,6 +1,5 @@
 from Library.QAUIutils import *
 
-
 if not os.path.exists('c:\\svc'):
     os.mkdir("C:\\svc")
 if not os.path.exists('c:\\svc\\svcconfig.ini'):
@@ -38,11 +37,6 @@ def getElement(name):
         return element
 
 
-MAIN_WINDOW = getElement('MAIN_WINDOW')
-TASK_SWITCHER = getElement('TASK_SWITCHER')
-WIFI_SELECTION = getElement('WIFI_SELECTION')
-
-
 class CommonUtils(QAUtils):
     def __init__(self):
         pass
@@ -67,9 +61,19 @@ class CommonUtils(QAUtils):
     def launchFromPath():
         QAUtils.LaunchAppFromFile("C:\\Program Files\\HP\\HP Easy Shell\\HPEasyShell.exe")
 
+    @staticmethod
+    def install(path):
+        os.system('msiexec.exe /q /i {}'.format(path))
+
+
+EasyShell_Wnd = {
+    'MAIN_WINDOW': getElement('MAIN_WINDOW'),
+    'TASK_SWITCHER': getElement('TASK_SWITCHER'),
+    'WIFI_SELECTION': getElement('WIFI_SELECTION')
+}
 
 UserKiosk_Dict = {
-    'TaskSwitcher': TASK_SWITCHER,
+    'TaskSwitcher': getElement('TASK_SWITCHER'),
     # ---------Icon on the task Switcher --------------
     'WifiIcon': getElement('WifiIcon'),
     'SoundIcon': getElement('SoundIcon'),

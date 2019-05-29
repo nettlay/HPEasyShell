@@ -11,7 +11,7 @@ import win32api
 import win32con
 import subprocess
 import platform
-from ruamel.yaml import safe_load
+import ruamel.yaml as yaml
 
 '''
 Some element might mistake recognize automationId or Name:
@@ -201,7 +201,7 @@ class QAUtils:
         items = controlPane.GetChildren()
         for item in items:
             if item.Name == name:
-                item.Invoke()
+                item.Click()
                 time.sleep(2)
                 break
         if WindowMethod(Name="All Control Panel Items").Exists():
@@ -221,7 +221,7 @@ class QAUtils:
         items = controlPane.GetChildren()
         for item in items:
             if item.Name == "Programs and Features":
-                item.Invoke()
+                item.Click()
         redirectWnd = WindowMethod(Name="Programs and Features")
         installationPool = redirectWnd.ListControl(AutomationId="1")
         items = installationPool.GetChildren()
@@ -309,7 +309,7 @@ class QAUtils:
 class YmlUtils:
     def __init__(self, filename):
         with open(filename) as f:
-            self._content = safe_load(f)
+            self._content = yaml.safe_load(f)
 
     def get_item(self):
         return self._content
@@ -360,7 +360,6 @@ class TxtUtils:
         data = self.get_source()
         new_data = data.replace(old, new)
         self.set_msg(new_data)
-
 
 
 """
@@ -459,21 +458,21 @@ class ButtonMethod(uiautomation.ButtonControl, Method):
         """
         Toggle or Invoke button with build-in method instead of Click
         """
-        if self.IsTogglePatternAvailable():
+        if self.GetTogglePattern() is not None:
             self.SetFocus()
-            self.Toggle(waitTime)
-        elif self.IsInvokePatternAvailable():
+            self.GetTogglePattern().Toggle(waitTime)
+        elif self.GetInvokePattern() is not None:
             self.SetFocus()
-            self.Invoke(waitTime)
+            self.GetInvokePattern().Invoke(waitTime)
         else:
             self.SetFocus()
 
     def GetStatus(self):
         if not self.Exists():
             print("Button not Found, Please Double check your parameter!!")
-            return
-        if self.IsTogglePatternAvailable():
-            return self.CurrentToggleState()
+            return None
+        if self.GetTogglePattern() is not None:
+            return self.GetTogglePattern().ToggleState
         else:
             return None
 
@@ -481,12 +480,13 @@ class ButtonMethod(uiautomation.ButtonControl, Method):
         if not self.Exists():
             print("Button not Found, Please Double check your parameter!!")
             return
-        if self.IsTogglePatternAvailable():
-            if self.CurrentToggleState():
+        toggle_pattern = self.GetTogglePattern()
+        if toggle_pattern is not None:
+            if toggle_pattern.ToggleState:
                 return
             else:
                 self.SetFocus()
-                self.Click()
+                toggle_pattern.Toggle()
         else:
             print('Button do not support Enable method')
 
@@ -494,10 +494,11 @@ class ButtonMethod(uiautomation.ButtonControl, Method):
         if not self.Exists():
             print("Button not Found, Please Double check your parameter!!")
             return
-        if self.IsTogglePatternAvailable():
-            if self.CurrentToggleState():
+        toggle_pattern = self.GetTogglePattern()
+        if toggle_pattern is not None:
+            if toggle_pattern.ToggleState:
                 self.SetFocus()
-                self.Click()
+                toggle_pattern.Toggle()
             else:
                 return
         else:
@@ -615,7 +616,7 @@ class TabItemMethod(uiautomation.TabItemControl, Method):
     def __init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=0.5, foundIndex=1,
                  **searchPorpertyDict):
         uiautomation.TabItemControl.__init__(self, element, searchFromControl, searchDepth, searchWaitTime, foundIndex,
-                                              **searchPorpertyDict)
+                                             **searchPorpertyDict)
 
     def GetListCount(self):
         if not self.Exists():
@@ -766,4 +767,3 @@ def getElementByType(controltype, **kwargs):
         return TabMethod(**kwargs)
     elif controltype.upper() == "TABITEM":
         return TabItemMethod(**kwargs)
-
