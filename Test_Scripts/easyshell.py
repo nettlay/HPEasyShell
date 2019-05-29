@@ -912,13 +912,14 @@ class Shell_Application(EasyShellTest):
                 else:
                     continue
             for i in range(10):
-                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(1, 1):
+                print(EasyShell_Wnd['MAIN_WINDOW'], '----------------')
+                if not EasyShell_Wnd['MAIN_WINDOW'].Exists(searchIntervalSeconds=1):
                     time.sleep(1)
                     continue
                 else:
                     print('app get window')
                     break
-            if not getElement('KiosMode').Exists(0, 0):
+            if not getElement('KioskMode').Exists(0, 0):
                 self.Logfile('EasyShell is not launch correctly')
                 return False
             getElement('KioskMode').Enable()
@@ -981,6 +982,7 @@ class Shell_Application(EasyShellTest):
             return True
         except:
             self.Logfile("[FAIL]:App {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
+            raise
             return False
 
     def edit(self, newProfile, oldProfile):
@@ -1773,6 +1775,6 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_Application().CheckApp('test1')
+    Shell_Application().create('test1')
     # Shell_StoreFront().CreateStoreFront('standardStore')
     pass

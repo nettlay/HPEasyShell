@@ -708,10 +708,8 @@ class TreeItemMethod(uiautomation.TreeItemControl, Method):
 
 
 class WindowMethod(uiautomation.WindowControl, Method):
-    def __init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=1, foundIndex=1,
-                 **searchPorpertyDict):
-        uiautomation.WindowControl.__init__(self, element, searchFromControl, searchDepth, searchWaitTime, foundIndex,
-                                            **searchPorpertyDict)
+    def __init__(self, searchFromControl= None, searchDepth= 0xFFFFFFFF, searchWaitTime= 1, foundIndex= 1, element =None, **searchProperties):
+        uiautomation.WindowControl.__init__(self, searchFromControl,searchDepth, searchWaitTime,  foundIndex, element, **searchProperties)
 
 
 class ProgressBarMethod(uiautomation.ProgressBarControl, Method):
