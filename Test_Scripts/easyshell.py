@@ -1100,9 +1100,8 @@ class Shell_Websites(EasyShellTest):
 
     #   ---------------- Website Creation --------------------------
     def CreateWebsite(self, profile):
-        with open(os.path.join(self.data, "easyshell_testdata.yaml")) as f:
-            test = yaml.safe_load(f)
-            test = test['createWebsites'][profile]
+        try:
+            test = self.sections['createWebsites'][profile]
             Name = test["Name"]
             Address = test['Address']
             DefaultHome = test['DefaultHome']
@@ -1178,6 +1177,9 @@ class Shell_Websites(EasyShellTest):
             except:
                 self.Logfile("[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
                 return False
+        except:
+            self.Logfile("[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
+            return False
 
     # ---------------- Website Check --------------------------------------
     def CheckWebsite(self, profile):
@@ -1716,10 +1718,11 @@ class TaskSwitcher(EasyShellTest):
 
 if __name__ == '__main__':
     # Shell_Application().create('test2')
-    Shell_Application().check('test2')
-    CommonUtils.SwitchToUser()
-    CommonUtils.Reboot()
-    CommonUtils.SwitchToAdmin()
-    # Shell_Application().edit('test2', 'test1')
-    Shell_Application().utils('standardApp', 'Exist')
+    # Shell_Application().check('test2')
+    # CommonUtils.SwitchToUser()
+    # CommonUtils.Reboot()
+    # CommonUtils.SwitchToAdmin()
+    # # Shell_Application().edit('test2', 'test1')
+    # Shell_Application().utils('standardApp', 'Exist')
+    UserInterfacSettings().modify('test3')
     pass

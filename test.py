@@ -1,5 +1,4 @@
-import uiautomation
+from Test_Scripts.EasyShell_Lib import *
 
-wnd = uiautomation.WindowControl(RegexName='Administrator: Command Prompt.*')
-print(wnd)
-wnd.GetWindowPattern().Close()
+time.sleep(3)
+getElement('DisplayAddress').Click()

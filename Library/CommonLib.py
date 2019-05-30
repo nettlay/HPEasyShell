@@ -411,8 +411,13 @@ class ButtonControl(Control):
             if toggle_pattern.ToggleState:
                 return
             else:
-                self.SetFocus()
-                toggle_pattern.Toggle()
+            # sometimes toggle method will not affect ui except clicking
+            # but sometimes button is offscreen, so firstly setfocus
+                if self.IsOffscreen:
+                    toggle_pattern.Toggle()
+                else:
+                    self.SetFocus()
+                    self.Click()
         else:
             print('Button do not support Enable Control')
 
@@ -423,8 +428,13 @@ class ButtonControl(Control):
         toggle_pattern = self.GetTogglePattern()
         if toggle_pattern is not None:
             if toggle_pattern.ToggleState:
-                self.SetFocus()
-                toggle_pattern.Toggle()
+                # sometimes toggle method will not affect ui except clicking
+                # but sometimes button is offscreen, so firstly setfocus
+                if self.IsOffscreen:
+                    toggle_pattern.Toggle()
+                else:
+                    self.SetFocus()
+                    self.Click()
             else:
                 return
         else:

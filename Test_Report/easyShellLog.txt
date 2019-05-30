@@ -1,1 +1,6 @@
-
+[Thu May 30 22:17:52 2019]:---------Begin To Test Modify settings----------
+[Thu May 30 22:18:11 2019]:[PASS] Modify user interface settings
+[Thu May 30 22:24:13 2019]:---------Begin To Test Modify settings----------
+[Thu May 30 22:24:35 2019]:[PASS] Modify user interface settings
+[Thu May 30 22:25:45 2019]:---------Begin To Test Modify settings----------
+[Thu May 30 22:26:11 2019]:[PASS] Modify user interface settings
