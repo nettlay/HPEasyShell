@@ -74,7 +74,7 @@ createWebsites:
         EmbedIE: False
         AllCloseEmbedIE: False
 createApp:
-    test1: 
+    persistent:
         WindowName: Untitled - Notepad
         Name: Notepad
         Path: 
@@ -100,7 +100,7 @@ createApp:
         Maximized: 1
         Adminonly: 0
         Hidemissapp: 0
-    test3: 
+    argument:
         WindowName: HP DTO Performance test Test_Scripts query - Internet Explorer
         Name: IExplore
         Path: 
@@ -141,7 +141,7 @@ createApp:
         Maximized: 1
         Adminonly: 0
         Hidemissapp: 0
-    test6: 
+    launchdelay:
         WindowName: VMware Horizon Client
         Name: VMware
         Path: 
@@ -150,12 +150,12 @@ createApp:
         Argument: None
         Launchdelay: 20
         Exitaction: None
-        Autolaunch: 1
+        Autolaunch: 0
         Persistent: 1
         Maximized: 1
         Adminonly: 0
         Hidemissapp: 0
-    test7: 
+    adminonly:
         WindowName: Untitled - Notepad
         Name: Notepad-AdminOnly
         Path: 

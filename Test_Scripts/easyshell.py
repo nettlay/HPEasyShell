@@ -778,8 +778,8 @@ class Background(EasyShellTest):
 
 
 class Shell_Application(EasyShellTest):
-    def __init__(self):
-        EasyShellTest.__init__(self)
+    # def __init__(self):
+    #     EasyShellTest.__init__(self)
 
     # --------------- Applications Creation --------------------
     def check(self, profile):
@@ -1715,6 +1715,11 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_Application().create('test1')
-    Shell_Application().edit('test2', 'test1')
+    # Shell_Application().create('test2')
+    Shell_Application().check('test2')
+    CommonUtils.SwitchToUser()
+    CommonUtils.Reboot()
+    CommonUtils.SwitchToAdmin()
+    # Shell_Application().edit('test2', 'test1')
+    Shell_Application().utils('standardApp', 'Exist')
     pass

@@ -15,13 +15,17 @@ class Test:
 
     def test(self):
         wb = load_workbook(self.testset)
-        sheets = wb.get_sheet_names()  # 获得表单名字
-        ws = wb.get_sheet_by_name(sheets[0])
+        sheets = wb.sheetnames  # 获得表单名字
+        ws = wb[sheets[0]]
         rows = ws.max_row
         for i in range(2, rows + 1):
             self.result = True
             testName = ws.cell(row=i, column=1).value
             result = ws.cell(row=i, column=2).value
+            if testName is None:
+                break
+            if '#' in testName:
+                continue
             if result == 'PASS' or result == 'FAIL' or result == 'N/A':
                 continue
             else:
@@ -36,14 +40,18 @@ class Test:
 
     def runTestcase(self, name):
         wb = load_workbook(name)
-        sheets = wb.get_sheet_names()  # 获得表单名字
-        ws = wb.get_sheet_by_name(sheets[0])
+        sheets = wb.sheetnames  # 获得表单名字
+        ws = wb[sheets[0]]
         rows = ws.max_row
         for i in range(2, rows + 1):
             checkPoint = ws.cell(row=i, column=1).value
             result = ws.cell(row=i, column=4).value
             command = ws.cell(row=i, column=2).value
             value = ws.cell(row=i, column=3).value
+            if '#' in checkPoint:
+                continue
+            if checkPoint is None:
+                break
             if result == 'PASS':
                 continue
             if result == 'FAIL':
