@@ -1,1 +1,5 @@
-from Test_Scripts.easyshell import *
+import uiautomation
+
+wnd = uiautomation.WindowControl(RegexName='Administrator: Command Prompt.*')
+print(wnd)
+wnd.GetWindowPattern().Close()

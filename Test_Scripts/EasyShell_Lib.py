@@ -1,4 +1,4 @@
-from Library.QAUIutils import *
+from Library.CommonLib import *
 
 if not os.path.exists('c:\\svc'):
     os.mkdir("C:\\svc")
@@ -10,11 +10,15 @@ file_path = os.path.dirname(file_path)
 ElementlibPath = os.path.join(file_path, 'Configuration\\elementLib.ini')
 
 
-def getElementMapping(filepath=ElementlibPath):  # ElementlibPath
+def getElementMapping(filepath=ElementlibPath):
+    """
     # element format:
     # define name:"name":automationid:controltype
     # eg.: OKButton:"OK":Button----->By name
     #      CancelButton:btnCancel:Button----->By automationId
+    :param filepath: ElementlibPath
+    :return: element
+    """
     mappingDict = {}
     lines = TxtUtils(filepath).get_lines()
     for line in lines:
@@ -38,9 +42,6 @@ def getElement(name):
 
 
 class CommonUtils(QAUtils):
-    def __init__(self):
-        pass
-
     @staticmethod
     def SwitchToUser():
         QAUtils.SwitchUser("User", "User", "")
@@ -48,10 +49,6 @@ class CommonUtils(QAUtils):
     @staticmethod
     def SwitchToAdmin():
         QAUtils.SwitchUser("Admin", "Admin", "")
-
-    @staticmethod
-    def GetFileList(file):
-        return QAUtils.GetListFromFile(file)
 
     @staticmethod
     def launchFromControl():
