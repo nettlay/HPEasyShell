@@ -1,6 +1,4 @@
-[Thu May 30 22:17:52 2019]:---------Begin To Test Modify settings----------
-[Thu May 30 22:18:11 2019]:[PASS] Modify user interface settings
-[Thu May 30 22:24:13 2019]:---------Begin To Test Modify settings----------
-[Thu May 30 22:24:35 2019]:[PASS] Modify user interface settings
-[Thu May 30 22:25:45 2019]:---------Begin To Test Modify settings----------
-[Thu May 30 22:26:11 2019]:[PASS] Modify user interface settings
+[Fri May 31 16:03:00 2019]:[PASS]: Create RDP Connection edit_RFXWin10
+[Fri May 31 16:05:02 2019]:[PASS]: Create RDP Connection standard_RFXWin10
+[Fri May 31 16:06:53 2019]:[PASS]: Create RDP Connection standard_RFXWin10
+[Fri May 31 16:07:53 2019]:[PASS]: Create RDP Connection standard_RFXWin10

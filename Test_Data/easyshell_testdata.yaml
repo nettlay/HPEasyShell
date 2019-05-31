@@ -74,22 +74,22 @@ createWebsites:
         EmbedIE: False
         AllCloseEmbedIE: False
 createApp:
-    persistent:
+    launch:
         WindowName: Untitled - Notepad
-        Name: Notepad
+        Name: Manual_launch
         Path: 
             - C:\windows\system32\notepad.exe
         Argument: None
-        Launchdelay: 20
+        Launchdelay: None
         Exitaction: None
         Autolaunch: 0
         Persistent: 0
         Maximized: 0
         Adminonly: 0
         Hidemissapp: 0
-    test2: 
+    persistent:
         WindowName: C:\\windows\\system32\\cmd.exe
-        Name: CMD
+        Name: persistent
         Path: 
             - C:\windows\system32\cmd.exe
         Argument: None
@@ -102,7 +102,7 @@ createApp:
         Hidemissapp: 0
     argument:
         WindowName: HP DTO Performance test Test_Scripts query - Internet Explorer
-        Name: IExplore
+        Name: IExplore_argument
         Path: 
             - C:\Program Files\internet explorer\iexplore.exe
         Argument: http://15.83.240.126
@@ -127,9 +127,9 @@ createApp:
         Maximized: 1
         Adminonly: 0
         Hidemissapp: 0
-    test5: 
+    autolaunch:
         WindowName: Foxit Reader
-        Name: FoxitReader
+        Name: FoxitReader_autolaunch
         Path: 
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
             - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
@@ -168,7 +168,7 @@ createApp:
         Maximized: 0
         Adminonly: 1
         Hidemissapp: 0
-    test8: 
+    hidenmissapp:
         WindowName: Administrator.*
         Name: CMD-HideMissApp
         Path: 
@@ -176,14 +176,14 @@ createApp:
         Argument: None
         Launchdelay: None
         Exitaction: None
-        Autolaunch: 1
+        Autolaunch: 0
         Persistent: 1
         Maximized: 1
         Adminonly: 0
         Hidemissapp: 1
     editApp: 
         WindowName: Foxit Reader
-        Name: FoxitReaderModified
+        Name: FoxitReader_edit
         Path: 
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
             - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
@@ -479,18 +479,28 @@ userSettings:
     - AllowIEProperty:OFF
     - AllowWifiConfig:OFF
 createRDP:
-    test1:
-        Name: RFXWin10
+    standardRDP:
+        Name: standard_RFXWin10
         Hostname: rfxw10-1.sh.dto
         Username: zhao.sam
         Launchdelay: 0
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
+        Customfile: OFF
+    editRDP:
+        Name: edit_RFXWin10
+        Hostname: rfxw10-1.sh.dto
+        Username: zhao.sam
+        Launchdelay: 0
+        Arguments: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Customfile: C:\Users\chengba\Documents\Default.rdp
 createView:
     standardView:
         Name: standardView
-        Hostname: xd562svr01.sh.dto
+        Hostname: fcxds.sh.dto
         Launchdelay: 0
         Argument: None
         Autolaunch: OFF
@@ -502,6 +512,41 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
+    editView:
+        Name: editView
+        Hostname: fcxds.sh.dto
+        Launchdelay: 5
+        Argument: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Layout: fullscreen
+        ConnUSBStartup: OFF
+        ConnUSBInsertion: OFF
+        Username: zhao.sam
+        Password: zhao123
+        Domain: sh.dto
+        DesktopName: None
+createCitrix:
+    standardCitrix:
+        Name: standard_citrix
+        Hostname: xd562svr01.sh.dto
+        Username: zhao.sam
+        Domain: sh.dto
+        Launchdelay: 0
+        Autolaunch: OFF
+        Persistent: OFF
+        Remotesize: Full screen
+        Remotecolor: True color
+    editCitrix:
+        Name: editCitrix
+        Hostname: xd562svr01.sh.dto
+        Username: zhao.sam
+        Domain: sh.dto
+        Launchdelay: 5
+        Autolaunch: OFF
+        Persistent: OFF
+        Remotesize: Full screen
+        Remotecolor: True color
 createStoreFront:
     standardStore:
         Name: standardStore

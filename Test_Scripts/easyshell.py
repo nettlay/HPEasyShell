@@ -15,6 +15,7 @@ class EasyShellTest:
     def __init__(self):
         # ------- test root folder - ------------------
         self.path = file_path
+        self.section_name = ''
         #  ---------------------------------
         self.log_path = os.path.join(self.path, 'Test_Report')
         self.misc = os.path.join(self.path, 'Misc')
@@ -47,7 +48,7 @@ class EasyShellTest:
         :return: Bool
         """
         time.sleep(3)
-        test = self.sections['createApp'][profile]
+        test = self.sections[self.section_name][profile]
         name = test["Name"]
         if op.upper() == 'NOTEXIST':
             if TextControl(Name=name).Exists(0, 0):
@@ -778,8 +779,9 @@ class Background(EasyShellTest):
 
 
 class Shell_Application(EasyShellTest):
-    # def __init__(self):
-    #     EasyShellTest.__init__(self)
+    def __init__(self):
+        EasyShellTest.__init__(self)
+        self.section_name = 'createApp'
 
     # --------------- Applications Creation --------------------
     def check(self, profile):
@@ -1097,6 +1099,7 @@ class Shell_Application(EasyShellTest):
 class Shell_Websites(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
+        self.section_name = 'createWebsites'
 
     #   ---------------- Website Creation --------------------------
     def CreateWebsite(self, profile):
@@ -1428,6 +1431,7 @@ class Shell_Websites(EasyShellTest):
 class Shell_StoreFront(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
+        self.section_name = 'createStoreFront'
 
     # ----------------- StoreFront connection creation ----------------------------
     def CreateStoreFront(self, profile):
@@ -1535,11 +1539,11 @@ class Shell_StoreFront(EasyShellTest):
 class Shell_View(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
+        self.section_name = 'createView'
 
     # ----------------- VMWare view connection Creation ----------------------------
-    def CreateView(self, profile):
-        test = YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
-        test = test['createView'][profile]
+    def create(self, profile):
+        test = self.sections['createView'][profile]
         Name = test["Name"]
         Hostname = test['Hostname']
         Launchdelay = test['Launchdelay']
@@ -1625,12 +1629,195 @@ class Shell_View(EasyShellTest):
 class Shell_RDP(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
+        self.section_name = 'createRDP'
+
+    def create(self, profile):
+        test = self.sections[self.section_name][profile]
+        name = test["Name"]
+        hostname = test['Hostname']
+        username = test['Username']
+        launchdelay = str(test['Launchdelay'])
+        arguments = test['Arguments']
+        autolaunch = test['Autolaunch']
+        persistent = test['Persistent']
+        customfile = test['Customfile']
+        try:
+            for app_path in self.appPath:
+                if os.path.exists(app_path):
+                    CommonUtils.LaunchAppFromFile(app_path)
+                else:
+                    continue
+            EasyShell_Wnd['MAIN_WINDOW'].Exists(10, 3)
+            getElement('KioskMode').Enable()
+            getElement('DisplayTitle').Enable()
+            getElement('DisplayConnections').Enable()
+            getElement('Connections').Click()
+            if self.utils(profile, 'exist', 'connection'):
+                self.utils(profile, 'Delete', 'connection')
+            getElement('RDPAdd').Click()
+            time.sleep(5)
+            getElement('RDPName').SetValue(name)
+            getElement('RDPHostname').SetValue(hostname)
+            getElement('RDPUsername').SetValue(username)
+            getElement('RDPLaunchDelay').SetValue(launchdelay)
+            if not arguments == 'None' or not arguments is not None:
+                getElement('RDPArguments').SetValue(arguments)
+            if autolaunch == 'OFF' or not autolaunch:
+                getElement('RDPAutoLaunch').Disable()
+            else:
+                getElement('RDPAutoLaunch').Enable()
+            if persistent == 'OFF' or not persistent:
+                getElement('RDPPersistent').Disable()
+            else:
+                getElement('RDPPersistent').Enable()
+            if customfile == 'OFF' or not customfile:
+                getElement('RDPCustomFile').Disable()
+            else:
+                getElement('RDPCustomFile').Enable()
+                getElement('RDPSelectFile').Click()
+                getElement('RDPBrowserFile').SetValue(customfile)
+                getElement('RDPBrowserOpen').Click()
+            getElement('OKButton').Click()
+            getElement('APPLY').Click()
+            self.Logfile('[PASS]: Create RDP Connection {}'.format(name))
+        except:
+            self.Logfile('[Fail]: Create RDP Connection {}\n{}'.format(name, traceback.format_exc()))
 
 
 class Shell_Citrix(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
+        self.section_name = 'createCitrix'
 
+    def create(self, profile):
+        test = self.sections[self.section_name][profile]
+        name = test["Name"]
+        hostname = test['Hostname']
+        username = test['Username']
+        domain = test['Domain']
+        launchdelay = str(test['Launchdelay'])
+        autolaunch = test['Autolaunch']
+        persistent = test['Persistent']
+        remotesize = test['Remotesize']
+        remotecolor = test['Remotecolor']
+        try:
+            for app_path in self.appPath:
+                if os.path.exists(app_path):
+                    CommonUtils.LaunchAppFromFile(app_path)
+                else:
+                    continue
+            EasyShell_Wnd['MAIN_WINDOW'].Exists(10, 3)
+            getElement('KioskMode').Enable()
+            getElement('DisplayTitle').Enable()
+            getElement('DisplayConnections').Enable()
+            getElement('Connections').Click()
+            if self.utils(profile, 'exist', 'connection'):
+                self.utils(profile, 'Delete', 'connection')
+            getElement('CitrixICAAdd').Click()
+            time.sleep(5)
+            SendKeys(name)
+            SendKey(Keys.VK_TAB)
+            SendKeys(hostname)
+            SendKey(Keys.VK_TAB)
+            SendKeys(str(username))
+            SendKey(Keys.VK_TAB)
+            SendKeys(domain)
+            CommonUtils.SendKey(Keys.VK_TAB, count=2)
+            SendKey(Keys.VK_DELETE)
+            SendKeys(launchdelay)
+            SendKey(Keys.VK_TAB)
+            if autolaunch == 'OFF' or not autolaunch:
+                SendKey(Keys.VK_TAB)
+            else:
+                SendKey(Keys.VK_SPACE)
+                SendKey(Keys.VK_TAB)
+            if persistent == 'OFF' or not persistent:
+                SendKey(Keys.VK_TAB)
+            else:
+                SendKey(Keys.VK_SPACE)
+                SendKey(Keys.VK_TAB)
+            SendKey(Keys.VK_SPACE)
+            getElement('APPLY').Click()
+            self.Logfile('[PASS]: Citrix Connection {} Create'.format(name))
+            return True
+        except:
+            self.Logfile("[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
+            return False
+
+    def edit(self, newprofile, oldprofile):
+        try:
+            new = self.sections[self.section_name][newprofile]
+            newname = new["Name"]
+            newhostname = new['Hostname']
+            newusername = new['Username']
+            newdomain = new['Domain']
+            newlaunchdelay = str(new['Launchdelay'])
+            newautolaunch = new['Autolaunch']
+            newpersistent = new['Persistent']
+            old = self.sections['createCitrix'][oldprofile]
+            oldname = old["Name"]
+            oldhostname = old['Hostname']
+            oldusername = old['Username']
+            oldautolaunch = old['Autolaunch']
+            oldpersistent = old['Persistent']
+            for app_path in self.appPath:
+                if os.path.exists(app_path):
+                    CommonUtils.LaunchAppFromFile(app_path)
+                    break
+                else:
+                    continue
+            EasyShell_Wnd['MAIN_WINDOW'].Exists(10, 2)
+            getElement('KioskMode').Enable()
+            getElement('DisplayTitle').Enable()
+            getElement('DisplayConnections').Enable()
+            getElement('Connections').Click()
+            if self.utils(newprofile, 'exist', 'connection'):
+                self.utils(newprofile, 'delete', 'connection')
+            if self.utils(oldprofile, 'exist', 'connection'):
+                self.utils(oldprofile, 'Edit', 'connection')
+            else:
+                self.Logfile('[Fail]:Old CitrixICA {} do not exist'.format(oldname))
+                return False
+            time.sleep(5)
+            ClearContent(len(oldname)+5)
+            SendKeys(newname)
+            SendKey(Keys.VK_TAB)
+            ClearContent(len(oldhostname)+5)
+            SendKeys(newhostname)
+            SendKey(Keys.VK_TAB)
+            ClearContent(len(oldusername)+5)
+            SendKeys(newusername)
+            SendKey(Keys.VK_TAB)
+            ClearContent(10)
+            SendKeys(newdomain)
+            SendKey(Keys.VK_TAB)
+            SendKey(Keys.VK_TAB)
+            ClearContent(5)
+            SendKeys(newlaunchdelay)
+            SendKey(Keys.VK_TAB)
+            if newautolaunch == oldautolaunch:
+                SendKey(Keys.VK_TAB)
+            else:
+                SendKey(Keys.VK_SPACE)
+                SendKey(Keys.VK_TAB)
+            if newpersistent == oldpersistent:
+                SendKey(Keys.VK_TAB)
+            else:
+                SendKey(Keys.VK_SPACE)
+                SendKey(Keys.VK_TAB)
+            SendKey(Keys.VK_SPACE)
+            getElement('APPLY').Click()
+            self.Logfile('[PASS]: Citrix Connection {} Edit'.format(oldname))
+        except:
+            self.Logfile('[Failed]: Citrix Connection {} Edit\n{}'.format(oldname, traceback.format_exc()))
+
+    def check(self, profile):
+        if self.utils(profile, 'exist', 'connection'):
+            self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
+            return True
+        else:
+            self.Logfile('[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
+            return False
 
 class TaskSwitcher(EasyShellTest):
     def __init__(self):
@@ -1717,12 +1904,5 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_Application().create('test2')
-    # Shell_Application().check('test2')
-    # CommonUtils.SwitchToUser()
-    # CommonUtils.Reboot()
-    # CommonUtils.SwitchToAdmin()
-    # # Shell_Application().edit('test2', 'test1')
-    # Shell_Application().utils('standardApp', 'Exist')
-    UserInterfacSettings().modify('test3')
+    Shell_RDP().create('standardRDP')
     pass

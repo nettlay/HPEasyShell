@@ -441,6 +441,36 @@ class ButtonControl(Control):
             print('Button do not support Disable Control')
 
 
+class EditControl(Control):
+    def __init__(self, searchFromControl: Control = None, searchDepth: int = 0xFFFFFFFF, searchWaitTime: float = SEARCH_INTERVAL, foundIndex: int = 1, element=None, **searchProperties):
+        Control.__init__(self, searchFromControl, searchDepth, searchWaitTime, foundIndex, element, **searchProperties)
+        self.AddSearchProperties(ControlType=ControlType.EditControl)
+
+    def GetRangeValuePattern(self) -> RangeValuePattern:
+        """
+        Return `RangeValuePattern` if it supports the pattern else None(Conditional support according to MSDN).
+        """
+        return self.GetPattern(PatternId.RangeValuePattern)
+
+    def GetTextPattern(self) -> TextPattern:
+        """
+        Return `TextPattern` if it supports the pattern else None(Conditional support according to MSDN).
+        """
+        return self.GetPattern(PatternId.TextPattern)
+
+    def GetValuePattern(self) -> ValuePattern:
+        """
+        Return `ValuePattern` if it supports the pattern else None(Conditional support according to MSDN).
+        """
+        return self.GetPattern(PatternId.ValuePattern)
+
+    def SetValue(self, value):
+        self.GetValuePattern().SetValue(value)
+
+    def GetValue(self):
+        return self.GetValuePattern().Value
+
+
 class TextControl(Control):
     def __init__(self, searchFromControl: Control = None, searchDepth: int = 0xFFFFFFFF,
                  searchWaitTime: float = SEARCH_INTERVAL, foundIndex: int = 1, element=None, **searchProperties):
