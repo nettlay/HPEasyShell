@@ -29,15 +29,15 @@ def getElementMapping(filepath=ElementlibPath):
     return mappingDict
 
 
-def getElement(name):
+def getElement(name, **kwargs):
     # name is defined name, format: defined name:"Name"/AutomationId:ControlType
     elementId = getElementMapping()[name].split(':')[0]
     controltype = getElementMapping()[name].split(':')[1].upper()
     if elementId.__contains__('"'):
-        element = getElementByType(controltype, Name=elementId.replace('"', ''))
+        element = getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
         return element
     else:
-        element = getElementByType(controltype, AutomationId=elementId)
+        element = getElementByType(controltype, AutomationId=elementId, **kwargs)
         return element
 
 

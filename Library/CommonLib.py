@@ -515,48 +515,49 @@ class TextControl(Control):
 
 
 def getElementByType(controlType, **kwargs):
+    # print(controlType, **kwargs)
     if controlType.upper() == "HYPERLINK":
         return HyperlinkControl(**kwargs)
     elif controlType.upper() == 'IMAGE':
-        ImageControl(**kwargs)
+        return ImageControl(**kwargs)
     elif controlType.upper() == 'APPBAR':
-        AppBarControl(**kwargs)
+        return AppBarControl(**kwargs)
     elif controlType.upper() == 'CALENDAR':
-        CalendarControl(**kwargs)
+        return CalendarControl(**kwargs)
     elif controlType.upper() == 'CUSTOM':
-        CustomControl(**kwargs)
+        return CustomControl(**kwargs)
     elif controlType.upper() == 'DOCUMENT':
-        DocumentControl(**kwargs)
+        return DocumentControl(**kwargs)
     elif controlType.upper() == 'GROUP':
-        GroupControl(**kwargs)
+        return GroupControl(**kwargs)
     elif controlType.upper() == 'HEADER':
-        HeaderControl(**kwargs)
+        return HeaderControl(**kwargs)
     elif controlType.upper() == 'HEADERITEM':
-        HeaderItemControl(**kwargs)
+        return HeaderItemControl(**kwargs)
     elif controlType.upper() == 'SPINNER':
-        SpinnerControl(**kwargs)
+        return SpinnerControl(**kwargs)
     elif controlType.upper() == 'SLIDER':
-        SliderControl(**kwargs)
+        return SliderControl(**kwargs)
     elif controlType.upper() == 'SEPARATOR':
-        SeparatorControl(**kwargs)
+        return SeparatorControl(**kwargs)
     elif controlType.upper() == 'SEMANTICZOOM':
-        SemanticZoomControl(**kwargs)
+        return SemanticZoomControl(**kwargs)
     elif controlType.upper() == 'MENUITEM':
-        MenuItemControl(**kwargs)
+        return MenuItemControl(**kwargs)
     elif controlType.upper() == 'MENU':
-        MenuControl(**kwargs)
+        return MenuControl(**kwargs)
     elif controlType.upper() == 'MENUBAR':
-        MenuBarControl(**kwargs)
+        return MenuBarControl(**kwargs)
     elif controlType.upper() == 'TABLE':
-        TableControl(**kwargs)
+        return TableControl(**kwargs)
     elif controlType.upper() == 'STATUSBAR':
-        StatusBarControl(**kwargs)
+        return StatusBarControl(**kwargs)
     elif controlType.upper() == 'SPLITBUTTON':
-        SplitButtonControl(**kwargs)
+        return SplitButtonControl(**kwargs)
     elif controlType.upper() == 'THUMB':
-        ThumbControl(**kwargs)
+        return ThumbControl(**kwargs)
     elif controlType.upper() == 'TITLEBAR':
-        TitleBarControl(**kwargs)
+        return TitleBarControl(**kwargs)
     elif controlType.upper() == 'TOOLTIP':
         return ToolTipControl(**kwargs)
     elif controlType.upper() == "BUTTON":
