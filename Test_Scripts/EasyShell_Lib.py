@@ -1,4 +1,6 @@
-from Library.CommonLib import *
+from Library.CommonLib import QAUtils, TxtUtils, getElementByType
+import os
+import time
 
 if not os.path.exists('c:\\svc'):
     os.mkdir("C:\\svc")
@@ -30,15 +32,26 @@ def getElementMapping(filepath=ElementlibPath):
 
 
 def getElement(name, **kwargs):
+    print(name)
     # name is defined name, format: defined name:"Name"/AutomationId:ControlType
     elementId = getElementMapping()[name].split(':')[0]
     controltype = getElementMapping()[name].split(':')[1].upper()
     if elementId.__contains__('"'):
-        element = getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
-        return element
+        for i in range(3):
+            if getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs).Exists():
+                return getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
+            else:
+                time.sleep(1)
+                continue
+        print('{} not exist'.format(elementId))
     else:
-        element = getElementByType(controltype, AutomationId=elementId, **kwargs)
-        return element
+        for i in range(3):
+            if getElementByType(controltype, AutomationId=elementId, **kwargs).Exists():
+                return getElementByType(controltype, AutomationId=elementId, **kwargs)
+            else:
+                time.sleep(1)
+                continue
+        print('{} not exist'.format(elementId))
 
 
 class CommonUtils(QAUtils):
@@ -63,11 +76,11 @@ class CommonUtils(QAUtils):
         os.system('msiexec.exe /q /i {}'.format(path))
 
 
-EasyShell_Wnd = {
-    'MAIN_WINDOW': getElement('MAIN_WINDOW'),
-    'TASK_SWITCHER': getElement('TASK_SWITCHER'),
-    'WIFI_SELECTION': getElement('WIFI_SELECTION')
-}
+class EasyShell_Wnd:
+    MAIN_WINDOW = getElement('MAIN_WINDOW')
+    TASK_SWITCHER = getElement('TASK_SWITCHER')
+    WIFI_SELECTION = getElement('WIFI_SELECTION')
+
 
 UserKiosk_Dict = {
     'TaskSwitcher': getElement('TASK_SWITCHER'),

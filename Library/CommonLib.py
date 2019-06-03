@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import socket
 from uiautomation import *
+import uiautomation
 import os
 import time
 import win32api
@@ -124,15 +125,6 @@ class QAUtils:
     @staticmethod
     def Wait(waitTime=3):
         time.sleep(waitTime)
-
-    @staticmethod
-    def SendKeys(keys, waitTime=0.1):
-        return SendKeys(keys, waitTime=waitTime)
-
-    @staticmethod
-    def SendKey(key, waitTime=0.1, count=1):
-        for t in range(count):
-            SendKey(key, waitTime=waitTime)
 
     @staticmethod
     def ControlFromCursor():
@@ -512,6 +504,11 @@ class TextControl(Control):
             return True
         else:
             return False
+
+
+def SendKey(key, waitTime=0.1, count=1):
+    for t in range(count):
+        uiautomation.SendKey(key, waitTime=waitTime)
 
 
 def getElementByType(controlType, **kwargs):

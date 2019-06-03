@@ -1,4 +1,0 @@
-[Fri May 31 16:03:00 2019]:[PASS]: Create RDP Connection edit_RFXWin10
-[Fri May 31 16:05:02 2019]:[PASS]: Create RDP Connection standard_RFXWin10
-[Fri May 31 16:06:53 2019]:[PASS]: Create RDP Connection standard_RFXWin10
-[Fri May 31 16:07:53 2019]:[PASS]: Create RDP Connection standard_RFXWin10

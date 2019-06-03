@@ -2,24 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2e7eafaa-ccd5-4388-abca-fa912547eb71" name="Default Changelist" comment="add autolist">
-      <change afterPath="$PROJECT_DIR$/.idea/HPEasyShell.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Configuration/elementLib.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Configuration/elementLib.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Library/CommonLib.py" beforeDir="false" afterPath="$PROJECT_DIR$/Library/CommonLib.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Data/easyshell_testdata.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Data/easyshell_testdata.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Test_Report/easyShellLog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Report/easyShellLog.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Test_Scripts/easyshell.py" beforeDir="false" afterPath="$PROJECT_DIR$/Test_Scripts/easyshell.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/adminonly.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/argument.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/deleteapp.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/editapp.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/launchdelay.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Test_Suite/persistent.xlsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/autolist.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/autolist.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../Rewrite-ThinPro7.1/Test_Suite/XenDesktop_Storefront_win10__USB_key_USBR.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Rewrite-ThinPro7.1/Test_Suite/XenDesktop_Storefront_win10__USB_key_USBR.py" afterDir="false" />
     </list>
@@ -34,20 +21,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="6" column="39" lean-forward="true" selection-start-line="6" selection-start-column="39" selection-end-line="6" selection-end-column="39" />
-              <folding>
-                <element signature="e#0#40#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="136">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Configuration/elementLib.ini">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="663">
-              <caret line="114" column="43" selection-start-line="114" selection-start-column="43" selection-end-line="114" selection-end-column="43" />
+            <state relative-caret-position="61">
+              <caret line="77" column="38" lean-forward="true" selection-start-line="77" selection-start-column="38" selection-end-line="77" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -55,41 +39,22 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Test_Scripts/easyshell.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="593">
-              <caret line="1904" lean-forward="true" selection-start-line="1904" selection-end-line="1904" />
+            <state relative-caret-position="392">
+              <caret line="1807" column="17" lean-forward="true" selection-start-line="1807" selection-start-column="17" selection-end-line="1807" selection-end-column="17" />
               <folding>
-                <element signature="e#0#40#0" expanded="true" />
-                <element signature="e#1364#2861#0" />
-                <element signature="e#1395#20861#0" />
-                <element signature="e#20903#32593#0" />
-                <element signature="e#32633#35576#0" />
-                <element signature="e#35787#40528#0" />
-                <element signature="e#42475#46614#0" />
-                <element signature="e#51065#66723#0" />
-                <element signature="e#66769#71180#0" />
-                <element signature="e#71220#74962#0" />
-                <element signature="e#75114#77310#0" />
-                <element signature="e#77576#80124#0" />
-                <element signature="e#80319#80428#0" />
-                <element signature="e#75197#78499#0" />
+                <element signature="e#0#49#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Test_Report/easyShellLog.txt">
-          <provider selected="true" editor-type-id="text-editor" />
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Library/CommonLib.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="52">
-              <caret line="459" lean-forward="true" selection-start-line="459" selection-end-line="459" />
+            <state relative-caret-position="205">
+              <caret line="107" column="17" selection-start-line="107" selection-start-column="17" selection-end-line="107" selection-end-column="17" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
-                <element signature="e#16761#18397#0" />
               </folding>
             </state>
           </provider>
@@ -99,91 +64,21 @@
         <entry file="file://$PROJECT_DIR$/Test_Data/easyshell_testdata.yaml">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="481" column="16" lean-forward="true" selection-start-line="481" selection-start-column="16" selection-end-line="481" selection-end-column="16" />
+              <caret line="481" column="16" selection-start-line="481" selection-start-column="16" selection-end-line="481" selection-end-column="16" />
               <folding>
                 <element signature="e#86#2195#0" />
-                <element signature="e#2211#2523#0" />
-                <element signature="e#2530#2851#0" />
-                <element signature="e#2851#3243#0" />
-                <element signature="e#3241#3641#0" />
-                <element signature="e#3652#4077#0" />
-                <element signature="e#4077#4517#0" />
-                <element signature="e#4514#4839#0" />
-                <element signature="e#4863#5168#0" />
-                <element signature="e#5140#5568#0" />
-                <element signature="e#5573#5931#0" />
-                <element signature="e#5932#11931#0" />
-                <element signature="e#5951#6946#0" />
-                <element signature="e#6951#7982#0" />
-                <element signature="e#7987#8974#0" />
-                <element signature="e#8979#9963#0" />
-                <element signature="e#9968#10937#0" />
-                <element signature="e#10942#11931#0" />
-                <element signature="e#11932#13108#0" />
-                <element signature="e#11948#12230#0" />
-                <element signature="e#13366#14012#0" />
-                <element signature="e#14084#14639#0" />
-                <element signature="e#13684#14111#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="66" column="16" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="16" />
+            <state relative-caret-position="350">
+              <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
               <folding>
-                <element signature="e#4520#5152#0" />
-                <element signature="e#5175#7685#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://C:/python37/Lib/site-packages/uiautomation/uiautomation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="6370" column="24" selection-start-line="6370" selection-start-column="24" selection-end-line="6370" selection-end-column="24" />
-              <folding>
-                <element signature="e#231042#231637#0" />
-                <element signature="e#231732#232124#0" />
-                <element signature="e#232208#232309#0" />
-                <element signature="e#232375#232405#0" />
-                <element signature="e#232478#232942#0" />
-                <element signature="e#233018#233266#0" />
-                <element signature="e#233321#233489#0" />
-                <element signature="e#233597#233957#0" />
-                <element signature="e#234817#235132#0" />
-                <element signature="e#235188#235483#0" />
-                <element signature="e#235544#235859#0" />
-                <element signature="e#235914#236205#0" />
-                <element signature="e#236636#237215#0" />
-                <element signature="e#237271#237566#0" />
-                <element signature="e#239443#239734#0" />
-                <element signature="e#239798#240127#0" />
-                <element signature="e#240191#240520#0" />
-                <element signature="e#240586#240923#0" />
-                <element signature="e#240980#241275#0" />
-                <element signature="e#241342#241677#0" />
-                <element signature="e#241736#242039#0" />
-                <element signature="e#242097#242396#0" />
-                <element signature="e#242461#242788#0" />
-                <element signature="e#242845#243144#0" />
-                <element signature="e#243199#243490#0" />
-                <element signature="e#243645#243984#0" />
-                <element signature="e#244035#244344#0" />
-                <element signature="e#244409#244789#0" />
-                <element signature="e#244847#245206#0" />
-                <element signature="e#250087#250886#0" />
-                <element signature="e#250967#251129#0" />
-                <element signature="e#251207#251766#0" />
-                <element signature="e#251821#252017#0" />
-                <element signature="e#252076#252276#0" />
-                <element signature="e#252334#252533#0" />
-                <element signature="e#252593#252794#0" />
+                <element signature="e#1#66#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -200,12 +95,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>safe_load</find>
-      <find>install</find>
-      <find>TogglePattern,</find>
-      <find>invoke</find>
-      <find>Toggle(</find>
-      <find>Invoke()</find>
       <find>WindowC</find>
       <find>isoffscreen</find>
       <find>buttoncontrol(self</find>
@@ -230,6 +119,12 @@
       <find>AddressBar</find>
       <find>RDPLaunchDelay</find>
       <find>MAIN_WINDOW</find>
+      <find>commonutils.sen</find>
+      <find>txtu</find>
+      <find>sendkey</find>
+      <find>CommonLib</find>
+      <find>EasyshellLib</find>
+      <find>EasyShell_Wnd</find>
     </findStrings>
     <replaceStrings>
       <replace>control</replace>
@@ -256,14 +151,14 @@
         <option value="$PROJECT_DIR$/../Rewrite-ThinPro7.1/Test_Suite/Local_USB_printer_print_test_page.py" />
         <option value="$PROJECT_DIR$/../Rewrite-ThinPro7.1/Test_Suite/XenDesktop_Storefront_win10__USB_key_USBR.py" />
         <option value="$PROJECT_DIR$/Library/QAUIutils.py" />
-        <option value="$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py" />
         <option value="$PROJECT_DIR$/start.py" />
         <option value="$PROJECT_DIR$/Test_Data/easyshell_testdata.yaml" />
+        <option value="$PROJECT_DIR$/Configuration/elementLib.ini" />
         <option value="$PROJECT_DIR$/Library/CommonLib.py" />
         <option value="$PROJECT_DIR$/Test_Report/easyShellLog.txt" />
+        <option value="$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py" />
         <option value="$PROJECT_DIR$/Test_Scripts/easyshell.py" />
         <option value="$PROJECT_DIR$/test.py" />
-        <option value="$PROJECT_DIR$/Configuration/elementLib.ini" />
       </list>
     </option>
   </component>
@@ -324,6 +219,7 @@
       <recent name="Z:\WorkSpace3\HPEasyShell" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="Z:\WorkSpace3\HPEasyShell\Misc" />
       <recent name="Z:\WorkSpace3\HPEasyShell" />
       <recent name="Z:\WorkSpace3\HPEasyShell\Library" />
       <recent name="Z:\WorkSpace3\HPEasyShell\Test_Data" />
@@ -487,15 +383,21 @@
       <option name="project" value="LOCAL" />
       <updated>1559263482458</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="daily update">
+      <created>1559292744014</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1559292744014</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1176" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4978903" visible="true" weight="0.10181237" />
+      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.4978903" visible="true" weight="0.102878466" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49915254" visible="true" weight="0.2358581" />
@@ -518,7 +420,8 @@
     <MESSAGE value="update uiautomation version to 2.0.x&#10; Depends on modules comtypes and typing.&#10;    Removed class Win32API. Methods in Win32API were moved to globle scope.&#10;    KeyDown, KeyUp were removed, use PressKey, ReleaseKey.&#10;    Methods related to process were removed. Use psutil instead.&#10; Controls don't inherit patterns. Use Control.GetPattern(patterId) or Control.GetXxxPattern() to get a pattern and use pattern properties or methods.&#10;        Because:&#10;        1 two patterns may have a same method name and a control may support the two patterns at the same time.&#10;        2 LegacyIAccessiblePattern has many properties which are same to Control's properties.&#10;        If GetPattern or GetXxxPattern returns None, it doesn't support the pattern.&#10;Methods like IsXxxPatternAvailable were removed.&#10;    Value names in class SWP changed.&#10;    Value names in class MB changed.&#10;    Value names in class ModifierKey changed.&#10;    Class ShowWindow was renamed to SW.&#10;    Removed 'Func' in variable names.&#10;    Removed 'Dict' in variable names.&#10;    Control.Handle to Control.NativeWindowHandle&#10;    Control.BoundingRectangle doesn't return tuple, it returns class Rect, it has 4 properties left, top, right, bottom, 5 methods width()-&gt;int, height()-&gt;int, xcenter()-&gt;int, ycenter()-&gt;int and contains(x:int,y:int)-&gt;bool.&#10;    Control.MoveCursor to Control.MoveCursorToInnerPos&#10;    Control.Click(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME): to Click(self, x: int = None, y: int = None, ratioX: float = 0.5, ratioY: float = 0.5, simulateMove: bool = True, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.RightClick(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME): to RightClick(self, x: int = None, y: int = None, ratioX: float = 0.5, ratioY: float = 0.5, simulateMove: bool = True, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.MiddleClick(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME): to MiddleClick(self, x: int = None, y: int = None, ratioX: float = 0.5, ratioY: float = 0.5, simulateMove: bool = True, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.DoubleClick(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME): to DoubleClick(self, x: int = None, y: int = None, ratioX: float = 0.5, ratioY: float = 0.5, simulateMove: bool = True, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.WheelDown(self, wheelTimes=1, waitTime=OPERATION_WAIT_TIME) to WheelDown(self, wheelTimes: int = 1, interval: float = 0.05, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.WheelUp(self, wheelTimes=1, waitTime=OPERATION_WAIT_TIME) to WheelUp(self, wheelTimes: int = 1, interval: float = 0.05, waitTime: float = OPERATION_WAIT_TIME) -&gt; None:&#10;    Control.GetTopWindow to Control.GetTopLevelControl&#10;    Logger.ColorfulWrite to Logger.ColorfullyWrite&#10;    Logger.ColorfulWriteLine to Logger.ColorfullyWriteLine&#10;    Logger.ColorfulLog to Logger.ColorfullyLog&#10;    SetGlobalSearchTimeOut to SetGlobalSearchTimeout&#10;    RunWithHotKey to RunByHotKey" />
     <MESSAGE value="add test case in test suite folder" />
     <MESSAGE value="add autolist" />
-    <option name="LAST_COMMIT_MESSAGE" value="add autolist" />
+    <MESSAGE value="daily update" />
+    <option name="LAST_COMMIT_MESSAGE" value="daily update" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Configuration/easyshellcreate.yaml">
@@ -702,13 +605,7 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/Lib/site-packages/setuptools/_vendor/packaging/utils.py" />
-    <entry file="file://$PROJECT_DIR$/pyvenv.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" lean-forward="true" selection-start-line="3" selection-end-line="3" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pyvenv.cfg" />
     <entry file="file://$PROJECT_DIR$/../Rewrite-ThinPro7.1/Test_Suite/XenDesktop_Storefront_win10__USB_key_USBR.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="291">
@@ -745,9 +642,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Test_Scripts/test1.jpg">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Test_Scripts/test1.jpg" />
     <entry file="file://$PROJECT_DIR$/build.bat">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -770,13 +665,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/@AutomationLog.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/@AutomationLog.txt" />
     <entry file="file://$PROJECT_DIR$/start.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="627">
@@ -787,67 +676,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Library/CommonLib.py">
+    <entry file="file://$PROJECT_DIR$/Configuration/elementLib.ini">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="52">
-          <caret line="459" lean-forward="true" selection-start-line="459" selection-end-line="459" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#16761#18397#0" />
-          </folding>
+        <state relative-caret-position="61">
+          <caret line="77" column="38" lean-forward="true" selection-start-line="77" selection-start-column="38" selection-end-line="77" selection-end-column="38" />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/python37/Lib/site-packages/pyautogui/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-27" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Test_Data/easyshell_testdata.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
-          <caret line="481" column="16" lean-forward="true" selection-start-line="481" selection-start-column="16" selection-end-line="481" selection-end-column="16" />
+          <caret line="481" column="16" selection-start-line="481" selection-start-column="16" selection-end-line="481" selection-end-column="16" />
           <folding>
             <element signature="e#86#2195#0" />
-            <element signature="e#2211#2523#0" />
-            <element signature="e#2530#2851#0" />
-            <element signature="e#2851#3243#0" />
-            <element signature="e#3241#3641#0" />
-            <element signature="e#3652#4077#0" />
-            <element signature="e#4077#4517#0" />
-            <element signature="e#4514#4839#0" />
-            <element signature="e#4863#5168#0" />
-            <element signature="e#5140#5568#0" />
-            <element signature="e#5573#5931#0" />
-            <element signature="e#5932#11931#0" />
-            <element signature="e#5951#6946#0" />
-            <element signature="e#6951#7982#0" />
-            <element signature="e#7987#8974#0" />
-            <element signature="e#8979#9963#0" />
-            <element signature="e#9968#10937#0" />
-            <element signature="e#10942#11931#0" />
-            <element signature="e#11932#13108#0" />
-            <element signature="e#11948#12230#0" />
-            <element signature="e#13366#14012#0" />
-            <element signature="e#14084#14639#0" />
-            <element signature="e#13684#14111#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Test_Report/easyShellLog.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="66" column="16" selection-start-line="66" selection-start-column="5" selection-end-line="66" selection-end-column="16" />
-          <folding>
-            <element signature="e#4520#5152#0" />
-            <element signature="e#5175#7685#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://C:/python37/Lib/site-packages/uiautomation/uiautomation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="6370" column="24" selection-start-line="6370" selection-start-column="24" selection-end-line="6370" selection-end-column="24" />
+        <state relative-caret-position="205">
+          <caret line="6154" column="8" selection-start-line="6154" selection-start-column="8" selection-end-line="6154" selection-end-column="8" />
           <folding>
             <element signature="e#231042#231637#0" />
             <element signature="e#231732#232124#0" />
@@ -889,43 +743,43 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Test_Report/easyShellLog.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Library/CommonLib.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="107" column="17" selection-start-line="107" selection-start-column="17" selection-end-line="107" selection-end-column="17" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="39" lean-forward="true" selection-start-line="6" selection-start-column="39" selection-end-line="6" selection-end-column="39" />
-          <folding>
-            <element signature="e#0#40#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="136">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Test_Scripts/easyshell.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="593">
-          <caret line="1904" lean-forward="true" selection-start-line="1904" selection-end-line="1904" />
+        <state relative-caret-position="392">
+          <caret line="1807" column="17" lean-forward="true" selection-start-line="1807" selection-start-column="17" selection-end-line="1807" selection-end-column="17" />
           <folding>
-            <element signature="e#0#40#0" expanded="true" />
-            <element signature="e#1364#2861#0" />
-            <element signature="e#1395#20861#0" />
-            <element signature="e#20903#32593#0" />
-            <element signature="e#32633#35576#0" />
-            <element signature="e#35787#40528#0" />
-            <element signature="e#42475#46614#0" />
-            <element signature="e#51065#66723#0" />
-            <element signature="e#66769#71180#0" />
-            <element signature="e#71220#74962#0" />
-            <element signature="e#75114#77310#0" />
-            <element signature="e#77576#80124#0" />
-            <element signature="e#80319#80428#0" />
-            <element signature="e#75197#78499#0" />
+            <element signature="e#0#49#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Configuration/elementLib.ini">
+    <entry file="file://$PROJECT_DIR$/Test_Scripts/EasyShell_Lib.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="114" column="43" selection-start-line="114" selection-start-column="43" selection-end-line="114" selection-end-column="43" />
+        <state relative-caret-position="350">
+          <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
+          <folding>
+            <element signature="e#1#66#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
