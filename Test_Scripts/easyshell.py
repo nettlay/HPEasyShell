@@ -499,13 +499,13 @@ class UserSettings(EasyShellTest):
             status = item.split(":")[1].strip()  # setting status on/off
             if status == 'ON':
                 try:
-                    EasyshellLib.UserSettings_Dict[name].Enable()
+                    EasyshellLib.getElement(name).Enable()
                 except:
                     flag = False
                     self.Logfile('[Fail]Button {} Enable\n{}'.format(name, traceback.format_exc()))
             elif status == 'OFF':
                 try:
-                    EasyshellLib.UserSettings_Dict[name].Disable()
+                    EasyshellLib.getElement(name).Disable()
                 except:
                     flag = False
                     self.Logfile('[Fail]Button {} Disable\n{}'.format(name, traceback.format_exc()))
@@ -918,8 +918,8 @@ class Shell_Application(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                print(EasyshellLib.EasyShell_Wnd.MAIN_WINDOW, '----------------')
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(searchIntervalSeconds=1):
+                print(EasyshellLib.getElement('MAIN_WINDOW'), '----------------')
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
                     time.sleep(1)
                     continue
                 else:
@@ -1033,7 +1033,7 @@ class Shell_Application(EasyShellTest):
             # Wait HP easy shell launch
             time.sleep(3)
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                     time.sleep(1)
                     continue
                 else:
@@ -1124,7 +1124,7 @@ class Shell_Websites(EasyShellTest):
                         continue
                 self.Logfile('---------------Begin to Create website------------')
                 for t in range(10):
-                    if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                    if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                         continue
                     else:
                         print('web Get windows')
@@ -1298,7 +1298,7 @@ class Shell_Websites(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(0, 0):
+                if not EasyshellLib.getElement('MAIN_WINDOW').MAIN_WINDOW.Exists(0, 0):
                     time.sleep(1)
                     continue
                 else:
@@ -1462,7 +1462,7 @@ class Shell_StoreFront(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                     continue
                 else:
                     print('store get window')
@@ -1566,7 +1566,7 @@ class Shell_View(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.waitExists(10)
+            EasyshellLib.getElement('MAIN_WINDOW').waitExists(10)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1650,7 +1650,7 @@ class Shell_RDP(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 3)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1659,7 +1659,7 @@ class Shell_RDP(EasyShellTest):
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('RDPAdd').Click()
             time.sleep(5)
-            EasyshellLib.getElement('RDPName').SetValue(name)
+            EasyshellLib.getElement('RDPName', searchControl=CommonLib.TabControl(AutomationId='xTabControl')).SetValue(name)
             EasyshellLib.getElement('RDPHostname').SetValue(hostname)
             EasyshellLib.getElement('RDPUsername').SetValue(username)
             EasyshellLib.getElement('RDPLaunchDelay').SetValue(launchdelay)
@@ -1709,7 +1709,7 @@ class Shell_Citrix(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 3)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1769,7 +1769,7 @@ class Shell_Citrix(EasyShellTest):
                     break
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 2)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 2)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1833,7 +1833,7 @@ class TaskSwitcher(EasyShellTest):
                 break
             else:
                 continue
-        EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.waitExists(10)
+        EasyshellLib.getElement('MAIN_WINDOW').waitExists(10)
         EasyshellLib.getElement('KioskMode').Enable()
         EasyshellLib.getElement('EnableTaskSwitcher').Enable()
         EasyshellLib.getElement('Permanent').Enable()
