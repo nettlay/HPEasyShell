@@ -77,9 +77,17 @@ class CommonUtils(QAUtils):
 
 
 class EasyShell_Wnd:
-    MAIN_WINDOW = getElement('MAIN_WINDOW')
-    TASK_SWITCHER = getElement('TASK_SWITCHER')
-    WIFI_SELECTION = getElement('WIFI_SELECTION')
+    @staticmethod
+    def MAIN_WINDOW():
+        return getElement('MAIN_WINDOW')
+
+    @staticmethod
+    def TASK_SWITCHER():
+        return getElement('TASK_SWITCHER')
+
+    @staticmethod
+    def WIFI_SELECTION():
+        return getElement('WIFI_SELECTION')
 
 
 UserKiosk_Dict = {
