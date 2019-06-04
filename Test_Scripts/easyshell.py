@@ -7,7 +7,7 @@ import traceback
 
 def ClearContent(length=50):
     for temp in range(length):
-        EasyshellLib.CommonUtils.SendKey(CommonLib.Keys.VK_DELETE, 0.01)
+        CommonLib.SendKey(CommonLib.Keys.VK_DELETE, 0.01)
 
 
 class EasyShellTest:
@@ -1040,6 +1040,8 @@ class Shell_Application(EasyShellTest):
                     break
             EasyshellLib.getElement('Applications').Click()
             # Modify setting//////////////////////////////////////
+            if self.utils(newProfile, 'exist'):
+                self.utils(newProfile, 'delete')
             self.utils(oldProfile, 'edit')
             time.sleep(3)
             ClearContent()
@@ -1659,28 +1661,49 @@ class Shell_RDP(EasyShellTest):
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('RDPAdd').Click()
             time.sleep(5)
-            EasyshellLib.getElement('RDPName', searchControl=CommonLib.TabControl(AutomationId='xTabControl')).SetValue(name)
-            EasyshellLib.getElement('RDPHostname').SetValue(hostname)
-            EasyshellLib.getElement('RDPUsername').SetValue(username)
-            EasyshellLib.getElement('RDPLaunchDelay').SetValue(launchdelay)
+            CommonLib.SendKeys(name)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKeys(hostname)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKeys(username)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            ClearContent(4)
+            CommonLib.SendKeys(launchdelay)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if not arguments == 'None' or not arguments is not None:
-                EasyshellLib.getElement('RDPArguments').SetValue(arguments)
+                CommonLib.SendKeys(arguments)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            else:
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if autolaunch == 'OFF' or not autolaunch:
-                EasyshellLib.getElement('RDPAutoLaunch').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
-                EasyshellLib.getElement('RDPAutoLaunch').Enable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if persistent == 'OFF' or not persistent:
-                EasyshellLib.getElement('RDPPersistent').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
-                EasyshellLib.getElement('RDPPersistent').Enable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if customfile == 'OFF' or not customfile:
-                EasyshellLib.getElement('RDPCustomFile').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             else:
-                EasyshellLib.getElement('RDPCustomFile').Enable()
-                EasyshellLib.getElement('RDPSelectFile').Click()
-                EasyshellLib.getElement('RDPBrowserFile').SetValue(customfile)
-                EasyshellLib.getElement('RDPBrowserOpen').Click()
-            EasyshellLib.getElement('OKButton').Click()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+                if os.path.exists(customfile):
+                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    time.sleep(1)
+                    CommonLib.SendKeys(customfile)
+                    CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+                else:
+                    self.Logfile('[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
+                    CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
+                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    return False
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('[PASS]: Create RDP Connection {}'.format(name))
         except:
@@ -1907,5 +1930,5 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    Shell_RDP().create('standardRDP')
+    Shell_RDP().create('editRDP')
     pass

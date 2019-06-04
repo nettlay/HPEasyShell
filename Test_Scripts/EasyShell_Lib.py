@@ -36,25 +36,9 @@ def getElement(name, **kwargs):
     elementId = getElementMapping()[name].split(':')[0]
     controltype = getElementMapping()[name].split(':')[1].upper()
     if elementId.__contains__('"'):
-        for i in range(3):
-            print(elementId)
-            if getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs).Exists():
-                print(getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs))
-                return getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
-            else:
-                time.sleep(2)
-                continue
-        print('{} not exist'.format(elementId))
+        return getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
     else:
-        for i in range(3):
-            print(elementId)
-            if getElementByType(controltype, AutomationId=elementId, **kwargs).Exists():
-                print(getElementByType(controltype, AutomationId=elementId.replace('"', ''), **kwargs))
-                return getElementByType(controltype, AutomationId=elementId, **kwargs)
-            else:
-                time.sleep(2)
-                continue
-        print('{} not exist'.format(elementId))
+        return getElementByType(controltype, AutomationId=elementId, **kwargs)
 
 
 class CommonUtils(QAUtils):
