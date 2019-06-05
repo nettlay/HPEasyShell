@@ -7,7 +7,7 @@ if not os.path.exists('c:\\svc'):
 if not os.path.exists('c:\\svc\\svcconfig.ini'):
     os.system('echo {}\\test.txt>c:\\svc\\svcconfig.ini'.format(os.getcwd()))
 
-file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip()
+file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip().split(':', 1)[1]
 file_path = os.path.dirname(file_path)
 ElementlibPath = os.path.join(file_path, 'Configuration\\elementLib.ini')
 
