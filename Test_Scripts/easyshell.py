@@ -7,7 +7,7 @@ import traceback
 
 def ClearContent(length=50):
     for temp in range(length):
-        EasyshellLib.CommonUtils.SendKey(CommonLib.Keys.VK_DELETE, 0.01)
+        CommonLib.SendKey(CommonLib.Keys.VK_DELETE, 0.01)
 
 
 class EasyShellTest:
@@ -499,13 +499,13 @@ class UserSettings(EasyShellTest):
             status = item.split(":")[1].strip()  # setting status on/off
             if status == 'ON':
                 try:
-                    EasyshellLib.UserSettings_Dict[name].Enable()
+                    EasyshellLib.getElement(name).Enable()
                 except:
                     flag = False
                     self.Logfile('[Fail]Button {} Enable\n{}'.format(name, traceback.format_exc()))
             elif status == 'OFF':
                 try:
-                    EasyshellLib.UserSettings_Dict[name].Disable()
+                    EasyshellLib.getElement(name).Disable()
                 except:
                     flag = False
                     self.Logfile('[Fail]Button {} Disable\n{}'.format(name, traceback.format_exc()))
@@ -918,8 +918,8 @@ class Shell_Application(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                print(EasyshellLib.EasyShell_Wnd.MAIN_WINDOW, '----------------')
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(searchIntervalSeconds=1):
+                print(EasyshellLib.getElement('MAIN_WINDOW'), '----------------')
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
                     time.sleep(1)
                     continue
                 else:
@@ -1033,13 +1033,15 @@ class Shell_Application(EasyShellTest):
             # Wait HP easy shell launch
             time.sleep(3)
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                     time.sleep(1)
                     continue
                 else:
                     break
             EasyshellLib.getElement('Applications').Click()
             # Modify setting//////////////////////////////////////
+            if self.utils(newProfile, 'exist'):
+                self.utils(newProfile, 'delete')
             self.utils(oldProfile, 'edit')
             time.sleep(3)
             ClearContent()
@@ -1124,7 +1126,7 @@ class Shell_Websites(EasyShellTest):
                         continue
                 self.Logfile('---------------Begin to Create website------------')
                 for t in range(10):
-                    if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                    if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                         continue
                     else:
                         print('web Get windows')
@@ -1298,7 +1300,7 @@ class Shell_Websites(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(0, 0):
+                if not EasyshellLib.getElement('MAIN_WINDOW').MAIN_WINDOW.Exists(0, 0):
                     time.sleep(1)
                     continue
                 else:
@@ -1462,7 +1464,7 @@ class Shell_StoreFront(EasyShellTest):
                 else:
                     continue
             for t in range(10):
-                if not EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(1, 1):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
                     continue
                 else:
                     print('store get window')
@@ -1566,7 +1568,7 @@ class Shell_View(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.waitExists(10)
+            EasyshellLib.getElement('MAIN_WINDOW').waitExists(10)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1650,7 +1652,7 @@ class Shell_RDP(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 3)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1659,28 +1661,49 @@ class Shell_RDP(EasyShellTest):
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('RDPAdd').Click()
             time.sleep(5)
-            EasyshellLib.getElement('RDPName').SetValue(name)
-            EasyshellLib.getElement('RDPHostname').SetValue(hostname)
-            EasyshellLib.getElement('RDPUsername').SetValue(username)
-            EasyshellLib.getElement('RDPLaunchDelay').SetValue(launchdelay)
+            CommonLib.SendKeys(name)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKeys(hostname)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKeys(username)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            ClearContent(4)
+            CommonLib.SendKeys(launchdelay)
+            CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if not arguments == 'None' or not arguments is not None:
-                EasyshellLib.getElement('RDPArguments').SetValue(arguments)
+                CommonLib.SendKeys(arguments)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+            else:
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if autolaunch == 'OFF' or not autolaunch:
-                EasyshellLib.getElement('RDPAutoLaunch').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
-                EasyshellLib.getElement('RDPAutoLaunch').Enable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if persistent == 'OFF' or not persistent:
-                EasyshellLib.getElement('RDPPersistent').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
-                EasyshellLib.getElement('RDPPersistent').Enable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if customfile == 'OFF' or not customfile:
-                EasyshellLib.getElement('RDPCustomFile').Disable()
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             else:
-                EasyshellLib.getElement('RDPCustomFile').Enable()
-                EasyshellLib.getElement('RDPSelectFile').Click()
-                EasyshellLib.getElement('RDPBrowserFile').SetValue(customfile)
-                EasyshellLib.getElement('RDPBrowserOpen').Click()
-            EasyshellLib.getElement('OKButton').Click()
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+                if os.path.exists(customfile):
+                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    time.sleep(1)
+                    CommonLib.SendKeys(customfile)
+                    CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+                else:
+                    self.Logfile('[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
+                    CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
+                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    return False
+                CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
+                CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('[PASS]: Create RDP Connection {}'.format(name))
         except:
@@ -1709,7 +1732,7 @@ class Shell_Citrix(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 3)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1769,7 +1792,7 @@ class Shell_Citrix(EasyShellTest):
                     break
                 else:
                     continue
-            EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.Exists(10, 2)
+            EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 2)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -1833,7 +1856,7 @@ class TaskSwitcher(EasyShellTest):
                 break
             else:
                 continue
-        EasyshellLib.EasyShell_Wnd.MAIN_WINDOW.waitExists(10)
+        EasyshellLib.getElement('MAIN_WINDOW').waitExists(10)
         EasyshellLib.getElement('KioskMode').Enable()
         EasyshellLib.getElement('EnableTaskSwitcher').Enable()
         EasyshellLib.getElement('Permanent').Enable()
@@ -1907,5 +1930,5 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    Shell_RDP().create('standardRDP')
+    Shell_RDP().create('editRDP')
     pass
