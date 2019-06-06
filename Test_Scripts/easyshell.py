@@ -3,18 +3,13 @@ import Library.CommonLib as CommonLib
 import os
 import time
 import traceback
+import pysnooper
 
-
-SHOWDEBUG = False
 
 def ClearContent(length=50):
     for temp in range(length):
         CommonLib.SendKey(CommonLib.Keys.VK_DELETE, 0.01)
 
-def debug(msg='', show=SHOWDEBUG, logpath='.'):
-    if show:
-        EasyshellLib.TxtUtils(os.path.join(logpath, "easyShellDebug.txt"), 'a').set_msg(
-                "[{}]:{}\n".format(time.ctime(), msg))
 
 class EasyShellTest:
     """
@@ -33,6 +28,7 @@ class EasyShellTest:
         self.testset = os.path.join(self.path, 'testset.xlsx')
         self.sections = CommonLib.YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
         self.appPath = self.sections['appPath']['easyShellPath']
+        self.debug = os.path.join(self.log_path, 'debug.log')
 
     def create(self, profile):
         pass
@@ -797,6 +793,7 @@ class Shell_Application(EasyShellTest):
         self.section_name = 'createApp'
 
     # --------------- Applications Creation --------------------
+    @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         self.Logfile('-------------Begin to Check Application --------------')
         flag = True
@@ -811,6 +808,8 @@ class Shell_Application(EasyShellTest):
         HideMissApp = test['Hidemissapp']
         WindowName = test['WindowName']
         try:
+            if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+                EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
             if AdminOnly:
                 if self.utils(profile, 'exist'):
                     flag = False
@@ -835,7 +834,7 @@ class Shell_Application(EasyShellTest):
                     return flag
             if Autolaunch == 0:
                 self.utils(profile, "launch")
-                if Launchdelay == "None" or Launchdelay is None:
+                if Launchdelay == 0:
                     for t in range(5):
                         if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                             break
@@ -854,7 +853,7 @@ class Shell_Application(EasyShellTest):
                         self.Logfile("[PASS]:APP {} Launch Delay".format(Name))
                     time.sleep(20)
             else:
-                if Launchdelay != "None" or Launchdelay is not None:
+                if Launchdelay != 0:
                     time.sleep(20)
                 if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                     flag = False
@@ -870,9 +869,9 @@ class Shell_Application(EasyShellTest):
                     self.Logfile("[Failed]:App {} Maximized".format(Name))
                     flag = False
             if Persistent:
-                CommonLib.WindowControl(RegexName=WindowName).GetWindowPattern().Close()
+                CommonLib.WindowControl(RegexName=WindowName).Close()
                 time.sleep(3)
-                if Launchdelay == "None" or Launchdelay is None:
+                if Launchdelay == "0":
                     if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                         flag = False
                         self.Logfile("[Failed]:App {} Persistent".format(Name))
@@ -886,7 +885,7 @@ class Shell_Application(EasyShellTest):
                         flag = False
                         self.Logfile("[Failed]:APP {} AutoDelay".format(Name))
             else:
-                CommonLib.WindowControl(RegexName=WindowName).GetWindowPattern().Close()
+                CommonLib.WindowControl(RegexName=WindowName).Close()
                 time.sleep(8)
                 if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                     flag = False
@@ -899,6 +898,7 @@ class Shell_Application(EasyShellTest):
             self.Logfile("[Failed]:App {} App Check\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
+    @pysnooper.snoop(EasyShellTest().debug)
     def create(self, profile):
         """
         profile is a test configuration name, it is a dict for app options, load from easyshell_testdata.yaml
@@ -910,7 +910,6 @@ class Shell_Application(EasyShellTest):
         for path in Paths:
             if os.path.exists(path):
                 Path = path
-                debug(msg='Get easyshell path {}'.format(Path), logpath=self.log_path)
                 break
             else:
                 Path = "ErrorPath"
@@ -921,8 +920,6 @@ class Shell_Application(EasyShellTest):
         maximized = test['Maximized']
         adminonly = test['Adminonly']
         hidemissapp = test['Hidemissapp']
-        debug(msg='Finished load test data: {}-{}-{}-{}-{}-{}-{}'.format(argument, launchdelay, autolaunch, persistent,
-                                                                         maximized, adminonly, hidemissapp), logpath=self.log_path)
         try:
             for app_path in self.appPath:
                 if os.path.exists(app_path):
@@ -930,10 +927,10 @@ class Shell_Application(EasyShellTest):
                     break
                 else:
                     continue
-            for t in range(10):
+            for t in range(20):
                 print(EasyshellLib.getElement('MAIN_WINDOW'), '----------------')
                 if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(1)
+                    time.sleep(2)
                     continue
                 else:
                     print('app get window')
@@ -1003,6 +1000,7 @@ class Shell_Application(EasyShellTest):
             self.Logfile("[FAIL]:App {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
+    @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newProfile, oldProfile):
         try:
             old = self.sections['createApp'][oldProfile]
@@ -1214,7 +1212,7 @@ class Shell_Websites(EasyShellTest):
         AllCloseEmbedIE = test['AllCloseEmbedIE']
         EmbaedPaneName = test['EmbaedPaneName']
         if CommonLib.WindowControl(RegexName='.*- Internet Explorer').Exists(0, 0):
-            CommonLib.WindowControl(RegexName='.*- Internet Explorer').GetWindowPattern().Close()
+            CommonLib.WindowControl(RegexName='.*- Internet Explorer').Close()
         EasyshellLib.getElement('UserTitles').Click()
         if not self.Utils(profile, 'launch'):
             self.Logfile('[Fail] check website {} error:Launch website fail'.format(profile))
@@ -1732,6 +1730,7 @@ class Shell_Citrix(EasyShellTest):
         EasyShellTest.__init__(self)
         self.section_name = 'createCitrix'
 
+    @pysnooper.snoop(EasyShellTest().debug)
     def create(self, profile):
         test = self.sections[self.section_name][profile]
         name = test["Name"]
@@ -1785,6 +1784,7 @@ class Shell_Citrix(EasyShellTest):
             self.Logfile("[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
             return False
 
+    @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newprofile, oldprofile):
         try:
             new = self.sections[self.section_name][newprofile]
@@ -1852,6 +1852,7 @@ class Shell_Citrix(EasyShellTest):
         except:
             self.Logfile('[Failed]: Citrix Connection {} Edit\n{}'.format(oldname, traceback.format_exc()))
 
+    @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
@@ -1947,5 +1948,5 @@ class TaskSwitcher(EasyShellTest):
 
 if __name__ == '__main__':
     Shell_Application().create('standardApp')
-    EasyshellLib.CommonUtils.SwitchToUser()
+    EasyshellLib.CommonUtils.SwitchToAdmin()
     pass

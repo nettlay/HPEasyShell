@@ -80,7 +80,7 @@ createApp:
         Path: 
             - C:\windows\system32\notepad.exe
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 0
         Persistent: 0
@@ -93,7 +93,7 @@ createApp:
         Path: 
             - C:\windows\system32\cmd.exe
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 0
         Persistent: 1
@@ -106,7 +106,7 @@ createApp:
         Path: 
             - C:\Program Files\internet explorer\iexplore.exe
         Argument: http://15.83.240.126
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 1
         Persistent: 0
@@ -120,7 +120,7 @@ createApp:
             - C:\Program Files (x86)\CyberLink\PowerDVD14\PDVDLP.exe
             - C:\Program Files\CyberLink\PowerDVD14\PDVDLP.exe
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 0
         Persistent: 0
@@ -134,7 +134,7 @@ createApp:
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
             - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 1
         Persistent: 0
@@ -161,7 +161,7 @@ createApp:
         Path: 
             - C:\windows\system32\notepad.exe
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 0
         Persistent: 0
@@ -174,7 +174,7 @@ createApp:
         Path: 
             - C:\Eroorpath
         Argument: None
-        Launchdelay: None
+        Launchdelay: 0
         Exitaction: None
         Autolaunch: 0
         Persistent: 1

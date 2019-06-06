@@ -348,40 +348,21 @@ class TxtUtils:
         self.set_msg(new_data)
 
 
-class ButtonControl(Control):
-    def __init__(self, searchFromControl: Control = None, searchDepth: int = 0xFFFFFFFF,
-                 searchWaitTime: float = SEARCH_INTERVAL, foundIndex: int = 1, element=None, **searchProperties):
-        Control.__init__(self, searchFromControl, searchDepth, searchWaitTime, foundIndex, element, **searchProperties)
-        self.AddSearchProperties(ControlType=ControlType.ButtonControl)
-
-    def GetExpandCollapsePattern(self) -> ExpandCollapsePattern:
-        """
-        Return `ExpandCollapsePattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.ExpandCollapsePattern)
-
-    def GetInvokePattern(self) -> InvokePattern:
-        """
-        Return `InvokePattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.InvokePattern)
-
-    def GetTogglePattern(self) -> TogglePattern:
-        """
-        Return `TogglePattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.TogglePattern)
+class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern):
+    def __init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=SEARCH_INTERVAL, foundIndex=1, **searchPorpertyDict):
+        Control.__init__(self, element, searchFromControl, searchDepth, searchWaitTime, foundIndex, **searchPorpertyDict)
+        self.AddSearchProperty(ControlType=ControlType.ButtonControl)
 
     def Active(self, waitTime=0.1):
         """
         Toggle or Invoke button with build-in Control instead of Click
         """
-        if self.GetTogglePattern() is not None:
+        if self.IsTogglePatternAvailable():
             self.SetFocus()
-            self.GetTogglePattern().Toggle(waitTime)
-        elif self.GetInvokePattern() is not None:
+            self.Toggle()
+        elif self.IsInvokePatternAvailable() is not None:
             self.SetFocus()
-            self.GetInvokePattern().Invoke(waitTime)
+            self.Invoke(waitTime)
         else:
             self.SetFocus()
 
@@ -389,8 +370,8 @@ class ButtonControl(Control):
         if not self.Exists(1, 1):
             print("Button not Found, Please Double check your parameter!!")
             return None
-        if self.GetTogglePattern() is not None:
-            return self.GetTogglePattern().ToggleState
+        if self.IsTogglePatternAvailable():
+            return self.CurrentToggleState()
         else:
             return None
 
@@ -398,17 +379,16 @@ class ButtonControl(Control):
         if not self.Exists(1, 1):
             print("Button not Found, Please Double check your parameter!!")
             return
-        toggle_pattern = self.GetTogglePattern()
-        if toggle_pattern is not None:
-            if toggle_pattern.ToggleState:
+        if self.IsTogglePatternAvailable():
+            if self.CurrentToggleState():
                 return
             else:
             # sometimes toggle method will not affect ui except clicking
             # but sometimes button is offscreen, so firstly setfocus
-                if self.IsOffscreen:
-                    toggle_pattern.Toggle()
-                else:
+                if self.IsOffScreen:
                     self.SetFocus()
+                    self.Click()
+                else:
                     self.Click()
         else:
             print('Button do not support Enable Control')
@@ -417,15 +397,14 @@ class ButtonControl(Control):
         if not self.Exists(1, 1):
             print("Button not Found, Please Double check your parameter!!")
             return
-        toggle_pattern = self.GetTogglePattern()
-        if toggle_pattern is not None:
-            if toggle_pattern.ToggleState:
+        if self.IsTogglePatternAvailable():
+            if self.CurrentToggleState():
                 # sometimes toggle method will not affect ui except clicking
                 # but sometimes button is offscreen, so firstly setfocus
-                if self.IsOffscreen:
-                    toggle_pattern.Toggle()
-                else:
+                if self.IsOffScreen:
                     self.SetFocus()
+                    self.Click()
+                else:
                     self.Click()
             else:
                 return
@@ -433,59 +412,10 @@ class ButtonControl(Control):
             print('Button do not support Disable Control')
 
 
-class EditControl(Control):
-    def __init__(self, searchFromControl: Control = None, searchDepth: int = 0xFFFFFFFF, searchWaitTime: float = SEARCH_INTERVAL, foundIndex: int = 1, element=None, **searchProperties):
-        Control.__init__(self, searchFromControl, searchDepth, searchWaitTime, foundIndex, element, **searchProperties)
-        self.AddSearchProperties(ControlType=ControlType.EditControl)
-
-    def GetRangeValuePattern(self) -> RangeValuePattern:
-        """
-        Return `RangeValuePattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.RangeValuePattern)
-
-    def GetTextPattern(self) -> TextPattern:
-        """
-        Return `TextPattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.TextPattern)
-
-    def GetValuePattern(self) -> ValuePattern:
-        """
-        Return `ValuePattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.ValuePattern)
-
-    def SetValue(self, value):
-        self.GetValuePattern().SetValue(value)
-
-    def GetValue(self):
-        return self.GetValuePattern().Value
-
-
-class TextControl(Control):
-    def __init__(self, searchFromControl: Control = None, searchDepth: int = 0xFFFFFFFF,
-                 searchWaitTime: float = SEARCH_INTERVAL, foundIndex: int = 1, element=None, **searchProperties):
-        Control.__init__(self, searchFromControl, searchDepth, searchWaitTime, foundIndex, element, **searchProperties)
-        self.AddSearchProperties(ControlType=ControlType.TextControl)
-
-    def GetGridItemPattern(self) -> GridItemPattern:
-        """
-        Return `GridItemPattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.GridItemPattern)
-
-    def GetTableItemPattern(self) -> TableItemPattern:
-        """
-        Return `TableItemPattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.TableItemPattern)
-
-    def GetTextPattern(self) -> TextPattern:
-        """
-        Return `TextPattern` if it supports the pattern else None(Conditional support according to MSDN).
-        """
-        return self.GetPattern(PatternId.TextPattern)
+class TextControl(Control, GridItemPattern, TableItemPattern, TextPattern):
+    def __init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=SEARCH_INTERVAL, foundIndex=1, **searchPorpertyDict):
+        Control.__init__(self, element, searchFromControl, searchDepth, searchWaitTime, foundIndex, **searchPorpertyDict)
+        self.AddSearchProperty(ControlType=ControlType.TextControl)
 
     def compareWith(self, obj):
         if not self.Exists():

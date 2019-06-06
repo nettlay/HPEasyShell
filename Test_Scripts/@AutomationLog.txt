@@ -1,2 +1,0 @@
-Find Control Timeout: {AutomationId: 'addressBar', ControlType: EditControl}
-Can not move curosr. ButtonControl's BoundingRectangle is (0,0,0,0)[0x0]. SearchProperties: {Name: '...', ControlType: ButtonControl}

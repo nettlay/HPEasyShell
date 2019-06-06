@@ -1,6 +1,7 @@
 from Test_Scripts.easyshell import *
 import os
 from openpyxl import load_workbook
+import pysnooper
 
 
 class Test:
@@ -48,10 +49,10 @@ class Test:
             result = ws.cell(row=i, column=4).value
             command = ws.cell(row=i, column=2).value
             value = ws.cell(row=i, column=3).value
-            if '#' in checkPoint:
-                continue
             if checkPoint is None:
                 break
+            if '#' in checkPoint:
+                continue
             if result == 'PASS':
                 continue
             if result == 'FAIL':
