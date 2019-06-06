@@ -182,7 +182,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 1
     editApp: 
-        WindowName: Foxit Reader
+        WindowName: .*Foxit Reader
         Name: FoxitReader_edit
         Path: 
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
