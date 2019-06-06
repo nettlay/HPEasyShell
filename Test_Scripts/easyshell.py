@@ -1854,6 +1854,8 @@ class Shell_Citrix(EasyShellTest):
 
     @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
+        if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
             return True
