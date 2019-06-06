@@ -927,9 +927,10 @@ class Shell_Application(EasyShellTest):
                     break
                 else:
                     continue
-            for t in range(20):
-                print(EasyshellLib.getElement('MAIN_WINDOW'), '----------------')
+            for t in range(50):
                 if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
+                    print(t)
+                    t += 1
                     time.sleep(2)
                     continue
                 else:
@@ -1667,6 +1668,13 @@ class Shell_RDP(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
+            for t in range(50):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
+                    time.sleep(2)
+                    continue
+                else:
+                    print('app get window')
+                    break
             EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1746,6 +1754,13 @@ class Shell_Citrix(EasyShellTest):
                     EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
                 else:
                     continue
+            for t in range(50):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
+                    time.sleep(2)
+                    continue
+                else:
+                    print('app get window')
+                    break
             EasyshellLib.getElement('MAIN_WINDOW').Exists(10, 3)
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1949,6 +1964,13 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    Shell_Application().create('standardApp')
-    EasyshellLib.CommonUtils.SwitchToAdmin()
+    for t in range(50):
+        print(t)
+        if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
+            time.sleep(2)
+            t+=1
+            continue
+        else:
+            print('app get window')
+            break
     pass
