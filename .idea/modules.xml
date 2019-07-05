@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Automation-Framework/.idea/Automation-Framework.iml" filepath="$PROJECT_DIR$/../Automation-Framework/.idea/Automation-Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/HPEasyShell.iml" filepath="$PROJECT_DIR$/.idea/HPEasyShell.iml" />
       <module fileurl="file://$PROJECT_DIR$/../Rewrite-ThinPro7.1/.idea/Rewrite-ThinPro7.1.iml" filepath="$PROJECT_DIR$/../Rewrite-ThinPro7.1/.idea/Rewrite-ThinPro7.1.iml" />
     </modules>
