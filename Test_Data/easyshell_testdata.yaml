@@ -1,5 +1,6 @@
 appPath:
     easyShellPath: [C:\Program Files\HP\HP Easy Shell\HPEasyShellConfig.exe]
+version: 3.6.19.0
 createWebsites:
     test1:
         EmbaedPaneName: YouTube.*
@@ -65,7 +66,7 @@ createWebsites:
         EmbedIE: True
         AllCloseEmbedIE: False
     standardWebsite:
-        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTOStandard
         Address: http://15.83.240.126
         DefaultHome: False
@@ -88,7 +89,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     persistent:
-        WindowName: C:\\windows\\system32\\cmd.exe
+        WindowName: C:.*cmd.exe
         Name: persistent
         Path: 
             - C:\windows\system32\cmd.exe
@@ -101,7 +102,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     argument:
-        WindowName: HP DTO Performance test Test_Scripts query - Internet Explorer
+        WindowName: HP DTO Performance.* - Internet Explorer
         Name: IExplore_argument
         Path: 
             - C:\Program Files\internet explorer\iexplore.exe
@@ -128,7 +129,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     autolaunch:
-        WindowName: Foxit Reader
+        WindowName: .*Foxit Reader.*
         Name: FoxitReader_autolaunch
         Path: 
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
@@ -182,7 +183,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 1
     editApp: 
-        WindowName: .*Foxit Reader
+        WindowName: .*Foxit Reader.*
         Name: FoxitReader_edit
         Path: 
             - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
@@ -496,7 +497,7 @@ createRDP:
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
-        Customfile: C:\Users\chengba\Documents\Default.rdp
+        Customfile: C:\Users\CHENGBA\DOCUMENTS\DEFAULT.rdp
 createView:
     standardView:
         Name: standardView

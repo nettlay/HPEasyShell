@@ -9,5 +9,5 @@ pywin32==224
 pywin32-ctypes==0.2.0
 PyYAML==5.1
 ruamel.yaml==0.15.96
-uiautomation==2.0.1
+uiautomation==1.1.15
 WMI==1.4.9

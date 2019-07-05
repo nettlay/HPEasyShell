@@ -1,9 +1,13 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from Test_Scripts.easyshell import *
 import os
 from openpyxl import load_workbook
+from openpyxl.styles import Font, colors
 import pysnooper
 
-
+error_font = Font(color=colors.RED)
 class Test:
     def __init__(self):
         easyshelltest = EasyShellTest()
@@ -13,6 +17,35 @@ class Test:
         self.logpath = easyshelltest.log_path
         self.misc = easyshelltest.misc
         self.testset = easyshelltest.testset
+        self.testing = easyshelltest.testing
+
+    def getAttachment(self, attachmentFilePath):
+        attachment = MIMEText(open(attachmentFilePath, 'rb').read(), 'base64', 'utf-8')
+        attachment["Content-Type"] = 'application/octet-stream'
+        attachment["Content-Disposition"] = 'attachment;filename=%s' % os.path.basename(attachmentFilePath)
+        return attachment
+
+    def sendMail(self, recipient, subject, text, *attachmentFilePaths):
+        mailUser = "AutoTest<AutoTest@hp.com>"
+        msg = MIMEMultipart('related')
+        msg['From'] = mailUser
+        msg['To'] = ','.join(recipient)
+        msg['Subject'] = subject  # "AddonCatalog check result"
+        msg.attach(MIMEText(text, 'html', 'utf-8'))
+
+        for attachmentFilePath in attachmentFilePaths:
+            msg.attach(self.getAttachment(attachmentFilePath))
+        try:
+            mailServer = smtplib.SMTP(host='15.73.212.81', port=25)
+            mailServer.ehlo()
+            mailServer.starttls()
+            mailServer.ehlo()
+            mailServer.sendmail(mailUser, recipient, msg.as_string())
+            mailServer.close()
+            print("Sent email to %s success" % recipient)
+        except:
+            print("sent email fail~~")
+            EasyShellTest().Logfile('send mail fail:\n {}'.format(traceback.format_exc()))
 
     def test(self):
         wb = load_workbook(self.testset)
@@ -30,16 +63,24 @@ class Test:
             if result == 'PASS' or result == 'FAIL' or result == 'N/A':
                 continue
             else:
-                self.case = os.path.join(self.casepath, '{}.xlsx'.format(testName))
-                self.runTestcase(self.case)
+                if not os.path.exists(os.path.join(self.testing, '{}.xlsx'.format(testName))):
+                    os.system('copy {} {}'.format(os.path.join(self.casepath, '{}.xlsx'.format(testName)), os.path.join(self.testing, '{}.xlsx'.format(testName))))
+                self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)))
             if self.result:
                 ws.cell(row=i, column=2).value = "PASS"
                 wb.save(self.testset)
             else:
                 ws.cell(row=i, column=2).value = "FAIL"
+                ws.cell(row=i, column=2).font = error_font
                 wb.save(self.testset)
+        txt = "Attachment is HP EasyShell Test Result"
+        subject = "HP EasyShell Test Result"
+        mail_list = ["balance.cheng@hp.com"]
+        self.sendMail(mail_list, subject, txt, self.testset)
+
 
     def runTestcase(self, name):
+        print('Begin run test case: {}'.format(name))
         wb = load_workbook(name)
         sheets = wb.sheetnames  # 获得表单名字
         ws = wb[sheets[0]]
@@ -69,6 +110,7 @@ class Test:
                     else:
                         self.result = False
                         ws.cell(row=i, column=4).value = "FAIL"
+                        ws.cell(rows=i, column=4).font = error_font
                         wb.save(name)
                         EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, "True", rs))
                 else:
@@ -81,8 +123,10 @@ class Test:
                         else:
                             self.result = False
                             ws.cell(row=i, column=4).value = "FAIL"
+                            ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            EasyShellTest().Logfile(
+                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
                     elif '$BETWEEN' in str(value).upper():
                         value = str(value).upper().replace('$NOT', '').strip()
                         rs = int(rs)
@@ -96,8 +140,10 @@ class Test:
                         else:
                             self.result = False
                             ws.cell(row=i, column=4).value = "FAIL"
+                            ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            EasyShellTest().Logfile(
+                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
                     else:
                         if str(rs).upper() == str(value).upper():
                             ws.cell(row=i, column=4).value = "PASS"
@@ -106,8 +152,10 @@ class Test:
                         else:
                             self.result = False
                             ws.cell(row=i, column=4).value = "FAIL"
+                            ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            EasyShellTest().Logfile(
+                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
             elif checkPoint.upper() == 'N':
                 if 'Reboot' in str(command):
                     ws.cell(row=i, column=4).value = "PASS"
@@ -126,4 +174,3 @@ class Test:
 
 if __name__ == '__main__':
     Test().test()
-    import uiautomation

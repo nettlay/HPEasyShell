@@ -1,13 +1,14 @@
 from Library.CommonLib import QAUtils, TxtUtils, getElementByType
 import os
 import time
+import getpass
 
 if not os.path.exists('c:\\svc'):
     os.mkdir("C:\\svc")
 if not os.path.exists('c:\\svc\\svcconfig.ini'):
     os.system('echo {}\\test.txt>c:\\svc\\svcconfig.ini'.format(os.getcwd()))
-
 file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip().split(':', 1)[1]
+print(file_path)
 file_path = os.path.dirname(file_path)
 ElementlibPath = os.path.join(file_path, 'Configuration\\elementLib.ini')
 
@@ -48,7 +49,11 @@ class CommonUtils(QAUtils):
 
     @staticmethod
     def SwitchToAdmin():
-        QAUtils.SwitchUser("Admin", "Admin", "")
+        logon_user = getpass.getuser()
+        if logon_user.lower() == 'administrator':
+            QAUtils.SwitchUser("Administrator", "Administrator", "")
+        else:
+            QAUtils.SwitchUser("Admin", "Admin", "")
 
     @staticmethod
     def launchFromControl():
@@ -56,7 +61,7 @@ class CommonUtils(QAUtils):
 
     @staticmethod
     def launchFromPath():
-        QAUtils.LaunchAppFromFile("C:\\Program Files\\HP\\HP Easy Shell\\HPEasyShell.exe")
+        QAUtils.LaunchAppFromFile("C:\\Program Files\\HP\\HP Easy Shell\\HPEasyShellConfig.exe")
 
     @staticmethod
     def install(path):
