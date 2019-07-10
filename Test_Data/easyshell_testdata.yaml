@@ -2,67 +2,31 @@ appPath:
     easyShellPath: [C:\Program Files\HP\HP Easy Shell\HPEasyShellConfig.exe]
 version: 3.6.19.0
 createWebsites:
-    test1:
-        EmbaedPaneName: YouTube.*
-        Name: YouTueTest1
-        Address: https://youtube.com
+    HPDTO_Default:
+        EmbaedPaneName: HP DTO Performance test.* query.*
+        Name: HPDTOTest_Default
+        Address: http://15.83.240.126
         DefaultHome: True
         UseIE: False
         IEFullScreen: False
         EmbedIE: False
         AllCloseEmbedIE: False
-    test2:
-        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
-        Name: HPDTOTest2
-        Address: http://15.83.240.126
-        DefaultHome: False
-        UseIE: True
-        IEFullScreen: False
-        EmbedIE: False
-        AllCloseEmbedIE: False
-    test3:
-        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
-        Name: HPDTOTest3
-        Address: http://15.83.240.126
-        DefaultHome: False
-        UseIE: True
-        IEFullScreen: True
-        EmbedIE: False
-        AllCloseEmbedIE: False
-    test4:
-        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
-        Name: HPDTOTest4
+    HPDTO_EmbedIE:
+        EmbaedPaneName: HP DTO Performance test.* query.*
+        Name: HPDTO_EmbedIE
         Address: http://15.83.240.126
         DefaultHome: True
         UseIE: True
         IEFullScreen: True
         EmbedIE: True
-        AllCloseEmbedIE: False
-    test5:
-        EmbaedPaneName: Google.*
-        Name: GoogleTest5
-        Address: https://www.google.com.hk/
-        DefaultHome: False
-        UseIE: True
-        IEFullScreen: True
-        EmbedIE: True
-        AllCloseEmbedIE: True
-    test6:
-        EmbaedPaneName: Google.*
-        Name: GoogleTest5
-        Address: https://www.google.com.hk/
-        DefaultHome: False
-        UseIE: True
-        IEFullScreen: True
-        EmbedIE: True
         AllCloseEmbedIE: True
     editWebsite:
-        EmbaedPaneName: HP DTO Performance test Test_Scripts query.*
+        EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTOEditTest
         Address: http://15.83.240.126
         DefaultHome: False
         UseIE: True
-        IEFullScreen: This
+        IEFullScreen: True
         EmbedIE: True
         AllCloseEmbedIE: False
     standardWebsite:
@@ -210,7 +174,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
 userInterface:
-    test1: # Turn ON All the settings
+    test_on: # Turn ON All the settings
        - DisplayTitle:ON
        - DisplayApp:ON
        - DisplayConnections:ON
@@ -246,7 +210,7 @@ userInterface:
        - HideEasyShell:ON
        - EnableCustom:ON
        - EnableSmartcard:ON
-    test2: # Turn OFF All the settings
+    test_off: # Turn OFF All the settings
        - DisplayTitle:OFF
        - DisplayApp:OFF
        - DisplayConnections:OFF
@@ -282,7 +246,7 @@ userInterface:
        - HideEasyShell:OFF
        - EnableCustom:OFF
        - EnableSmartcard:OFF
-    test3: 
+    test_x1:
        - DisplayTitle:ON
        - DisplayApp:OFF
        - DisplayConnections:ON
@@ -318,7 +282,7 @@ userInterface:
        - HideEasyShell:ON
        - EnableCustom:OFF
        - EnableSmartcard:ON
-    test4: 
+    test_x2:
        - DisplayTitle:ON
        - DisplayApp:ON
        - DisplayConnections:ON
@@ -354,7 +318,7 @@ userInterface:
        - HideEasyShell:OFF
        - EnableCustom:OFF
        - EnableSmartcard:ON
-    test5: 
+    test_x3:
        - DisplayTitle:ON
        - DisplayApp:ON
        - DisplayConnections:ON
@@ -390,7 +354,7 @@ userInterface:
        - HideEasyShell:ON
        - EnableCustom:ON
        - EnableSmartcard:ON
-    test6: 
+    test_x4:
        - DisplayTitle:ON
        - DisplayApp:ON
        - DisplayConnections:ON
@@ -427,7 +391,7 @@ userInterface:
        - EnableCustom:OFF
        - EnableSmartcard:OFF
 userSettings:
-  test1:
+  test_on:
     # User settings
     - AllowUserSetting:ON
     - AllowMouse:ON
@@ -440,7 +404,7 @@ userSettings:
     - AllowEasyAccess:ON
     - AllowIEProperty:ON
     - AllowWifiConfig:ON
-  test2:
+  test_off:
     # User settings
     - AllowUserSetting:OFF
     - AllowMouse:OFF
@@ -453,7 +417,7 @@ userSettings:
     - AllowEasyAccess:OFF
     - AllowIEProperty:OFF
     - AllowWifiConfig:OFF
-  test3:
+  test_x1:
     # User settings
     - AllowUserSetting:OFF
     - AllowMouse:ON
@@ -466,7 +430,7 @@ userSettings:
     - AllowEasyAccess:OFF
     - AllowIEProperty:ON
     - AllowWifiConfig:OFF
-  test4:
+  test_x2:
     # User settings
     - AllowUserSetting:ON
     - AllowMouse:ON

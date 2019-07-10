@@ -385,13 +385,10 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
             else:
             # sometimes toggle method will not affect ui except clicking
             # but sometimes button is offscreen, so firstly setfocus
-                if self.IsOffScreen:
-                    self.SetFocus()
-                    self.Click()
-                else:
-                    self.Click()
+                self.SetFocus()
+                self.Click()
         else:
-            print('Button do not support Enable Control')
+            print('Button do not support Enable Control or is not shown')
 
     def Disable(self):
         if not self.Exists(1, 1):
@@ -401,15 +398,12 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
             if self.CurrentToggleState():
                 # sometimes toggle method will not affect ui except clicking
                 # but sometimes button is offscreen, so firstly setfocus
-                if self.IsOffScreen:
-                    self.SetFocus()
-                    self.Click()
-                else:
-                    self.Click()
+                self.SetFocus()
+                self.Click()
             else:
                 return
         else:
-            print('Button do not support Disable Control')
+            print('Button do not support Enable Control or is not shown')
 
 
 class TextControl(Control, GridItemPattern, TableItemPattern, TextPattern):

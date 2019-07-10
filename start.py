@@ -8,6 +8,14 @@ from openpyxl.styles import Font, colors
 import pysnooper
 
 error_font = Font(color=colors.RED)
+def clear_runtime_folder(path):
+    arry = []
+    dirs = os.listdir(path)
+    for i in dirs:
+        if '_MEI' in i:
+            arry.append(i)
+            os.system('rd /s /q {}\\{}'.format(path, i))
+
 class Test:
     def __init__(self):
         easyshelltest = EasyShellTest()
@@ -48,6 +56,12 @@ class Test:
             EasyShellTest().Logfile('send mail fail:\n {}'.format(traceback.format_exc()))
 
     def test(self):
+        # ---------Clear template folder by services in volumn C:
+        dirs = os.listdir('c:\\')
+        for folder in dirs:
+            if "_MEI" in folder:
+                os.system('rd /s /q c:\\{}'.format(folder))
+        # ------------------------------------
         wb = load_workbook(self.testset)
         sheets = wb.sheetnames  # 获得表单名字
         ws = wb[sheets[0]]
@@ -160,6 +174,7 @@ class Test:
                 if 'Reboot' in str(command):
                     ws.cell(row=i, column=4).value = "PASS"
                     wb.save(name)
+                    clear_runtime_folder("C:")
                     exec(command)
                 else:
                     print(command)
