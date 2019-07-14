@@ -142,7 +142,7 @@ class Test:
                             EasyShellTest().Logfile(
                                 "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
                     elif '$BETWEEN' in str(value).upper():
-                        value = str(value).upper().replace('$NOT', '').strip()
+                        value = str(value).upper().replace('$BETWEEN', '').strip()
                         rs = int(rs)
                         v1, v2 = value.split(',')
                         v1 = int(v1.strip())

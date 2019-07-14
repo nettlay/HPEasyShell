@@ -319,40 +319,40 @@ userInterface:
        - EnableCustom:OFF
        - EnableSmartcard:ON
     test_x3:
-       - DisplayTitle:ON
-       - DisplayApp:ON
-       - DisplayConnections:ON
+       - DisplayTitle:OFF
+       - DisplayApp:OFF
+       - DisplayConnections:OFF
        - DisplayStoreFront:ON
        - DisplayWebsites:ON
        - DisplayBrowser:ON
-       - DisplayAddress:ON
-       - DisplayNavigation:ON
-       - DisplayHome:ON
+       - DisplayAddress:OFF
+       - DisplayNavigation:OFF
+       - DisplayHome:OFF
        - DisplayAdmin:ON
        - DisplayPower:ON
        - AllowLock:ON
-       - AllowLogoff:ON
-       - AllowRestart:ON
-       - AllowShutDown:ON
+       - AllowLogoff:OFF
+       - AllowRestart:OFF
+       - AllowShutDown:OFF
        - DisplayVKeyboard:ON
        - EnableLTKeyboard:ON
        - DisplayTime:ON
-       - DisplayIP:ON
-       - DisplayMAC:ON
-       - EnableTaskSwitcher:ON
+       - DisplayIP:OFF
+       - DisplayMAC:OFF
+       - EnableTaskSwitcher:OFF
        - Permanent:ON
        - DisplaySwitcherTime:ON
        - DisplayBattery:ON
-       - DisplayCellular:ON
-       - DisplayNetwork:ON
-       - DisplaySound:ON
+       - DisplayCellular:OFF
+       - DisplayNetwork:OFF
+       - DisplaySound:OFF
        - DisplaySoundIconInteraction:ON
        - DisplayWifi:ON
        - DisplayWifiInterAction:ON
        - DisplayWriteFilter:ON
-       - DisplayWriteFilterInteraction:ON
-       - HideEasyShell:ON
-       - EnableCustom:ON
+       - DisplayWriteFilterInteraction:OFF
+       - HideEasyShell:OFF
+       - EnableCustom:OFF
        - EnableSmartcard:ON
     test_x4:
        - DisplayTitle:ON
@@ -433,16 +433,16 @@ userSettings:
   test_x2:
     # User settings
     - AllowUserSetting:ON
-    - AllowMouse:ON
-    - AllowKeyboard:OFF
-    - AllowDisplay:OFF
-    - AllowSound:OFF
-    - AllowRegion:ON
+    - AllowMouse:OFF
+    - AllowKeyboard:ON
+    - AllowDisplay:ON
+    - AllowSound:ON
+    - AllowRegion:OFF
     - AllowNetworkConn:ON
-    - AllowDateTime:ON
-    - AllowEasyAccess:OFF
+    - AllowDateTime:OFF
+    - AllowEasyAccess:ON
     - AllowIEProperty:OFF
-    - AllowWifiConfig:OFF
+    - AllowWifiConfig:ON
 createRDP:
     standardRDP:
         Name: standard_RFXWin10
@@ -528,4 +528,19 @@ createStoreFront:
         Autolaunch: OFF
         ConnectionTimeout: 60
         DesktopToolbar: OFF
+    editStore:
+      Name: editStore
+      URL: edittest.sh.dto
+      SelectStore: False
+      StoreName: fcxds.sh.dto
+      Launchdelay: 0
+      LogonMethod: Username and password
+      Username: edittest
+      Password: passwd
+      Domain: sh.dto
+      HideDomain: OFF
+      CustomLogon: test.icon
+      Autolaunch: ON
+      ConnectionTimeout: 5
+      DesktopToolbar: OFF
         

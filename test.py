@@ -5,5 +5,7 @@ import Library.CommonLib as CommonLib
 #     print('111')
 #     EasyshellLib.getElement('MAIN_WINDOW').Close()
 import uiautomation
-t = uiautomation.WindowControl(RegexName="HP Easy.*").IsMaximize()
+import time
+t = EasyshellLib.getElement('SoundSetting').Exists()
 print(t)
+EasyshellLib.getElement('WirelessSetting').Close()
