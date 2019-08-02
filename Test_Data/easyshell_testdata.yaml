@@ -461,7 +461,7 @@ createRDP:
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
-        Customfile: C:\DEFAULT.rdp
+        Customfile: C:\svc\hpeasyshell\test_data\DEFAULT.rdp
 createView:
     standardView:
         Name: standardView

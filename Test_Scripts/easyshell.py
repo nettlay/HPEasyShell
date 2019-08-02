@@ -1736,7 +1736,7 @@ class Shell_StoreFront(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=4)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
-            self.Logfile('[PASS]: View Connection {} Create'.format(Name))
+            self.Logfile('[PASS]: Storefront Connection {} Create'.format(Name))
             return True
         except Exception as e:
             self.Logfile("[FAIL]:Storfront {} Create\nErrors:\n{}\n".format(Name, e))
@@ -2638,27 +2638,7 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_Application().create('standardApp')
-    # Shell_Application().edit('editApp', 'standardApp')
-    # EasyshellLib.CommonUtils.SwitchToUser()
-    # EasyshellLib.CommonUtils.Reboot()
-    Shell_Application().check('editApp')
-    # EasyshellLib.CommonUtils.SwitchToAdmin()
-    # EasyshellLib.CommonUtils.Reboot()
-
-    # TaskSwitcher().enable()
-    # TaskSwitcher().enablePermanent()
-    # EasyshellLib.CommonUtils.SwitchToUser()
-    # EasyshellLib.CommonUtils.Reboot()
-    # TaskSwitcher().checkPermanent()
-    # EasyshellLib.CommonUtils.SwitchToAdmin()
-    # EasyshellLib.CommonUtils.Reboot()
-    # TaskSwitcher().enable()
-    # TaskSwitcher().disablePermanent()
-    # EasyshellLib.CommonUtils.SwitchToUser()
-    # EasyshellLib.CommonUtils.Reboot()
-    # TaskSwitcher().checkNoPermanent()
-    # EasyshellLib.CommonUtils.SwitchToAdmin()
-    # EasyshellLib.CommonUtils.Reboot()
-
-
+    # Shell_RDP().edit('editRDP','standardRDP')
+    # Shell_RDP().check('editRDP')
+    # Shell_RDP().create('standardRDP')
+    print(Shell_RDP().utils('standardRDP', 'delete', 'conn'))

@@ -1,4 +1,7 @@
 2019/08/02
 1. Add flag after all test finished
-2. After test finished, check flag.txt, if finished do not send email
-3. Modify App Persistent/No Persistent check logic with launch delay
+3. After test finished, check flag.txt, if finished do not send email
+4. Modify App Persistent/No Persistent check logic with launch delay
+
+Known Issue:
+RDP Edit custom file, there is error when input the file path
