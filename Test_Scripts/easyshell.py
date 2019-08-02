@@ -1038,16 +1038,33 @@ class Shell_Application(EasyShellTest):
                         flag = False
                         self.Logfile("[Failed]:APP {} AutoDelay".format(Name))
                         self.capture(profile, "[Failed]:APP {} AutoDelay".format(Name))
+                    else:
+                        time.sleep(int(Launchdelay))
+                        if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
+                            flag = True
+                            self.Logfile("[PASS]:APP {} AutoDelay Persistent".format(Name))
+                        else:
+                            self.Logfile("[Failed]:APP {} AutoDelay persistent,expect shown".format(Name))
+                            self.capture(profile, "[Failed]:APP {} AutoDelay persistent, expect shown".format(Name))
             else:
                 CommonLib.WindowControl(RegexName=WindowName).Close()
-                time.sleep(8)
-                if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
-                    flag = False
-                    self.Logfile("[Failed]:App {} No Persistent".format(Name))
-                    self.capture(profile, "[Failed]:App {} No Persistent".format(Name))
-                    return flag
+                time.sleep(5)
+                if int(Launchdelay) == 0:
+                    if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
+                        flag = False
+                        self.Logfile("[Failed]:App {} No Persistent".format(Name))
+                        self.capture(profile, "[Failed]:App {} No Persistent".format(Name))
+                        return flag
+                    else:
+                        self.Logfile("[PASS]:App {} No Persistent".format(Name))
                 else:
-                    self.Logfile("[PASS]:App {} No Persistent".format(Name))
+                    time.sleep(int(Launchdelay))
+                    if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
+                        flag = False
+                        self.Logfile("[Fail]:APP {} AutoDelay No Persistent, Expect No shown".format(Name))
+                        self.capture(profile, "[Failed]:APP {} AutoDelay No persistent, expect shown".format(Name))
+                    else:
+                        self.Logfile("[PASS]:APP {} AutoDelay NO persistent".format(Name))
             return flag
         except:
             self.Logfile("[Failed]:App {} App Check\nErrors:\n{}\n".format(Name, traceback.format_exc()))
@@ -2085,6 +2102,7 @@ class Shell_View(EasyShellTest):
             self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
             return False
 
+
 class Shell_RDP(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
@@ -2527,6 +2545,30 @@ class TaskSwitcher(EasyShellTest):
             self.Logfile('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
             return False
 
+    def checkPermanent(self):
+        if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
+            self.Logfile("[Fail]: Task SwitcherBar is shown, expect No permanent")
+            return False
+        time.sleep(15)
+        if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
+            self.Logfile("[PASS]: Task SwitcherBar is permanent")
+            return True
+        else:
+            self.Logfile("[Fail]: Task SwitcherBar is not permanent, expect permanent")
+            return False
+
+    def checkNoPermanent(self):
+        if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
+            self.Logfile("[Fail]: Task SwitcherBar is shown, expect No permanent")
+            return False
+        time.sleep(15)
+        if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
+            self.Logfile("[Fail]: Task SwitcherBar is permanent, expect no permanent")
+            return False
+        else:
+            self.Logfile("[PASS]: Task SwitcherBar is not permanent")
+            return True
+
     def enableSoundIconReadOnly(self):
         self.enable()
         EasyshellLib.getElement('DisplaySoundIconInteraction').Disable()
@@ -2596,18 +2638,27 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    TaskSwitcher().enable()
-    EasyshellLib.CommonUtils.SwitchToUser()
-    EasyshellLib.CommonUtils.Reboot()
-    EasyshellLib.getElement('TASK_SWITCHER').Exists(0, 0)
-    EasyshellLib.CommonUtils.SwitchToAdmin()
-    EasyshellLib.CommonUtils.Reboot()
-    TaskSwitcher().disable()
-    EasyshellLib.CommonUtils.SwitchToUser()
-    EasyshellLib.CommonUtils.Reboot()
-    EasyshellLib.getElement('TASK_SWITCHER').Exists(0, 0)
+    # Shell_Application().create('standardApp')
+    # Shell_Application().edit('editApp', 'standardApp')
+    # EasyshellLib.CommonUtils.SwitchToUser()
+    # EasyshellLib.CommonUtils.Reboot()
+    Shell_Application().check('editApp')
+    # EasyshellLib.CommonUtils.SwitchToAdmin()
+    # EasyshellLib.CommonUtils.Reboot()
 
-
-
+    # TaskSwitcher().enable()
+    # TaskSwitcher().enablePermanent()
+    # EasyshellLib.CommonUtils.SwitchToUser()
+    # EasyshellLib.CommonUtils.Reboot()
+    # TaskSwitcher().checkPermanent()
+    # EasyshellLib.CommonUtils.SwitchToAdmin()
+    # EasyshellLib.CommonUtils.Reboot()
+    # TaskSwitcher().enable()
+    # TaskSwitcher().disablePermanent()
+    # EasyshellLib.CommonUtils.SwitchToUser()
+    # EasyshellLib.CommonUtils.Reboot()
+    # TaskSwitcher().checkNoPermanent()
+    # EasyshellLib.CommonUtils.SwitchToAdmin()
+    # EasyshellLib.CommonUtils.Reboot()
 
 

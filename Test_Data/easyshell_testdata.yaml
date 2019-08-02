@@ -207,7 +207,7 @@ userInterface:
        - DisplayWifiInterAction:ON
        - DisplayWriteFilter:ON
        - DisplayWriteFilterInteraction:ON
-       - HideEasyShell:ON
+       - HideEasyShell:OFF
        - EnableCustom:ON
        - EnableSmartcard:ON
     test_off: # Turn OFF All the settings
@@ -279,7 +279,7 @@ userInterface:
        - DisplayWifiInterAction:OFF
        - DisplayWriteFilter:OFF
        - DisplayWriteFilterInteraction:OFF
-       - HideEasyShell:ON
+       - HideEasyShell:OFF
        - EnableCustom:OFF
        - EnableSmartcard:ON
     test_x2:
@@ -461,7 +461,7 @@ createRDP:
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
-        Customfile: C:\Users\CHENGBA\DOCUMENTS\DEFAULT.rdp
+        Customfile: C:\DEFAULT.rdp
 createView:
     standardView:
         Name: standardView

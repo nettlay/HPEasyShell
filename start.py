@@ -5,9 +5,10 @@ from Test_Scripts.easyshell import *
 import os
 from openpyxl import load_workbook
 from openpyxl.styles import Font, colors
-import pysnooper
 
 error_font = Font(color=colors.RED)
+
+
 def clear_runtime_folder(path):
     arry = []
     dirs = os.listdir(path)
@@ -15,6 +16,7 @@ def clear_runtime_folder(path):
         if '_MEI' in i:
             arry.append(i)
             os.system('rd /s /q {}\\{}'.format(path, i))
+
 
 class Test:
     def __init__(self):
@@ -78,7 +80,8 @@ class Test:
                 continue
             else:
                 if not os.path.exists(os.path.join(self.testing, '{}.xlsx'.format(testName))):
-                    os.system('copy {} {}'.format(os.path.join(self.casepath, '{}.xlsx'.format(testName)), os.path.join(self.testing, '{}.xlsx'.format(testName))))
+                    os.system('copy {} {}'.format(os.path.join(self.casepath, '{}.xlsx'.format(testName)),
+                                                  os.path.join(self.testing, '{}.xlsx'.format(testName))))
                 self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)))
             if self.result:
                 ws.cell(row=i, column=2).value = "PASS"
@@ -90,8 +93,10 @@ class Test:
         txt = "Attachment is HP EasyShell Test Result"
         subject = "HP EasyShell Test Result"
         mail_list = ["balance.cheng@hp.com"]
-        self.sendMail(mail_list, subject, txt, self.testset)
-
+        with open("flag.txt", 'r') as f:
+            if not "TEST FINISHED" in f.read():
+                self.sendMail(mail_list, subject, txt, self.testset)
+                os.system("echo Test Finished > flag.txt")
 
     def runTestcase(self, name):
         print('Begin run test case: {}'.format(name))
@@ -124,7 +129,7 @@ class Test:
                     else:
                         self.result = False
                         ws.cell(row=i, column=4).value = "FAIL"
-                        ws.cell(rows=i, column=4).font = error_font
+                        ws.cell(row=i, column=4).font = error_font
                         wb.save(name)
                         EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, "True", rs))
                 else:

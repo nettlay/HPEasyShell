@@ -1,0 +1,4 @@
+2019/08/02
+1. Add flag after all test finished
+2. After test finished, check flag.txt, if finished do not send email
+3. Modify App Persistent/No Persistent check logic with launch delay

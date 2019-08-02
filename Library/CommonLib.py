@@ -1,3 +1,5 @@
+import uuid
+
 import math
 import winreg
 import cv2
@@ -40,17 +42,25 @@ class QAUtils:
     def get_os():
         return platform.platform()[:10].replace('-', '')
 
+    # @staticmethod
+    # def getNetInfo():
+    #     # ip_pattern = r'(([01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])\.){3}(?:[01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])'
+    #     name = socket.gethostname()
+    #     ip_addr = socket.gethostbyname(name)
+    #     rs = os.popen('ipconfig /all').read() # if run in service, there is exception oserror:[winerror 6] the handle is invalid
+    #     rs_list = re.search('Ethernet adapter(.*?)Subnet Mask', rs, re.S).group().split('\n')
+    #     for line in rs_list:
+    #         if "Physical Address" in line:
+    #             mac_addr = line.split(':')[1].strip().replace('-', ':')
+    #             return {'MAC': mac_addr, 'IP': ip_addr}
     @staticmethod
     def getNetInfo():
         # ip_pattern = r'(([01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])\.){3}(?:[01]{0,1}\d{0,1}\d|2[0-4]\d|25[0-5])'
         name = socket.gethostname()
         ip_addr = socket.gethostbyname(name)
-        rs = os.popen('ipconfig /all').read()
-        rs_list = re.search('Ethernet adapter(.*?)Subnet Mask', rs, re.S).group().split('\n')
-        for line in rs_list:
-            if "Physical Address" in line:
-                mac_addr = line.split(':')[1].strip().replace('-', ':')
-                return {'MAC': mac_addr, 'IP': ip_addr}
+        mac_1 = uuid.UUID(int = uuid.getnode()).hex[-12:]
+        mac = ":".join([mac_1[e:e+2] for e in range(0,11,2)]).upper()
+        return {'MAC': mac, 'IP': ip_addr}
 
     @staticmethod
     def getLocalTime(fmt='%I:%M:%S %Y/%m/%d', fullTime=False):
