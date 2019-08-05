@@ -538,7 +538,8 @@ class UserInterfacSettings(EasyShellTest):
                             self.capture(profile, "[Fail]: {} is shown".format(name))
                     # ---Label that display mac/time/version... at the bottom of UI -----
                     if name == 'DisplayTime':
-                        if EasyshellLib.getElement('Time').IsOffScreen:
+                        MainWnd = EasyshellLib.getElement("MAIN_WINDOW")
+                        if EasyshellLib.getElement('Time', parent=MainWnd).IsOffScreen:
                             self.Logfile("[PASS]: {} is not shown".format(name))
                         else:
                             flag = False
@@ -620,9 +621,17 @@ class UserSettings(EasyShellTest):
         test = self.sections[self.section_name][profile]
         # 以下为部分设置的总开关sw = switch
         self.Logfile('---------Begin To Check User settings----------')
-        swSettings = True
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+
+        if test[0].split(":")[1].strip() == "OFF":
+            if EasyshellLib.getElement('UserSettings').IsOffScreen:
+                self.Logfile('[PASS]:Allow User settings is OFF, user setting is not shown')
+                return True
+            else:
+                self.Logfile('[FAIL]:Allow User settings is OFF, But user setting is shown')
+                self.capture(profile, "[Fail]: Allow User settings is OFF, But user setting is shown")
+                return False
         EasyshellLib.getElement('UserSettings').Click()
         for item in test:
             """
@@ -632,12 +641,6 @@ class UserSettings(EasyShellTest):
             name = item.split(":")[0].strip()
             status = item.split(":")[1].strip()
             if status == "ON":
-                # ///////判断主按钮是否关闭，如果OFF,子按钮不再检查
-                if not swSettings:
-                    if name in ['AllowMouse', 'AllowKeyboard', 'AllowDisplay', 'AllowSound', 'AllowRegion',
-                                'AllowNetworkConn', 'AllowDateTime', 'AllowEasyAccess', 'AllowIEProperty',
-                                'AllowWifiConfig']:
-                        continue
                 # ------------User Settings -----------------------------------
                 if name == 'AllowMouse':
                     if not EasyshellLib.getElement('SysMouseIcon').IsOffScreen:
@@ -778,13 +781,6 @@ class UserSettings(EasyShellTest):
                         self.Logfile("[Fail]: {} is not shown".format(name))
                         self.capture(profile, "[Fail]: {} is not shown".format(name))
             elif status == "OFF":
-                # ///////判断主按钮是否关闭，如果OFF,子按钮不再检查
-                if not swSettings:
-                    if name in ['AllowMouse', 'AllowKeyboard', 'AllowDisplay', 'AllowSound', 'AllowRegion',
-                                'AllowNetworkConn', 'AllowDateTime', 'AllowEasyAccess', 'AllowIEProperty',
-                                'AllowWifiConfig']:
-                        continue
-                # ------------User Settings -----------------------------------
                 if name == 'AllowMouse':
                     if not EasyshellLib.getElement('SysMouseIcon').Exists(0, 0):
                         self.Logfile("[PASS]: {} is not shown".format(name))
@@ -2641,4 +2637,5 @@ if __name__ == '__main__':
     # Shell_RDP().edit('editRDP','standardRDP')
     # Shell_RDP().check('editRDP')
     # Shell_RDP().create('standardRDP')
-    print(Shell_RDP().utils('standardRDP', 'delete', 'conn'))
+    # print(Shell_RDP().utils('standardRDP', 'delete', 'conn'))
+    UserInterfacSettings().edit('test_x4')

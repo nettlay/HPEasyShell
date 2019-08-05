@@ -445,88 +445,89 @@ def SendKey(key, waitTime=0.1, count=1):
         uiautomation.SendKey(key, waitTime=waitTime)
 
 
-def getElementByType(controlType, **kwargs):
+def getElementByType(controlType, parent, **kwargs):
+    # parent: Parent element
     # print(controlType, **kwargs)
     if controlType.upper() == "HYPERLINK":
-        return HyperlinkControl(**kwargs)
+        return parent.HyperlinkControl(**kwargs)
     elif controlType.upper() == 'IMAGE':
-        return ImageControl(**kwargs)
+        return parent.ImageControl(**kwargs)
     elif controlType.upper() == 'APPBAR':
-        return AppBarControl(**kwargs)
+        return parent.AppBarControl(**kwargs)
     elif controlType.upper() == 'CALENDAR':
-        return CalendarControl(**kwargs)
+        return parent.CalendarControl(**kwargs)
     elif controlType.upper() == 'CUSTOM':
-        return CustomControl(**kwargs)
+        return parent.CustomControl(**kwargs)
     elif controlType.upper() == 'DOCUMENT':
-        return DocumentControl(**kwargs)
+        return parent.DocumentControl(**kwargs)
     elif controlType.upper() == 'GROUP':
-        return GroupControl(**kwargs)
+        return parent.GroupControl(**kwargs)
     elif controlType.upper() == 'HEADER':
-        return HeaderControl(**kwargs)
+        return parent.HeaderControl(**kwargs)
     elif controlType.upper() == 'HEADERITEM':
-        return HeaderItemControl(**kwargs)
+        return parent.HeaderItemControl(**kwargs)
     elif controlType.upper() == 'SPINNER':
-        return SpinnerControl(**kwargs)
+        return parent.SpinnerControl(**kwargs)
     elif controlType.upper() == 'SLIDER':
-        return SliderControl(**kwargs)
+        return parent.SliderControl(**kwargs)
     elif controlType.upper() == 'SEPARATOR':
-        return SeparatorControl(**kwargs)
+        return parent.SeparatorControl(**kwargs)
     elif controlType.upper() == 'SEMANTICZOOM':
-        return SemanticZoomControl(**kwargs)
+        return parent.SemanticZoomControl(**kwargs)
     elif controlType.upper() == 'MENUITEM':
-        return MenuItemControl(**kwargs)
+        return parent.MenuItemControl(**kwargs)
     elif controlType.upper() == 'MENU':
-        return MenuControl(**kwargs)
+        return parent.MenuControl(**kwargs)
     elif controlType.upper() == 'MENUBAR':
-        return MenuBarControl(**kwargs)
+        return parent.MenuBarControl(**kwargs)
     elif controlType.upper() == 'TABLE':
-        return TableControl(**kwargs)
+        return parent.TableControl(**kwargs)
     elif controlType.upper() == 'STATUSBAR':
-        return StatusBarControl(**kwargs)
+        return parent.StatusBarControl(**kwargs)
     elif controlType.upper() == 'SPLITBUTTON':
-        return SplitButtonControl(**kwargs)
+        return parent.SplitButtonControl(**kwargs)
     elif controlType.upper() == 'THUMB':
-        return ThumbControl(**kwargs)
+        return parent.ThumbControl(**kwargs)
     elif controlType.upper() == 'TITLEBAR':
-        return TitleBarControl(**kwargs)
+        return parent.TitleBarControl(**kwargs)
     elif controlType.upper() == 'TOOLTIP':
-        return ToolTipControl(**kwargs)
+        return parent.ToolTipControl(**kwargs)
     elif controlType.upper() == "BUTTON":
-        return ButtonControl(**kwargs)
+        return parent.ButtonControl(**kwargs)
     elif controlType.upper() == "COMBOX":
-        return ComboBoxControl(**kwargs)
+        return parent.ComboBoxControl(**kwargs)
     elif controlType.upper() == "CHECKBOX":
-        return CheckBoxControl(**kwargs)
+        return parent.CheckBoxControl(**kwargs)
     elif controlType.upper() == "DATAGRID":
-        return DataGridControl(**kwargs)
+        return parent.DataGridControl(**kwargs)
     elif controlType.upper() == "DATAITEM":
-        return DataItemControl(**kwargs)
+        return parent.DataItemControl(**kwargs)
     elif controlType.upper() == "EDIT":
-        return EditControl(**kwargs)
+        return parent.EditControl(**kwargs)
     elif controlType.upper() == "LIST":
-        return ListControl(**kwargs)
+        return parent.ListControl(**kwargs)
     elif controlType.upper() == "LISTITEM":
-        return ListItemControl(**kwargs)
+        return parent.ListItemControl(**kwargs)
     elif controlType.upper() == "PANE":
-        return PaneControl(**kwargs)
+        return parent.PaneControl(**kwargs)
     elif controlType.upper() == "RADIOBUTTON":
-        return RadioButtonControl(**kwargs)
+        return parent.RadioButtonControl(**kwargs)
     elif controlType.upper() == "SCROLLBAR":
-        return ScrollBarControl(**kwargs)
+        return parent.ScrollBarControl(**kwargs)
     elif controlType.upper() == "TEXT":
-        return TextControl(**kwargs)
+        return parent.TextControl(**kwargs)
     elif controlType.upper() == "TREE":
-        return TreeControl(**kwargs)
+        return parent.TreeControl(**kwargs)
     elif controlType.upper() == "TREEITEM":
-        return TreeItemControl(**kwargs)
+        return parent.TreeItemControl(**kwargs)
     elif controlType.upper() == "WINDOW":
-        return WindowControl(**kwargs)
+        return parent.WindowControl(**kwargs)
     elif controlType.upper() == 'PROGRESSBAR':
-        return ProgressBarControl(**kwargs)
+        return parent.ProgressBarControl(**kwargs)
     elif controlType.upper() == "TAB":
-        return TabControl(**kwargs)
+        return parent.TabControl(**kwargs)
     elif controlType.upper() == "TABITEM":
-        return TabItemControl(**kwargs)
+        return parent.TabItemControl(**kwargs)
     else:
-        return Control(**kwargs)
+        return parent.Control(**kwargs)
 

@@ -1,8 +1,4 @@
 import os
+import uiautomation
 
-c = os.popen("ipconfig /all")
-print(c.read())
-d = os.popen("dir c:\\")
-print(c.read())
-
-print(d.read())
+print(uiautomation.ButtonControl(AutomationId="UserSettingsButton").IsOffScreen)

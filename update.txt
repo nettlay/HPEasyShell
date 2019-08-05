@@ -5,3 +5,7 @@
 
 Known Issue:
 RDP Edit custom file, there is error when input the file path
+
+2019/08/05
+1.modify testset.xlsx, settings_x3x1 mistake to setting_x3x1
+2.Fix when allow user setting is set to OFF(usersetting button is offscreen), still click user setting button

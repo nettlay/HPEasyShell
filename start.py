@@ -58,6 +58,13 @@ class Test:
             EasyShellTest().Logfile('send mail fail:\n {}'.format(traceback.format_exc()))
 
     def test(self):
+        if not os.path.exists(os.path.join(self.path, 'flag.txt')):
+            os.system("echo testing>{}".format(os.path.join(self.path, 'flag.txt')))
+        with open(os.path.join(self.path, 'flag.txt'), 'r') as f:
+            src = f.read().upper()
+            if "TEST FINISHED" in src:
+                print("begin to return")
+                return "test finished"
         # ---------Clear template folder by services in volumn C:
         dirs = os.listdir('c:\\')
         for folder in dirs:
@@ -93,10 +100,9 @@ class Test:
         txt = "Attachment is HP EasyShell Test Result"
         subject = "HP EasyShell Test Result"
         mail_list = ["balance.cheng@hp.com"]
-        with open("flag.txt", 'r') as f:
-            if not "TEST FINISHED" in f.read():
-                self.sendMail(mail_list, subject, txt, self.testset)
-                os.system("echo Test Finished > flag.txt")
+        self.sendMail(mail_list, subject, txt, self.testset)
+        os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
+
 
     def runTestcase(self, name):
         print('Begin run test case: {}'.format(name))
