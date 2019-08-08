@@ -1551,6 +1551,7 @@ class Shell_Websites(EasyShellTest):
                     continue
                 else:
                     break
+            EasyshellLib.getElement('WebSites').Click()
             if self.utils(newProfile, 'exist'):
                 self.utils(newProfile, 'delete')
             if not self.utils(oldProfile, 'exist'):
@@ -1558,7 +1559,6 @@ class Shell_Websites(EasyShellTest):
                 self.capture("EditWEB",
                              '[Fail]: Edit website with new profile {}, old profile not exist'.format(newName))
                 return False
-            EasyshellLib.getElement('WebSites').Click()
             self.utils(oldProfile, 'Edit')
             time.sleep(3)
             ClearContent()
@@ -1905,6 +1905,7 @@ class Shell_StoreFront(EasyShellTest):
             return True
         else:
             self.Logfile('[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
+            self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
             return False
 
 
@@ -2128,10 +2129,12 @@ class Shell_View(EasyShellTest):
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:View connection {} Check Exist'.format(profile))
             return True
         else:
+            self.capture('CheckView', '[FAIL]:View connection {} Check Not Exist'.format(profile))
             self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
             return False
 
@@ -2321,6 +2324,7 @@ class Shell_RDP(EasyShellTest):
                                      '[Failed]: RDP Connection {} Edit, {} not exist'.format(oldname, newcustomfile))
                         return False
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    time.sleep(1)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     time.sleep(3)
@@ -2389,6 +2393,13 @@ class Shell_Citrix(EasyShellTest):
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('CitrixICAAdd').Click()
             time.sleep(5)
+            if EasyshellLib.getElement('CITRIX_EDIT').Exists(3, 3):
+                EasyshellLib.getElement('CITRIX_EDIT').SetFocus()
+            else:
+                self.Logfile('[Fail]: Citrix Edit Window not launched')
+                self.capture('CitrixCreate',
+                             "[FAIL]: Citrix Edit Window not launched")
+                return False
             CommonLib.SendKeys(name)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKeys(hostname)
@@ -2464,6 +2475,13 @@ class Shell_Citrix(EasyShellTest):
                 self.capture('CitrixEdit', '[Fail]:Old CitrixICA {} do not exist'.format(oldname))
                 return False
             time.sleep(5)
+            if EasyshellLib.getElement('CITRIX_EDIT').Exists(3, 3):
+                EasyshellLib.getElement('CITRIX_EDIT').SetFocus()
+            else:
+                self.Logfile('[Fail]: Citrix Edit Window not launched')
+                self.capture('CitrixCreate',
+                             "[FAIL]: Citrix Edit Window not launched")
+                return False
             ClearContent(len(oldname) + 5)
             CommonLib.SendKeys(newname)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -2671,8 +2689,5 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_RDP().create('standardRDP')
-    # Shell_RDP().edit('editRDP','standardRDP')
-    Shell_RDP().check('editRDP')
-    # print(Shell_RDP().utils('standardRDP', 'delete', 'conn'))
-    # UserInterfacSettings().edit('test_x4')
+    Shell_Citrix().create('standardCitrix')
+    Shell_Citrix().utils('standardCitrix', 'Delete', "conn")

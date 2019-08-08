@@ -40,7 +40,7 @@ createWebsites:
         AllCloseEmbedIE: False
 createApp:
     launch:
-        WindowName: Untitled - Notepad
+        WindowName: .*- Notepad
         Name: Manual_launch
         Path: 
             - C:\windows\system32\notepad.exe
@@ -93,11 +93,10 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     autolaunch:
-        WindowName: .*Foxit Reader.*
-        Name: FoxitReader_autolaunch
-        Path: 
-            - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
-            - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
+        WindowName: .*Paint
+        Name: Mspaint_autolaunch
+        Path:
+          - C:\Windows\system32\mspaint.exe
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -121,7 +120,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     adminonly:
-        WindowName: Untitled - Notepad
+        WindowName: .*- Notepad
         Name: Notepad-AdminOnly
         Path: 
             - C:\windows\system32\notepad.exe
@@ -147,21 +146,20 @@ createApp:
         Adminonly: 0
         Hidemissapp: 1
     editApp: 
-        WindowName: .*Foxit Reader.*
-        Name: FoxitReader_edit
+        WindowName: .*Paint
+        Name: Mspaint_edit
         Path: 
-            - C:\Program Files (x86)\Foxit Software\Foxit Reader\FoxitReader.exe
-            - C:\Program Files\Foxit Software\Foxit Reader\FoxitReader.exe
+            - C:\Windows\system32\mspaint.exe
         Argument: None
         Launchdelay: 20
         Exitaction: None
         Autolaunch: 0
-        Persistent: 1
+        Persistent: 0
         Maximized: 0
         Adminonly: 0
         Hidemissapp: 0
     standardApp: # This is for create a application demo
-        WindowName: Untitled - Notepad
+        WindowName: .*- Notepad
         Name: StandardApp
         Path: 
             - C:\windows\system32\notepad.exe
