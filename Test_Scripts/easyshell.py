@@ -1,3 +1,5 @@
+import platform
+
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
 import os
@@ -669,19 +671,35 @@ class UserSettings(EasyShellTest):
                         self.Logfile("[Fail]: {} is not shown".format(name))
                         self.capture(profile, "[Fail]: {} is not shown".format(name))
                 if name == 'AllowDisplay':
-                    if not EasyshellLib.getElement('SysDisplayIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysDisplayIcon').Click()
-                        if EasyshellLib.getElement('DisplaySetting').Exists(3, 0):
-                            EasyshellLib.getElement('DisplaySetting').Close()
-                            self.Logfile("[PASS]: {} is shown".format(name))
+                    logon_user = platform.version()
+                    if logon_user.split(".")[0] == "10":
+                        if not EasyshellLib.getElement('SysDisplayIcon').IsOffScreen:
+                            EasyshellLib.getElement('SysDisplayIcon').Click()
+                            if EasyshellLib.getElement('DisplaySetting').Exists(3, 0):
+                                EasyshellLib.getElement('DisplaySetting').Close()
+                                self.Logfile("[PASS]: {} is shown".format(name))
+                            else:
+                                flag = False
+                                self.Logfile("[Fail]: {} is not shown".format(name))
+                                self.capture(profile, "[Fail]: {} is not shown".format(name))
                         else:
                             flag = False
                             self.Logfile("[Fail]: {} is not shown".format(name))
                             self.capture(profile, "[Fail]: {} is not shown".format(name))
                     else:
-                        flag = False
-                        self.Logfile("[Fail]: {} is not shown".format(name))
-                        self.capture(profile, "[Fail]: {} is not shown".format(name))
+                        if not EasyshellLib.getElement('SysDisplayIcon').IsOffScreen:
+                            EasyshellLib.getElement('SysDisplayIcon').Click()
+                            if EasyshellLib.getElement('DisplaySetting_7').Exists(3, 0):
+                                EasyshellLib.getElement('DisplaySetting_7').Close()
+                                self.Logfile("[PASS]: {} is shown".format(name))
+                            else:
+                                flag = False
+                                self.Logfile("[Fail]: {} is not shown".format(name))
+                                self.capture(profile, "[Fail]: {} is not shown".format(name))
+                        else:
+                            flag = False
+                            self.Logfile("[Fail]: {} is not shown".format(name))
+                            self.capture(profile, "[Fail]: {} is not shown".format(name))
                 if name == 'AllowSound':
                     if not EasyshellLib.getElement('SysSoundIcon').IsOffScreen:
                         EasyshellLib.getElement('SysSoundIcon').Click()
@@ -697,19 +715,37 @@ class UserSettings(EasyShellTest):
                         self.Logfile("[Fail]: {} is not shown".format(name))
                         self.capture(profile, "[Fail]: {} is not shown".format(name))
                 if name == 'AllowRegion':
-                    if not EasyshellLib.getElement('SysRegionIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysRegionIcon').Click()
-                        if EasyshellLib.getElement('RegionSetting').Exists(3, 0):
-                            EasyshellLib.getElement('RegionSetting').Close()
-                            self.Logfile("[PASS]: {} is shown".format(name))
+                    logon_user = platform.version()
+                    if logon_user.split(".")[0] == "10":
+                        # _os = "WES10"
+                        if not EasyshellLib.getElement('SysRegionIcon').IsOffScreen:
+                            EasyshellLib.getElement('SysRegionIcon').Click()
+                            if EasyshellLib.getElement('RegionSetting').Exists(3, 0):
+                                EasyshellLib.getElement('RegionSetting').Close()
+                                self.Logfile("[PASS]: {} is shown".format(name))
+                            else:
+                                flag = False
+                                self.Logfile("[Fail]: {} is not shown".format(name))
+                                self.capture(profile, "[Fail]: {} is not shown".format(name))
                         else:
                             flag = False
                             self.Logfile("[Fail]: {} is not shown".format(name))
                             self.capture(profile, "[Fail]: {} is not shown".format(name))
                     else:
-                        flag = False
-                        self.Logfile("[Fail]: {} is not shown".format(name))
-                        self.capture(profile, "[Fail]: {} is not shown".format(name))
+                        # _os = "WES7"
+                        if not EasyshellLib.getElement('SysRegionIcon').IsOffScreen:
+                            EasyshellLib.getElement('SysRegionIcon').Click()
+                            if EasyshellLib.getElement('RegionSetting_7').Exists(3, 0):
+                                EasyshellLib.getElement('RegionSetting_7').Close()
+                                self.Logfile("[PASS]: {} is shown".format(name))
+                            else:
+                                flag = False
+                                self.Logfile("[Fail]: {} is not shown".format(name))
+                                self.capture(profile, "[Fail]: {} is not shown".format(name))
+                        else:
+                            flag = False
+                            self.Logfile("[Fail]: {} is not shown".format(name))
+                            self.capture(profile, "[Fail]: {} is not shown".format(name))
                 if name == 'AllowNetworkConn':
                     if not EasyshellLib.getElement('SysNetworkConnIcon').IsOffScreen:
                         EasyshellLib.getElement('SysNetworkConnIcon').Click()
