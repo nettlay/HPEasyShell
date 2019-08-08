@@ -358,6 +358,52 @@ class TxtUtils:
         self.set_msg(new_data)
 
 
+class Control(uiautomation.Control):
+    def __init__(self, element, searchFromControl, searchDepth, searchWaitTime,
+                 foundIndex, **searchPorpertyDict):
+        uiautomation.Control.__init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=SEARCH_INTERVAL,
+                 foundIndex=1, **searchPorpertyDict)
+        """
+        element: int
+        searchFromControl: Control, if is None, search from root control(Desktop)
+        searchDepth: int, max search depth from searchFromControl
+        foundIndex: int, value must >= 1
+        searchWaitTime: float, wait searchWaitTime before every search
+        searchPorpertyDict: a dict that defines how to search, the following keys can be used
+                            ControlType: int, a value in class ControlType
+                            ClassName: str or unicode
+                            AutomationId: str or unicode
+                            Name: str or unicode
+                            SubName: str or unicode
+                            RegexName: str or unicode, supports regex
+                            Depth: int, relative depth from searchFromControl, if set, searchDepth will be set to Depth too
+                            Compare: custom compare function(control, depth) returns a bool value
+        """
+        self._element = element
+        self._elementDirectAssign = True if element else False
+        self.searchFromControl = searchFromControl
+        self.searchDepth = searchPorpertyDict.get('Depth', searchDepth)
+        self.searchWaitTime = searchWaitTime
+        self.foundIndex = foundIndex
+        self.searchPorpertyDict = searchPorpertyDict
+        regName = searchPorpertyDict.get('RegexName', '')
+        self.regexName = re.compile(regName) if regName else None
+
+    def Click(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME):
+        """
+        ratioX: float or int, if is int, click left + ratioX, if < 0, click right + ratioX
+        ratioY: float or int, if is int, click top + ratioY, if < 0, click bottom + ratioY
+        simulateMove: bool, if True, first move cursor to control smoothly
+        waitTime: float
+        Click(0.5, 0.5): click center
+        Click(10, 10): click left+10, top+10
+        Click(-10, -10): click right-10, bottom-10
+        """
+        self.SetFocus()
+        x, y = self.MoveCursor(ratioX, ratioY, simulateMove)
+        Win32API.MouseClick(x, y, waitTime)
+
+
 class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern):
     def __init__(self, element=0, searchFromControl=None, searchDepth=0xFFFFFFFF, searchWaitTime=SEARCH_INTERVAL, foundIndex=1, **searchPorpertyDict):
         Control.__init__(self, element, searchFromControl, searchDepth, searchWaitTime, foundIndex, **searchPorpertyDict)
@@ -396,7 +442,9 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
             # sometimes toggle method will not affect ui except clicking
             # but sometimes button is offscreen, so firstly setfocus
                 self.SetFocus()
-                self.Click()
+                self.Refind(maxSearchSeconds=TIME_OUT_SECOND, searchIntervalSeconds=self.searchWaitTime)
+                if not self.IsOffScreen:
+                    self.Click()
         else:
             print('Button do not support Enable Control or is not shown')
 
@@ -409,7 +457,9 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
                 # sometimes toggle method will not affect ui except clicking
                 # but sometimes button is offscreen, so firstly setfocus
                 self.SetFocus()
-                self.Click()
+                self.Refind(maxSearchSeconds=TIME_OUT_SECOND, searchIntervalSeconds=self.searchWaitTime)
+                if not self.IsOffScreen:
+                    self.Click()
             else:
                 return
         else:

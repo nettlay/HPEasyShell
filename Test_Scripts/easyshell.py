@@ -952,6 +952,7 @@ class Shell_Application(EasyShellTest):
         try:
             if EasyshellLib.getElement('MAIN_WINDOW').Exists():
                 EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+            EasyshellLib.getElement('UserTitles').Click()
             if AdminOnly:
                 if self.utils(profile, 'shown'):
                     flag = False
@@ -2634,8 +2635,8 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    # Shell_RDP().edit('editRDP','standardRDP')
-    # Shell_RDP().check('editRDP')
     # Shell_RDP().create('standardRDP')
+    # Shell_RDP().edit('editRDP','standardRDP')
+    Shell_RDP().check('editRDP')
     # print(Shell_RDP().utils('standardRDP', 'delete', 'conn'))
-    UserInterfacSettings().edit('test_x4')
+    # UserInterfacSettings().edit('test_x4')
