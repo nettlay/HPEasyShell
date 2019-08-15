@@ -34,6 +34,10 @@ class EasyShellTest:
         self.appPath = self.sections['appPath']['easyShellPath']
         self.debug = os.path.join(self.log_path, 'debug.log')
 
+    def resetEasyshell(self):
+        os.system('reg import {}'.format(os.path.join(self.data, 'clearEasyshell.reg')))
+        os.system('reg import {}'.format(os.path.join(self.data, 'standard.reg')))
+
     def create(self, profile):
         pass
 
@@ -647,12 +651,14 @@ class UserSettings(EasyShellTest):
                 if name == 'AllowMouse':
                     if not EasyshellLib.getElement('SysMouseIcon').IsOffScreen:
                         EasyshellLib.getElement('SysMouseIcon').Click()
-                        if EasyshellLib.getElement('MousedSetting').Exists(3,0):
+                        time.sleep(2)
+                        if EasyshellLib.getElement('MousedSetting').Exists():
                             EasyshellLib.getElement('MousedSetting').Close()
                             self.Logfile("[PASS]: {} Can be launch".format(name))
                         else:
                             flag = False
-                            self.Logfile("[Fail]: {} can not be launch".format(name))
+                            self.capture(profile, "[Fail]: {} can not be launch, MousedSetting dialog not exist".format(name))
+                            self.Logfile("[Fail]: {} can not be launch, MousedSetting dialog not exist".format(name))
                     else:
                         flag = False
                         self.Logfile("[Fail]: {} is not shown".format(name))
@@ -1900,6 +1906,7 @@ class Shell_StoreFront(EasyShellTest):
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist'):
             self.Logfile('[PASS]:Storefront connection {} Check Exist'.format(profile))
             return True
@@ -2345,6 +2352,7 @@ class Shell_RDP(EasyShellTest):
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:RDP connection {} Check Exist'.format(profile))
             return True
@@ -2521,6 +2529,7 @@ class Shell_Citrix(EasyShellTest):
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
             return True
@@ -2561,6 +2570,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("[Fail]: enable Task Switcher")
+            self.capture("[Fail]: enable Task Switcher")
             return False
 
     def disable(self):
@@ -2572,6 +2582,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("[Fail]: Disable Task Switcher")
+            self.capture("[Fail]: Disable Task Switcher")
             return False
 
     def enablePermanent(self):
@@ -2582,7 +2593,8 @@ class TaskSwitcher(EasyShellTest):
             self.Logfile("[PASS]: enable permanetly")
             return True
         except:
-            self.Logfile('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
+            self.Logfile("[Fail]: enable Task Switcher")
+            self.capture("[Fail]: enable Task Switcher")
             return False
 
     def disablePermanent(self):
@@ -2594,27 +2606,32 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
+            self.capture('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
             return False
 
     def checkPermanent(self):
         if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
-            self.Logfile("[Fail]: Task SwitcherBar is shown, expect No permanent")
+            self.Logfile("[Fail]: Task SwitcherBar is not shown")
+            self.capture("[Fail]: Task switcherBar is not Shown")
             return False
         time.sleep(15)
         if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
             self.Logfile("[PASS]: Task SwitcherBar is permanent")
             return True
         else:
+            self.capture("[Fail]: Task SwitcherBar is not permanent, expect permanent")
             self.Logfile("[Fail]: Task SwitcherBar is not permanent, expect permanent")
             return False
 
     def checkNoPermanent(self):
         if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
             self.Logfile("[Fail]: Task SwitcherBar is shown, expect No permanent")
+            self.capture("[Fail]: Task SwitcherBar is shown, expect No permanent")
             return False
         time.sleep(15)
         if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
             self.Logfile("[Fail]: Task SwitcherBar is permanent, expect no permanent")
+            self.capture("[Fail]: Task SwitcherBar is permanent, expect no permanent")
             return False
         else:
             self.Logfile("[PASS]: Task SwitcherBar is not permanent")
@@ -2633,6 +2650,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         else:
             self.Logfile("[Fail]: sound value is shown")
+            self.capture("[Fail]: sound value is shown, expect readonly")
             return False
 
     def enableSoundInteraction(self):
@@ -2689,5 +2707,7 @@ class TaskSwitcher(EasyShellTest):
 
 
 if __name__ == '__main__':
-    Shell_Citrix().create('standardCitrix')
-    Shell_Citrix().utils('standardCitrix', 'Delete', "conn")
+    EasyShellTest().resetEasyshell()
+    # Shell_Citrix().create('standardCitrix')
+    # Shell_Citrix().utils('standardCitrix', 'Delete', "conn")
+    print(EasyShellTest().path)

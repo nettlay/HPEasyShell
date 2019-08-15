@@ -443,7 +443,7 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
             # but sometimes button is offscreen, so firstly setfocus
                 self.SetFocus()
                 self.Refind(maxSearchSeconds=TIME_OUT_SECOND, searchIntervalSeconds=self.searchWaitTime)
-                if not self.IsOffScreen:
+                if not self.IsOffScreen and self.IsEnabled:
                     self.Click()
         else:
             print('Button do not support Enable Control or is not shown')
@@ -458,7 +458,7 @@ class ButtonControl(Control, ExpandCollapsePattern, InvokePattern, TogglePattern
                 # but sometimes button is offscreen, so firstly setfocus
                 self.SetFocus()
                 self.Refind(maxSearchSeconds=TIME_OUT_SECOND, searchIntervalSeconds=self.searchWaitTime)
-                if not self.IsOffScreen:
+                if not self.IsOffScreen and self.IsEnabled:
                     self.Click()
             else:
                 return

@@ -1,4 +1,5 @@
 import smtplib
+import zipfile
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from Test_Scripts.easyshell import *
@@ -8,6 +9,20 @@ from openpyxl.styles import Font, colors
 
 error_font = Font(color=colors.RED)
 
+def zipDir(dirpath, outFullName):
+    """
+    压缩指定文件夹
+    :param dirpath: 目标文件夹路径
+    :param outFullName: 压缩文件保存路径+xxxx.zip
+    :return: 无
+    """
+    zip = zipfile.ZipFile(outFullName,"w",zipfile.ZIP_DEFLATED)
+    for path,dirnames,filenames in os.walk(dirpath):
+        # 去掉目标跟路径，只对目标文件夹下边的文件及文件夹进行压缩
+        fpath = path.replace(dirpath,'')
+        for filename in filenames:
+            zip.write(os.path.join(path,filename),os.path.join(fpath,filename))
+    zip.close()
 
 def clear_runtime_folder(path):
     arry = []
@@ -97,12 +112,20 @@ class Test:
                 ws.cell(row=i, column=2).value = "FAIL"
                 ws.cell(row=i, column=2).font = error_font
                 wb.save(self.testset)
+        version = platform.version().split(".")[0]
+        zipDir(self.logpath, os.path.join(self.path, 'report.zip'))
+        with open(os.path.join(self.path, 'mail_list.txt')) as f:
+            mail_list = f.readlines()
+        if version == "10":
+            os_version = "Wes10"
+        else:
+            os_version = "Wes7"
         txt = "Attachment is HP EasyShell Test Result"
-        subject = "HP EasyShell Test Result"
-        mail_list = ["balance.cheng@hp.com"]
-        self.sendMail(mail_list, subject, txt, self.testset)
+        subject = "HP EasyShell Test Result {}".format(os_version)
+        # mail_list = ["balance.cheng@hp.com"]
+        self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
+        os.remove(os.path.join(self.path, 'report.zip'))
         os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
-
 
     def runTestcase(self, name):
         print('Begin run test case: {}'.format(name))
@@ -125,6 +148,7 @@ class Test:
                 self.result = False
                 continue
             if checkPoint.upper() == "Y":
+                print(command)
                 rs = eval(command)
                 print(rs)
                 if value is None:
@@ -182,6 +206,7 @@ class Test:
                             EasyShellTest().Logfile(
                                 "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
             elif checkPoint.upper() == 'N':
+                print(command)
                 if 'Reboot' in str(command):
                     ws.cell(row=i, column=4).value = "PASS"
                     wb.save(name)

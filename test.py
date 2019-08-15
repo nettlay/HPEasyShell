@@ -1,4 +1,10 @@
-import os
+# import time
+# import os
 import uiautomation
-
-print(uiautomation.ButtonControl(AutomationId="UserSettingsButton").IsOffScreen)
+# import platform
+#
+#
+# print(platform.system(),platform.version().split(".")[0])
+# test = ['1', '12', '33']
+# print(time.ctime())
+print(uiautomation.TextControl(AutomationId='currentTitle', Name='Settings').Exists())
