@@ -1,5 +1,5 @@
-# import time
-# import os
+import time
+import os
 import uiautomation
 # import platform
 #
@@ -7,4 +7,6 @@ import uiautomation
 # print(platform.system(),platform.version().split(".")[0])
 # test = ['1', '12', '33']
 # print(time.ctime())
-print(uiautomation.TextControl(AutomationId='currentTitle', Name='Settings').Exists())
+# print(uiautomation.TextControl(AutomationId='currentTitle', Name='Settings').Exists())
+# print(uiautomation.WindowControl(RegexName='.*Paint').Close())
+time.sleep('5')

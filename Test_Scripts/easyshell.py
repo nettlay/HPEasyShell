@@ -1023,6 +1023,8 @@ class Shell_Application(EasyShellTest):
             if Autolaunch == 0:
                 self.utils(profile, "launch")
                 if Launchdelay == 0:
+                    with open('debug.txt', 'a') as f:
+                        f.write('launch delay 0:{}\n'.format(Launchdelay))
                     for t in range(5):
                         if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                             break
@@ -1034,17 +1036,19 @@ class Shell_Application(EasyShellTest):
                         self.capture(profile, "[Failed]:App {} Manual Launch".format(Name))
                         return flag
                 else:
-                    time.sleep(3)
+                    with open('debug.txt', 'a') as f:
+                        f.write('launch delay not 0:{}\n'.format(Launchdelay))
+                    time.sleep(5)
                     if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
-                        self.Logfile("[Failed]:APP {} Launch Delay".format(Name))
-                        self.capture(profile, "[Failed]:APP {} Launch Delay".format(Name))
+                        self.Logfile("[Failed]:APP {} Launch Delay, Expect App windows {} not exist".format(Name, WindowName))
+                        self.capture(profile, "[Failed]:APP {} Launch Delay, Expect App {} windows not exist".format(Name, WindowName))
                         flag = False
                     else:
                         self.Logfile("[PASS]:APP {} Launch Delay".format(Name))
-                    time.sleep(Launchdelay)
+                    time.sleep(Launchdelay+5)  # add 5s waitting app's launch time
             else:
                 time.sleep(Launchdelay)
-                if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
+                if not CommonLib.WindowControl(RegexName=WindowName).Exists():
                     flag = False
                     self.Logfile("[Failed]:App {} AutoLaunch, {} not Exist".format(Name, WindowName))
                     self.capture(profile, "[Failed]:App {} AutoLaunch, {} not Exist".format(Name, WindowName))
@@ -1060,7 +1064,13 @@ class Shell_Application(EasyShellTest):
                     self.capture(profile, "[Failed]:App {} Maximized".format(Name))
                     flag = False
             if Persistent:
-                CommonLib.WindowControl(RegexName=WindowName).Close()
+                if CommonLib.WindowControl(RegexName=WindowName).Exists():
+                    CommonLib.WindowControl(RegexName=WindowName).Close()
+                else:
+                    flag = False
+                    self.Logfile("[Failed]:App {} Persistent, app {} is not launched".format(Name, WindowName))
+                    self.capture(profile, "[Failed]:App {} Persistent, app {} is not launched".format(Name, WindowName))
+                    return flag
                 time.sleep(3)
                 if int(Launchdelay) == 0:
                     if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
@@ -1086,7 +1096,13 @@ class Shell_Application(EasyShellTest):
                             self.Logfile("[Failed]:APP {} AutoDelay persistent,expect shown".format(Name))
                             self.capture(profile, "[Failed]:APP {} AutoDelay persistent, expect shown".format(Name))
             else:
-                CommonLib.WindowControl(RegexName=WindowName).Close()
+                if CommonLib.WindowControl(RegexName=WindowName).Exists():
+                    CommonLib.WindowControl(RegexName=WindowName).Close()
+                else:
+                    flag = False
+                    self.Logfile("[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
+                    self.capture(profile, "[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
+                    return flag
                 time.sleep(5)
                 if int(Launchdelay) == 0:
                     if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
@@ -1097,7 +1113,7 @@ class Shell_Application(EasyShellTest):
                     else:
                         self.Logfile("[PASS]:App {} No Persistent".format(Name))
                 else:
-                    time.sleep(int(Launchdelay))
+                    time.sleep(Launchdelay)
                     if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                         flag = False
                         self.Logfile("[Fail]:APP {} AutoDelay No Persistent, Expect No shown".format(Name))

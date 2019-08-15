@@ -10,7 +10,7 @@ Windows Registry Editor Version 5.00
 "DisplayName"="Connections"
 
 [-HKEY_LOCAL_MACHINE\software\HP\HP Easy Shell\connections\CitrixICA]
-
+[-HKEY_LOCAL_MACHINE\software\HP\HP Easy Shell\Apps]
 [-HKEY_LOCAL_MACHINE\software\HP\HP Easy Shell\connections\RDP]
 [-HKEY_LOCAL_MACHINE\software\HP\HP Easy Shell\connections\VMware]
 [-HKEY_LOCAL_MACHINE\software\HP\HP Easy Shell\groups]
