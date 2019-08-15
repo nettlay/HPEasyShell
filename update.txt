@@ -13,3 +13,5 @@ RDP Edit custom file, there is error when input the file path
 2019/08/09
 1.update CommonLib button enable and disable(), after set focus, refind self element check if IsOffscreen, if not click, else, do nothing
 Is to Fix, when element is Offscreen, mouse might click to other element
+2019/9/15
+add function reset hpeasyshell, clear all the settings
