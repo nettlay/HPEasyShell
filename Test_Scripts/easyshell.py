@@ -2257,9 +2257,6 @@ class Shell_RDP(EasyShellTest):
 
     @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newprofile, oldprofile):
-        """
-        copy from citrix, not modify
-        """
         try:
             new = self.sections[self.section_name][newprofile]
             newname = new["Name"]
@@ -2351,6 +2348,12 @@ class Shell_RDP(EasyShellTest):
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     time.sleep(3)
+                    # --------------------------------------------------
+                    # special for RDP error when selecting RDP file
+                    if EasyshellLib.getElementByType('RDP_ERROR').Exist():
+                        CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+                        time.sleep(3)
+                    # ----------------------------------------------------
                     CommonLib.SendKeys(newcustomfile)
                     CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
