@@ -1,5 +1,5 @@
 import platform
-
+import win32api, win32con
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
 import os
@@ -35,8 +35,56 @@ class EasyShellTest:
         self.debug = os.path.join(self.log_path, 'debug.log')
 
     def resetEasyshell(self):
-        os.system('reg import {}'.format(os.path.join(self.data, 'clearEasyshell.reg')))
-        os.system('reg import {}'.format(os.path.join(self.data, 'standard.reg')))
+        easyshell_data = CommonLib.YmlUtils(os.path.join(self.data, 'standard.yaml'))
+        app = easyshell_data.get_sub_item('app')
+        rdp = easyshell_data.get_sub_item('rdp')
+        site = easyshell_data.get_sub_item('site')
+        store = easyshell_data.get_sub_item('store')
+        settings = easyshell_data.get_sub_item('settings')
+        reg = CommonLib.Reg_Utils()
+        # clear settings
+        reg.clear_subkeys(r'software\hp\hp easy shell\connections\rdp')
+        reg.clear_subkeys(r'software\hp\hp easy shell\connections\VMware')
+        reg.clear_subkeys(r'software\hp\hp easy shell\connections\CitrixICA')
+        reg.clear_subkeys(r'software\hp\hp easy shell\Apps')
+        reg.clear_subkeys(r'software\hp\hp easy shell\Sites')
+        reg.clear_subkeys(r'software\hp\hp easy shell\StoreFront')
+        #create temp settings
+        general_key = reg.isKeyExist(r'software\hp\hp easy shell')
+        if general_key:
+            reg.create_value(general_key, 'KioskMode', 0, 'True')
+            reg.create_value(general_key, 'VirtualKeyboardStyle', 0, '0')
+            reg.create_value(general_key, 'DelayStart', 0, '0')
+            reg.close(general_key)
+        # -----------App__________________________
+        reg.create_key(r'software\hp\hp easy shell\Apps\app0')
+        app_key = reg.isKeyExist(r'software\hp\hp easy shell\Apps\app0')
+        for name, value in app.items():
+            reg.create_value(app_key, name, 0, value)
+        reg.close(app_key)
+        # ---------RDP --------------------------
+        reg.create_key(r'software\HP\HP Easy Shell\connections\RDP\test')
+        rdp_key = reg.isKeyExist(r'software\HP\HP Easy Shell\connections\RDP\test')
+        for name, value in rdp.items():
+            reg.create_value(rdp_key, name, 0, value)
+        reg.close(rdp_key)
+        # -----------web sites -------------------------
+        reg.create_key(r'software\HP\HP Easy Shell\sites\site0')
+        site_key = reg.isKeyExist(r'software\HP\HP Easy Shell\sites\site0')
+        for name, value in site.items():
+            reg.create_value(site_key, name, 0, value)
+        reg.close(site_key)
+        # -----------store -------------------------
+        reg.create_key(r'software\HP\HP Easy Shell\StoreFront\test')
+        store_key = reg.isKeyExist(r'software\HP\HP Easy Shell\StoreFront\test')
+        for name, value in store.items():
+            reg.create_value(store_key, name, 0, value)
+        reg.close(store_key)
+        # -----------settings -------------------------
+        setting_key = reg.isKeyExist(r'software\HP\HP Easy Shell\UI')
+        for name, value in settings.items():
+            reg.create_value(setting_key, name, 0, value)
+        reg.close(setting_key)
 
     def create(self, profile):
         pass
@@ -2727,6 +2775,3 @@ class TaskSwitcher(EasyShellTest):
 
 if __name__ == '__main__':
     EasyShellTest().resetEasyshell()
-    # Shell_Citrix().create('standardCitrix')
-    # Shell_Citrix().utils('standardCitrix', 'Delete', "conn")
-    print(EasyShellTest().path)

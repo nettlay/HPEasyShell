@@ -302,6 +302,106 @@ class QAUtils:
         winreg.SetValueEx(key, 'ProxyEnable', 0, winreg.REG_DWORD, 1)
 
 
+class Reg_Utils:
+    def __init__(self, root='local'):
+        if root.upper() == 'LOCAL':
+            self.root = win32con.HKEY_LOCAL_MACHINE
+        else:
+            self.root = win32con.HKEY_CURRENT_USER
+        self.flags = win32con.WRITE_OWNER | win32con.KEY_WOW64_64KEY | win32con.KEY_ALL_ACCESS
+        self.reg_type = {0: win32con.REG_SZ, 1:win32con.REG_DWORD, 2:win32con.REG_BINARY}
+    def open(self, path):
+        key = win32api.RegOpenKeyEx(self.root, path, 0, self.flags)
+        return key
+
+    def isKeyExist(self, path):
+        try:
+            return self.open(path)
+        except:
+            return False
+
+    def isValueExist(self, key, value):
+        try:
+            return win32api.RegQueryValueEx(key, value)
+        except:
+            return False
+
+    def list_key(self, key):
+        sub_key_list = []
+        if key:
+            for sub_key in win32api.RegEnumKeyEx(key):
+                # win32api.RegDeleteKeyEx(sub_key)
+                sub_key_list.append(sub_key[0])
+            return sub_key_list
+        else:
+            return None
+
+    def list_value(self, key):
+        try:
+            i = 0
+            while 1:
+                print(win32api.RegEnumValue(key, i))
+                i += 1
+        except:
+            pass
+
+    def create_key(self, path):
+        key, _ = win32api.RegCreateKeyEx(self.root, path, self.flags)
+        return key
+
+    def del_key(self, path):
+        key = win32api.RegOpenKeyEx(self.root, path, 0, self.flags)
+        m_item = win32api.RegEnumKeyEx(key)
+        if not m_item:
+            reg_parent, subkey_name = os.path.split(path)  # 获得父路径名字 和自己的名字，而不是路径
+            try:
+                key_parent = win32api.RegOpenKeyEx(self.root, reg_parent, 0, self.flags)  # 看这个节点是否可被访问
+                win32api.RegDeleteKeyEx(key_parent, subkey_name)  # 删除这个节点
+                return
+            except Exception as e:
+                print("Bently 被拒绝访问")
+                return
+
+        for item in win32api.RegEnumKeyEx(key):  # 递归加子节点
+            strRecord = item[0]  # 采用key的第一个节点，item里面是元组，获取第一个名字。就是要的子项名字
+            newpath = path + '\\' + strRecord
+            self.del_key(newpath)
+
+            # 删除父节点
+        root_parent, child_name = os.path.split(path)
+        try:  # 看这个节点是否可被访问
+            current_parent = win32api.RegOpenKeyEx(self.root, root_parent, 0, self.flags)
+            win32api.RegDeleteKeyEx(current_parent, child_name)
+        except Exception as e:
+            print("Bently 被拒绝访问")
+            return
+
+    def clear_subkeys(self, path):
+        key = self.isKeyExist(path)
+        for subkey in self.list_key(key):
+            self.del_key('{}\{}'.format(path, subkey))
+        self.close(key)
+
+    def get_value(self, key, value):
+        if self.isValueExist(key, value):
+            value, type = self.isValueExist(key, value)
+            return (value, type)
+        else:
+            return None
+
+    def create_value(self, key, valueName, regType=0, content=''):
+        win32api.RegSetValueEx(key, valueName, 0, self.reg_type[regType], content)
+
+    def del_value(self, key, value):
+        try:
+            win32api.RegDeleteValue(key, value)
+        except:
+            print('Value {} not Exist'.format(value))
+
+    def close(self, key):
+        win32api.RegCloseKey(key)
+
+
 class YmlUtils:
     def __init__(self, filename):
         with open(filename) as f:
