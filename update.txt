@@ -15,3 +15,6 @@ RDP Edit custom file, there is error when input the file path
 Is to Fix, when element is Offscreen, mouse might click to other element
 2019/9/15
 add function reset hpeasyshell, clear all the settings
+2019/9/20
+modify reset function, before run command import reg file, Now operate via win32api
+# install should user pyinstaller -F --hidden-import=win32timezone start.py
