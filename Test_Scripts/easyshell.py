@@ -43,12 +43,18 @@ class EasyShellTest:
         settings = easyshell_data.get_sub_item('settings')
         reg = CommonLib.Reg_Utils()
         # clear settings
-        reg.clear_subkeys(r'software\hp\hp easy shell\connections\rdp')
-        reg.clear_subkeys(r'software\hp\hp easy shell\connections\VMware')
-        reg.clear_subkeys(r'software\hp\hp easy shell\connections\CitrixICA')
-        reg.clear_subkeys(r'software\hp\hp easy shell\Apps')
-        reg.clear_subkeys(r'software\hp\hp easy shell\Sites')
-        reg.clear_subkeys(r'software\hp\hp easy shell\StoreFront')
+        if reg.isKeyExist(r'software\hp\hp easy shell\connections\rdp'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\connections\rdp')
+        if reg.isKeyExist(r'software\hp\hp easy shell\connections\VMware'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\connections\VMware')
+        if reg.isKeyExist(r'software\hp\hp easy shell\connections\CitrixICA'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\connections\CitrixICA')
+        if reg.isKeyExist(r'software\hp\hp easy shell\Apps'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\Apps')
+        if reg.isKeyExist(r'software\hp\hp easy shell\Sites'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\Sites')
+        if reg.isKeyExist(r'software\hp\hp easy shell\StoreFront'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\StoreFront')
         #create temp settings
         general_key = reg.isKeyExist(r'software\hp\hp easy shell')
         if general_key:
@@ -68,6 +74,7 @@ class EasyShellTest:
         for name, value in rdp.items():
             reg.create_value(rdp_key, name, 0, value)
         reg.close(rdp_key)
+        reg.create_key(r'software\HP\HP Easy Shell\groups\test')
         # -----------web sites -------------------------
         reg.create_key(r'software\HP\HP Easy Shell\sites\site0')
         site_key = reg.isKeyExist(r'software\HP\HP Easy Shell\sites\site0')
@@ -616,6 +623,7 @@ class UserInterfacSettings(EasyShellTest):
                     # ------------No Enable Network status notification -----------
                     # ------------No Hide HP Easy Shell during Session ------------
             except:
+                flag = False
                 self.Logfile("[Exception]: {}\n{}".format(name, traceback.format_exc()))
                 self.capture(profile, "[Exception]: {}\n{}".format(name, traceback.format_exc()))
         return flag
@@ -1080,12 +1088,10 @@ class Shell_Application(EasyShellTest):
                             continue
                     if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                         flag = False
-                        self.Logfile("[Failed]:App {} Manual Launch".format(Name))
-                        self.capture(profile, "[Failed]:App {} Manual Launch".format(Name))
+                        self.Logfile("[Failed]:App {} Manual Launch, Window {} not shown".format(Name, WindowName))
+                        self.capture(profile, "[Failed]:App {} Manual Launch, Window {} not shown".format(Name, WindowName))
                         return flag
                 else:
-                    with open('debug.txt', 'a') as f:
-                        f.write('launch delay not 0:{}\n'.format(Launchdelay))
                     time.sleep(5)
                     if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                         self.Logfile("[Failed]:APP {} Launch Delay, Expect App windows {} not exist".format(Name, WindowName))
@@ -2394,17 +2400,9 @@ class Shell_RDP(EasyShellTest):
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     time.sleep(1)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
-                    time.sleep(3)
-                    # --------------------------------------------------
-                    # special for RDP error when selecting RDP file
-                    if EasyshellLib.getElementByType('RDP_ERROR').Exist():
-                        CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
-                        time.sleep(3)
-                    # ----------------------------------------------------
+                    CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                     CommonLib.SendKeys(newcustomfile)
-                    CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
-                    CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
+                    CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('[PASS]: RDP Connection {} Edit'.format(oldname))

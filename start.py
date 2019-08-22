@@ -112,16 +112,21 @@ class Test:
                 ws.cell(row=i, column=2).value = "FAIL"
                 ws.cell(row=i, column=2).font = error_font
                 wb.save(self.testset)
-        version = platform.version().split(".")[0]
         zipDir(self.logpath, os.path.join(self.path, 'report.zip'))
+        mail_list = []
         with open(os.path.join(self.path, 'mail_list.txt')) as f:
-            mail_list = f.readlines()
+            data = f.readlines()
+            for i in data:
+                mail_list.append(i.strip())
+        version = platform.version().split(".")[0].strip()
         if version == "10":
             os_version = "Wes10"
         else:
             os_version = "Wes7"
         txt = "Attachment is HP EasyShell Test Result"
         subject = "HP EasyShell Test Result {}".format(os_version)
+        print(subject)
+        print(mail_list)
         # mail_list = ["balance.cheng@hp.com"]
         self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
         os.remove(os.path.join(self.path, 'report.zip'))
