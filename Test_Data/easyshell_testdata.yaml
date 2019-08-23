@@ -38,6 +38,15 @@ createWebsites:
         IEFullScreen: False
         EmbedIE: False
         AllCloseEmbedIE: False
+    resetweb:
+        EmbaedPaneName: test
+        Name: test
+        Address: http://15.83.240.126
+        DefaultHome: False
+        UseIE: False
+        IEFullScreen: False
+        EmbedIE: False
+        AllCloseEmbedIE: False
 createApp:
     launch:
         WindowName: .*- Notepad
@@ -76,20 +85,6 @@ createApp:
         Autolaunch: 1
         Persistent: 0
         Maximized: 0
-        Adminonly: 0
-        Hidemissapp: 0
-    test4: 
-        WindowName: Power Media Player
-        Name: CyberLink
-        Path: 
-            - C:\Program Files (x86)\CyberLink\PowerDVD14\PDVDLP.exe
-            - C:\Program Files\CyberLink\PowerDVD14\PDVDLP.exe
-        Argument: None
-        Launchdelay: 0
-        Exitaction: None
-        Autolaunch: 0
-        Persistent: 0
-        Maximized: 1
         Adminonly: 0
         Hidemissapp: 0
     autolaunch:
@@ -169,6 +164,19 @@ createApp:
         Autolaunch: 0
         Persistent: 0
         Maximized: 1
+        Adminonly: 0
+        Hidemissapp: 0
+    resetapp:
+        WindowName: test
+        Name: test
+        Path:
+            - test
+        Argument: None
+        Launchdelay: 0
+        Exitaction: None
+        Autolaunch: 0
+        Persistent: 0
+        Maximized: 0
         Adminonly: 0
         Hidemissapp: 0
 userInterface:
@@ -527,18 +535,33 @@ createStoreFront:
         ConnectionTimeout: 60
         DesktopToolbar: OFF
     editStore:
-      Name: editStore
-      URL: edittest.sh.dto
-      SelectStore: False
-      StoreName: fcxds.sh.dto
-      Launchdelay: 0
-      LogonMethod: Username and password
-      Username: edittest
-      Password: passwd
-      Domain: sh.dto
-      HideDomain: OFF
-      CustomLogon: test.icon
-      Autolaunch: ON
-      ConnectionTimeout: 5
-      DesktopToolbar: OFF
+        Name: editStore
+        URL: edittest.sh.dto
+        SelectStore: False
+        StoreName: fcxds.sh.dto
+        Launchdelay: 0
+        LogonMethod: Username and password
+        Username: edittest
+        Password: passwd
+        Domain: sh.dto
+        HideDomain: OFF
+        CustomLogon: test.icon
+        Autolaunch: ON
+        ConnectionTimeout: 5
+        DesktopToolbar: OFF
+    resetstore:
+        Name: test
+        URL: test
+        SelectStore: False
+        StoreName: fcxds.sh.dto
+        Launchdelay: 0
+        LogonMethod: Username and password
+        Username: test
+        Password: test
+        Domain: sh.dto
+        HideDomain: OFF
+        CustomLogon: None
+        Autolaunch: OFF
+        ConnectionTimeout: 5
+        DesktopToolbar: OFF
         

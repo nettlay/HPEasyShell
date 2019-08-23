@@ -1,12 +1,15 @@
-import time
+import platform
+import win32api, win32con
+import Test_Scripts.EasyShell_Lib as EasyshellLib
+import Library.CommonLib as CommonLib
 import os
-import uiautomation
-# import platform
-#
-#
-# print(platform.system(),platform.version().split(".")[0])
-# test = ['1', '12', '33']
-# print(time.ctime())
-# print(uiautomation.TextControl(AutomationId='currentTitle', Name='Settings').Exists())
-# print(uiautomation.WindowControl(RegexName='.*Paint').Close())
-time.sleep('5')
+import time
+import traceback
+import pysnooper
+from PIL import ImageGrab, ImageDraw, ImageFont
+import subprocess
+
+os.popen('HPEasyshellSettings.reg')
+time.sleep(1)
+for i in range(5):
+    print(EasyshellLib.getElement('REG_EDIT_WARNNING').Exists(0, 0))

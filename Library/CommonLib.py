@@ -11,6 +11,8 @@ import os
 import time
 import win32api
 import win32con
+import win32net
+import win32netcon
 import subprocess
 import platform
 import ruamel.yaml as yaml
@@ -400,6 +402,46 @@ class Reg_Utils:
 
     def close(self, key):
         win32api.RegCloseKey(key)
+
+
+class User_Group:
+    def __init__(self, user='test', password='test', group='Administrators'):
+        self.group = group
+        self.user = user
+        self.passwd = password
+        self.user_info = dict(
+            name=self.user,
+            password=self.passwd,
+            priv=win32netcon.USER_PRIV_USER,
+            home_dir=None,
+            comment=None,
+            flag=win32netcon.UF_SCRIPT | win32netcon.UF_DONT_EXPIRE_PASSWD | win32netcon.UF_NORMAL_ACCOUNT,
+            script_path=None
+        )
+        self.group_info = dict(
+            domainandname=self.user
+        )
+
+    def del_user(self):
+        try:
+            win32net.NetUserDel(None, self.user)
+        except:
+            pass
+
+    def add_user(self,):
+        try:
+            win32net.NetUserAdd(None, 1, self.user_info)
+        except:
+            pass
+
+    def change_passwd(self, new_passwd):
+        win32net.NetUserChangePassword(None, self.user, self.passwd, new_passwd)
+
+    def add_user_to_group(self):
+        try:
+            win32net.NetLocalGroupAddMembers(None, self.group, 3, [self.group_info])
+        except:
+            pass
 
 
 class YmlUtils:

@@ -22,7 +22,7 @@ class EasyShellTest:
     def __init__(self):
         # ------- test root folder - ------------------
         self.path = EasyshellLib.file_path
-        self.section_name = ''
+        self.section_name = 'createApp'
         #  ---------------------------------
         self.log_path = os.path.join(self.path, 'Test_Report')
         self.misc = os.path.join(self.path, 'Misc')
@@ -33,6 +33,22 @@ class EasyShellTest:
         self.sections = CommonLib.YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
         self.appPath = self.sections['appPath']['easyShellPath']
         self.debug = os.path.join(self.log_path, 'debug.log')
+
+    def launch(self):
+        if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
+            for app_path in self.appPath:
+                if os.path.exists(app_path):
+                    EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
+                    break
+                else:
+                    continue
+            for i in range(20):
+                if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
+                    continue
+                else:
+                    print('get window')
+                    time.sleep(10)
+                    break
 
     def resetEasyshell(self):
         easyshell_data = CommonLib.YmlUtils(os.path.join(self.data, 'standard.yaml'))
@@ -55,10 +71,11 @@ class EasyShellTest:
             reg.clear_subkeys(r'software\hp\hp easy shell\Sites')
         if reg.isKeyExist(r'software\hp\hp easy shell\StoreFront'):
             reg.clear_subkeys(r'software\hp\hp easy shell\StoreFront')
-        #create temp settings
+        # create temp settings
         general_key = reg.isKeyExist(r'software\hp\hp easy shell')
         if general_key:
             reg.create_value(general_key, 'KioskMode', 0, 'True')
+            reg.create_value(general_key, 'KioskModeAdmin', 0, 'False')
             reg.create_value(general_key, 'VirtualKeyboardStyle', 0, '0')
             reg.create_value(general_key, 'DelayStart', 0, '0')
             reg.close(general_key)
@@ -69,12 +86,12 @@ class EasyShellTest:
             reg.create_value(app_key, name, 0, value)
         reg.close(app_key)
         # ---------RDP --------------------------
-        reg.create_key(r'software\HP\HP Easy Shell\connections\RDP\test')
-        rdp_key = reg.isKeyExist(r'software\HP\HP Easy Shell\connections\RDP\test')
+        reg.create_key(r'software\HP\HP Easy Shell\connections\RDP\test_rdp')
+        rdp_key = reg.isKeyExist(r'software\HP\HP Easy Shell\connections\RDP\test_rdp')
         for name, value in rdp.items():
             reg.create_value(rdp_key, name, 0, value)
         reg.close(rdp_key)
-        reg.create_key(r'software\HP\HP Easy Shell\groups\test')
+        reg.create_key(r'software\HP\HP Easy Shell\groups\test_rdp')
         # -----------web sites -------------------------
         reg.create_key(r'software\HP\HP Easy Shell\sites\site0')
         site_key = reg.isKeyExist(r'software\HP\HP Easy Shell\sites\site0')
@@ -82,8 +99,8 @@ class EasyShellTest:
             reg.create_value(site_key, name, 0, value)
         reg.close(site_key)
         # -----------store -------------------------
-        reg.create_key(r'software\HP\HP Easy Shell\StoreFront\test')
-        store_key = reg.isKeyExist(r'software\HP\HP Easy Shell\StoreFront\test')
+        reg.create_key(r'software\HP\HP Easy Shell\StoreFront\test_store')
+        store_key = reg.isKeyExist(r'software\HP\HP Easy Shell\StoreFront\test_store')
         for name, value in store.items():
             reg.create_value(store_key, name, 0, value)
         reg.close(store_key)
@@ -92,6 +109,20 @@ class EasyShellTest:
         for name, value in settings.items():
             reg.create_value(setting_key, name, 0, value)
         reg.close(setting_key)
+
+    def setKioskAdmin(self):
+        reg = CommonLib.Reg_Utils()
+        key = reg.isKeyExist(r'SOFTWARE\HP\HP Easy Shell')
+        if key:
+            reg.create_value(key, 'KioskModeAdmin', 0, 'True')
+            reg.create_value(key, 'KioskMode', 0, 'True')
+            reg.close(key)
+
+    def clearKioskAdmin(self):
+        reg = CommonLib.Reg_Utils()
+        key = reg.isKeyExist(r'HKEY_LOCAL_MACHINE\SOFTWARE\HP\HP Easy Shell')
+        if key:
+            reg.create_value(key, 'KioskModeAdmin', 0, 'False')
 
     def create(self, profile):
         pass
@@ -203,14 +234,7 @@ class UserInterfacSettings(EasyShellTest):
         """
         flag = True  # record the function's status
         test = self.sections[self.section_name][profile]
-        if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-            for app_path in self.appPath:
-                if os.path.exists(app_path):
-                    EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                    break
-                else:
-                    continue
-        time.sleep(5)
+        self.launch()
         self.Logfile('---------Begin To Edit User Interface settings----------')
         EasyshellLib.getElement('Settings').Click()
         EasyshellLib.getElement('KioskMode').Enable()
@@ -411,7 +435,8 @@ class UserInterfacSettings(EasyShellTest):
                             self.Logfile("[PASS]: {} is shown".format(name))
                             real_time = EasyshellLib.CommonUtils.getLocalTime('%H:%M')
                             show_time = EasyshellLib.getElement('Time').Name
-                            if real_time.split(':')[0] in show_time or str(int(real_time.split(':')[0])+12) in show_time:
+                            if real_time.split(':')[0] in show_time or str(
+                                    int(real_time.split(':')[0]) + 12) in show_time:
                                 self.Logfile("-->[PASS]: {} real time format".format(name))
                             else:
                                 self.Logfile("-->[Fail]: {} real time format".format(name))
@@ -640,14 +665,7 @@ class UserSettings(EasyShellTest):
         """
         flag = True  # record the function's status
         test = self.sections[self.section_name][profile]
-        if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-            for app_path in self.appPath:
-                if os.path.exists(app_path):
-                    EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                    break
-                else:
-                    continue
-        time.sleep(5)
+        self.launch()
         self.Logfile('---------Begin To Edit User settings----------')
         EasyshellLib.getElement('Settings').Click()
         EasyshellLib.getElement('KioskMode').Enable()
@@ -713,7 +731,8 @@ class UserSettings(EasyShellTest):
                             self.Logfile("[PASS]: {} Can be launch".format(name))
                         else:
                             flag = False
-                            self.capture(profile, "[Fail]: {} can not be launch, MousedSetting dialog not exist".format(name))
+                            self.capture(profile,
+                                         "[Fail]: {} can not be launch, MousedSetting dialog not exist".format(name))
                             self.Logfile("[Fail]: {} can not be launch, MousedSetting dialog not exist".format(name))
                     else:
                         flag = False
@@ -963,14 +982,7 @@ class Background(EasyShellTest):
         # please strictly use above value, including upper and lower letters
         self.Logfile('---------Begin To Set Background ---------------')
         UserSettings().modify('test1')
-        for app_path in self.appPath:
-            if os.path.exists(app_path):
-                print(app_path)
-                EasyshellLib.CommonUtils.LaunchAppFromFile(self.appPath)
-                break
-            else:
-                continue
-        time.sleep(5)
+        self.launch()
         try:
             print(bg)
             if bg == 'Custom':
@@ -1065,7 +1077,8 @@ class Shell_Application(EasyShellTest):
                 if not self.utils(profile, 'shown'):
                     flag = False
                     self.Logfile("[Fail]:App {} AdminOnly:{}, {} is not shown".format(Name, AdminOnly, profile))
-                    self.capture(profile, "[Fail]:App {} AdminOnly:{}, {} is not shown".format(Name, AdminOnly, profile))
+                    self.capture(profile,
+                                 "[Fail]:App {} AdminOnly:{}, {} is not shown".format(Name, AdminOnly, profile))
                     return flag
             if HideMissApp:
                 if self.utils(profile, 'shown'):
@@ -1089,17 +1102,21 @@ class Shell_Application(EasyShellTest):
                     if not CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
                         flag = False
                         self.Logfile("[Failed]:App {} Manual Launch, Window {} not shown".format(Name, WindowName))
-                        self.capture(profile, "[Failed]:App {} Manual Launch, Window {} not shown".format(Name, WindowName))
+                        self.capture(profile,
+                                     "[Failed]:App {} Manual Launch, Window {} not shown".format(Name, WindowName))
                         return flag
                 else:
                     time.sleep(5)
                     if CommonLib.WindowControl(RegexName=WindowName).Exists(0, 0):
-                        self.Logfile("[Failed]:APP {} Launch Delay, Expect App windows {} not exist".format(Name, WindowName))
-                        self.capture(profile, "[Failed]:APP {} Launch Delay, Expect App {} windows not exist".format(Name, WindowName))
+                        self.Logfile(
+                            "[Failed]:APP {} Launch Delay, Expect App windows {} not exist".format(Name, WindowName))
+                        self.capture(profile,
+                                     "[Failed]:APP {} Launch Delay, Expect App {} windows not exist".format(Name,
+                                                                                                            WindowName))
                         flag = False
                     else:
                         self.Logfile("[PASS]:APP {} Launch Delay".format(Name))
-                    time.sleep(Launchdelay+5)  # add 5s waitting app's launch time
+                    time.sleep(Launchdelay + 5)  # add 5s waitting app's launch time
             else:
                 time.sleep(Launchdelay)
                 if not CommonLib.WindowControl(RegexName=WindowName).Exists():
@@ -1155,7 +1172,8 @@ class Shell_Application(EasyShellTest):
                 else:
                     flag = False
                     self.Logfile("[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
-                    self.capture(profile, "[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
+                    self.capture(profile,
+                                 "[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
                     return flag
                 time.sleep(5)
                 if int(Launchdelay) == 0:
@@ -1203,23 +1221,7 @@ class Shell_Application(EasyShellTest):
         adminonly = test['Adminonly']
         hidemissapp = test['Hidemissapp']
         try:
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    print(t)
-                    t += 1
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('Settings').Click()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1319,22 +1321,7 @@ class Shell_Application(EasyShellTest):
             newHidemissapp = new['Hidemissapp']
             newLaunchdelay = new['Launchdelay']
             self.Logfile('----------Begin to Edit Application with new profile {} ---------'.format(newProfile))
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            # Wait HP easy shell launch
-            time.sleep(3)
-            for t in range(10):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                    time.sleep(1)
-                    continue
-                else:
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('Applications').Click()
             # Modify setting//////////////////////////////////////
             if self.utils(newProfile, 'exist'):
@@ -1416,20 +1403,7 @@ class Shell_Websites(EasyShellTest):
             EmbedIE = test['EmbedIE']
             AllCloseEmbedIE = test['AllCloseEmbedIE']
             try:
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                    for app_path in self.appPath:
-                        if os.path.exists(app_path):
-                            EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                            break
-                        else:
-                            continue
-                self.Logfile('---------------Begin to Create website------------')
-                for t in range(10):
-                    if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                        continue
-                    else:
-                        print('web Get windows')
-                        break
+                self.launch()
                 EasyshellLib.getElement('Settings').Click()
                 EasyshellLib.getElement('KioskMode').Enable()
                 EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1486,11 +1460,13 @@ class Shell_Websites(EasyShellTest):
                 return True
             except:
                 self.Logfile("[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
-                self.capture('CreateWebsite', "[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
+                self.capture('CreateWebsite',
+                             "[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
                 return False
         except:
             self.Logfile("[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()))
-            self.capture('CreateWebsite', "[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()))
+            self.capture('CreateWebsite',
+                         "[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()))
             return False
 
     # ---------------- Website Check --------------------------------------
@@ -1542,7 +1518,8 @@ class Shell_Websites(EasyShellTest):
         elif UseIE and IEFullScreen and not EmbedIE:
             if CommonLib.WindowControl(RegexName=EmbaedPaneName).Exists(0, 0) and \
                     not (
-                    CommonLib.WindowControl(RegexName=EmbaedPaneName).PaneControl(AutomationId='41477').Exists(0, 0)):
+                            CommonLib.WindowControl(RegexName=EmbaedPaneName).PaneControl(AutomationId='41477').Exists(
+                                0, 0)):
                 self.Logfile("[PASS]: Websites {} Check".format(profile))
             else:
                 flag = False
@@ -1614,19 +1591,7 @@ class Shell_Websites(EasyShellTest):
         oldAllCloseEmbedIE = old['AllCloseEmbedIE']
         try:
             self.Logfile('-----------Begin to Edit website -------------')
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(10):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0):
-                    time.sleep(1)
-                    continue
-                else:
-                    break
+            self.launch()
             EasyshellLib.getElement('WebSites').Click()
             if self.utils(newProfile, 'exist'):
                 self.utils(newProfile, 'delete')
@@ -1737,7 +1702,8 @@ class Shell_Websites(EasyShellTest):
             self.Logfile(
                 '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName, traceback.format_exc()))
             self.capture("EditWEB",
-                         '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName, traceback.format_exc()))
+                         '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName,
+                                                                                        traceback.format_exc()))
             return False
 
 
@@ -1764,20 +1730,7 @@ class Shell_StoreFront(EasyShellTest):
         ConnectionTimeout = test['ConnectionTimeout']
         DesktopToolbar = test['DesktopToolbar']
         try:
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(10):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                    continue
-                else:
-                    print('store get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('Settings').Click()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1883,21 +1836,7 @@ class Shell_StoreFront(EasyShellTest):
             oldAutolaunch = old['Autolaunch']
             oldConnectionTimeout = old['ConnectionTimeout']
             oldDesktopToolbar = old['DesktopToolbar']
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('Settings').Click()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -1911,10 +1850,10 @@ class Shell_StoreFront(EasyShellTest):
                 self.Logfile('[Fail]:Old StoreFont {} do not exist'.format(oldName))
                 self.capture('EditStorefont', '[Fail]:Old StoreFont {} do not exist'.format(oldName))
                 return False
-            ClearContent(len(oldName)+5)
+            ClearContent(len(oldName) + 5)
             CommonLib.SendKeys(newName)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldURL)+5)
+            ClearContent(len(oldURL) + 5)
             CommonLib.SendKeys(newURL)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
             CommonLib.SendKeys(newLogonMethod)
@@ -1924,13 +1863,13 @@ class Shell_StoreFront(EasyShellTest):
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldUsername)+5)
+            ClearContent(len(oldUsername) + 5)
             CommonLib.SendKeys(newUsername)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldPassword)+5)
+            ClearContent(len(oldPassword) + 5)
             CommonLib.SendKeys(newPassword)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldDomain)+5)
+            ClearContent(len(oldDomain) + 5)
             CommonLib.SendKeys(newDomain)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             if newAutolaunch == oldAutolaunch:
@@ -1945,7 +1884,7 @@ class Shell_StoreFront(EasyShellTest):
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 if newCustomLogon == 'None':
-                    ClearContent(len(oldCustomLogon)+5)
+                    ClearContent(len(oldCustomLogon) + 5)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                 else:
                     CommonLib.SendKeys(newCustomLogon)
@@ -1971,7 +1910,6 @@ class Shell_StoreFront(EasyShellTest):
             self.Logfile('[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             self.capture('EditRDP', '[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             return False
-
 
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
@@ -2009,20 +1947,7 @@ class Shell_View(EasyShellTest):
         Domain = test['Domain']
         DesktopName = test['DesktopName']
         try:
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for i in range(20):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
-                    continue
-                else:
-                    print('get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -2082,7 +2007,8 @@ class Shell_View(EasyShellTest):
             return True
         except:
             self.Logfile("[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
-            self.capture('CreateView', "[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
+            self.capture('CreateView',
+                         "[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             return False
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -2116,21 +2042,7 @@ class Shell_View(EasyShellTest):
             olddesktopname = old['DesktopName']
             oldautolaunch = old['Autolaunch']
             oldpersistent = old['Persistent']
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -2153,10 +2065,10 @@ class Shell_View(EasyShellTest):
             ClearContent(5)
             CommonLib.SendKeys(str(newlaunchdelay))
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldargument)+5)
+            ClearContent(len(oldargument) + 5)
             CommonLib.SendKeys(newargument)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if newautolaunch==oldautolaunch:
+            if newautolaunch == oldautolaunch:
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -2181,16 +2093,16 @@ class Shell_View(EasyShellTest):
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldusername)+5)
+            ClearContent(len(oldusername) + 5)
             CommonLib.SendKeys(newusername)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             ClearContent(30)
             CommonLib.SendKeys(newpassword)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(olddomain)+5)
+            ClearContent(len(olddomain) + 5)
             CommonLib.SendKeys(newdomain)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(olddesktopname)+5)
+            ClearContent(len(olddesktopname) + 5)
             CommonLib.SendKeys(newdesktopname)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -2233,21 +2145,7 @@ class Shell_RDP(EasyShellTest):
         persistent = test['Persistent']
         customfile = test['Customfile']
         try:
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('Settings').Click()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
@@ -2295,7 +2193,8 @@ class Shell_RDP(EasyShellTest):
                     CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
                 else:
                     self.Logfile('[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
-                    self.capture('CreateRDP', '[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
+                    self.capture('CreateRDP',
+                                 '[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     return False
@@ -2329,21 +2228,7 @@ class Shell_RDP(EasyShellTest):
             oldautolaunch = old['Autolaunch']
             oldpersistent = old['Persistent']
             oldcustomfile = old['Customfile']
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -2369,10 +2254,10 @@ class Shell_RDP(EasyShellTest):
             ClearContent(5)
             CommonLib.SendKeys(str(newlaunchdelay))
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            ClearContent(len(oldargument)+5)
+            ClearContent(len(oldargument) + 5)
             CommonLib.SendKeys(newargument)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if newautolaunch==oldautolaunch:
+            if newautolaunch == oldautolaunch:
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -2412,7 +2297,6 @@ class Shell_RDP(EasyShellTest):
             self.capture('EditRDP', '[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             return False
 
-
     @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
@@ -2443,21 +2327,7 @@ class Shell_Citrix(EasyShellTest):
         autolaunch = test['Autolaunch']
         persistent = test['Persistent']
         try:
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -2500,7 +2370,8 @@ class Shell_Citrix(EasyShellTest):
             return True
         except:
             self.Logfile("[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
-            self.capture('CitrixCreate', "[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
+            self.capture('CitrixCreate',
+                         "[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
             return False
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -2520,21 +2391,7 @@ class Shell_Citrix(EasyShellTest):
             oldusername = old['Username']
             oldautolaunch = old['Autolaunch']
             oldpersistent = old['Persistent']
-            if not EasyshellLib.getElement('MAIN_WINDOW').Exists(1, 1):
-                for app_path in self.appPath:
-                    if os.path.exists(app_path):
-                        EasyshellLib.CommonUtils.LaunchAppFromFile(app_path)
-                        break
-                    else:
-                        continue
-            for t in range(50):
-                if not EasyshellLib.getElement('MAIN_WINDOW').Exists(searchIntervalSeconds=1):
-                    time.sleep(2)
-                    continue
-                else:
-                    print('app get window')
-                    time.sleep(10)
-                    break
+            self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
@@ -2587,7 +2444,8 @@ class Shell_Citrix(EasyShellTest):
             return True
         except:
             self.Logfile('[Failed]: Citrix Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            self.capture('CitrixEdit', '[Failed]: Citrix Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
+            self.capture('CitrixEdit',
+                         '[Failed]: Citrix Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             return False
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -2609,20 +2467,7 @@ class TaskSwitcher(EasyShellTest):
         EasyShellTest.__init__(self)
 
     def __prepare(self):
-        if not EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0):
-            for app_path in self.appPath:
-                if os.path.exists(app_path):
-                    EasyshellLib.CommonUtils.LaunchAppFromFile(self.appPath)
-                    break
-                else:
-                    continue
-        else:
-            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
-        for i in range(10):
-            if EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0):
-                break
-            else:
-                continue
+        self.launch()
         EasyshellLib.getElement('Settings').Click()
         EasyshellLib.getElement('KioskMode').Enable()
 
@@ -2771,5 +2616,133 @@ class TaskSwitcher(EasyShellTest):
             return False
 
 
+class General_Test(EasyShellTest):
+    def __init__(self):
+        EasyShellTest.__init__(self)
+
+    @staticmethod
+    def create_user(user='standard_user', password='test'):
+        user = CommonLib.User_Group(user, password, 'Users')
+        user.add_user()
+        user.add_user_to_group()
+
+    @staticmethod
+    def create_admin(user='standard_admin', passwd='test'):
+        user = CommonLib.User_Group(user, passwd, 'Administrators')
+        user.add_user()
+        user.add_user_to_group()
+
+    @staticmethod
+    def enable_kiosk():
+        reg = CommonLib.Reg_Utils()
+        key = reg.isKeyExist(r'SOFTWARE\HP\HP Easy Shell')
+        if key:
+            reg.create_value(key, 'KioskMode', 0, 'True')
+            reg.close(key)
+
+    def reg_export(self):
+        self.launch()
+        EasyshellLib.getElement('Export').Click()
+        if not os.path.exists(r'c:\temp'):
+            os.mkdir(r'c:\temp')
+        EasyshellLib.getElement('SaveToFile').SetValue(r'c:\temp\easyshellsettings.reg')
+        EasyshellLib.getElement('ButtonSave').Click()
+        time.sleep(1)
+        if EasyshellLib.getElement('OVERRIDE').Exists():
+            EasyshellLib.getElement('ButtonYES').Click()
+        EasyshellLib.getElement('Exit').Click()
+        if os.path.exists(r'c:\temp\easyshellsettings.reg'):
+            self.Logfile('[PASS]:export settings to c:/temp/easyshellsettings.reg')
+            return True
+        else:
+            self.Logfile('[FAIL]:export function fail, c:/temp/easyshellsettings.reg not exist')
+            self.capture('ExportSettings', '[FAIL]:export function fail, c:/temp/easyshellsettings.reg not exist')
+            return False
+
+    def reg_import(self):
+        os.popen(r'c:/temp/easyshellsettings.reg')
+        time.sleep(2)
+        if EasyshellLib.getElement('REG_EDIT_WARNNING').Exists(0, 0):
+            EasyshellLib.getElement('ButtonYES').Click()
+            time.sleep(2)
+            if EasyshellLib.getElement('REG_EDIT').Exists(0, 0):
+                EasyshellLib.getElement('ButtonOK').Click()
+                self.Logfile('[PASS]:c:/temp/easyshellsettings.reg import successfully')
+        else:
+            self.Logfile('[FAIL]:c:/temp/easyshellsettings.reg import FAIL, please double check reg file')
+            self.capture('ImportSettings', 'c:/temp/easyshellsettings.reg import FAIL, please double check reg file')
+            return False
+
+    def modify(self):
+        self.launch()
+        EasyshellLib.getElement('Applications').Click()
+        self.utils('resetapp', 'delete')
+        EasyshellLib.getElement('StoreFront').Click()
+        self.utils('resetapp', 'delete')
+        EasyshellLib.getElement('WebSites').Click()
+        self.utils('resetapp', 'delete')
+
+    def import_check(self, imported=True):
+        EasyshellLib.getElement("UserTitles").Click()
+        app = CommonLib.TextControl(Name='test_app').Exists()
+        store = CommonLib.TextControl(Name='test_store').Exists()
+        web = CommonLib.TextControl(Name='test_web').Exists()
+        if imported:
+            if app and store and web:
+                self.Logfile('[PASS]: check import setting PASS')
+                return True
+            else:
+                self.Logfile('[FAIL]: check import setting Fail:\napplication exist:{}\n'
+                             'stoer exist:{}\nweb exist:{}'.format(app, store, web))
+                self.capture('import_check', '[FAIL]: check setting Fail:\napplication exist:{}\n'
+                                             'stoer exist:{}\nweb exist:{}'.format(app, store, web))
+                return False
+        else:
+            if app or store or web:
+                self.Logfile('[FAIL]: check imoprt setting Fail(before import):\napplication exist:{}\n'
+                             'stoer exist:{}\nweb exist:{}'.format(app, store, web))
+                self.capture('import_check', '[FAIL]: check setting Fail(before import):\napplication exist:{}\n'
+                                             'stoer exist:{}\nweb exist:{}'.format(app, store, web))
+                return False
+
+            else:
+                self.Logfile('[PASS]: check import setting PASS(before import)')
+                return True
+
+    def __exit_menu(self):
+        EasyshellLib.getElement('AdminPower').Click()
+        EasyshellLib.getElement('ExitItem').Click()
+        time.sleep(1)
+        if EasyshellLib.getElement('ExitSave').Exists():
+            self.Logfile('[PASS]: Exit Menu Test Pass, save dialog pops up')
+            EasyshellLib.getElement('ButtonCancel').Click()
+        else:
+            self.Logfile('[FAIL]: Exist Menu Test Fail, save dialog not pop up')
+            self.capture('Exit_Menu', '[FAIL]: Exist Menu Test Fail, save dialog not pop up')
+            return False
+
+    def __exit_button(self):
+        EasyshellLib.getElement('Exit').Click()
+        time.sleep(1)
+        if EasyshellLib.getElement('ExitSave').Exists():
+            self.Logfile('[PASS]: Exit Button Test Pass, save dialog pops up')
+            EasyshellLib.getElement('ButtonCancel').Click()
+        else:
+            self.Logfile('[FAIL]: Exist Button Test Fail, save dialog not pop up')
+            self.capture('Exit_Button', '[FAIL]: Exist Button Test Fail, save dialog not pop up')
+            return False
+
+    def exit_test(self):
+        self.launch()
+        if EasyshellLib.getElement('AllowLock').GetStatus():
+            EasyshellLib.getElement('AllowLock').Disable()
+        else:
+            EasyshellLib.getElement('AllowLock').Enable()
+        # ---------test exit button -------------------------------------------
+        self.__exit_button()
+        # ---------test exit menu -------------------------------------------
+        self.__exit_menu()
+
+
 if __name__ == '__main__':
-    EasyShellTest().resetEasyshell()
+    General_Test().exit_test()

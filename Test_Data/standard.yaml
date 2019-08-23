@@ -1,5 +1,5 @@
 app:
-    DisplayName: 'test'
+    DisplayName: 'test_app'
     path: 'test'
     args: ''
     delayLaunch: '0'
@@ -76,7 +76,7 @@ rdp:
     redirectposdevices: "1"
     redirectdirectx: "1"
 site:
-    DisplayName: "test"
+    DisplayName: "test_web"
     Address: "http://15.83.240.126"
     UseIE: "False"
     FullscreenIE: "False"
