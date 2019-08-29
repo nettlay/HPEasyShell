@@ -25,6 +25,18 @@ Minimize: Only Name is useful, AutomationId actually is "" even though we can ge
 
 class QAUtils:
     @staticmethod
+    def hex2rgb(hexcolor):
+        rgb = [(hexcolor >> 16) & 0xff,
+               (hexcolor >> 8) & 0xff,
+               hexcolor & 0xff
+               ]
+        return rgb
+
+    def rgb2hex(rgbcolor):
+        r, g, b = rgbcolor
+        return (r << 16) + (g << 8) + b
+
+    @staticmethod
     def get_window_size():
         # actual size, value will be different with different scaling
         width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
@@ -531,7 +543,7 @@ class Control(uiautomation.Control):
         regName = searchPorpertyDict.get('RegexName', '')
         self.regexName = re.compile(regName) if regName else None
 
-    def Click(self, ratioX=0.5, ratioY=0.5, simulateMove=True, waitTime=OPERATION_WAIT_TIME):
+    def Click(self, ratioX=0.5, ratioY=0.5, simulateMove=False, waitTime=0.1):
         """
         ratioX: float or int, if is int, click left + ratioX, if < 0, click right + ratioX
         ratioY: float or int, if is int, click top + ratioY, if < 0, click bottom + ratioY

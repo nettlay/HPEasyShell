@@ -1,4 +1,6 @@
 import platform
+import re
+
 import win32api, win32con
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
@@ -2500,7 +2502,6 @@ class TaskSwitcher(EasyShellTest):
             self.enable()
             EasyshellLib.getElement('Permanent').Enable()
             EasyshellLib.getElement('APPLY').Click()
-            self.Logfile("[PASS]: enable permanetly")
             return True
         except:
             self.Logfile("[Fail]: enable Task Switcher")
@@ -2512,7 +2513,6 @@ class TaskSwitcher(EasyShellTest):
             self.enable()
             EasyshellLib.getElement('Permanent').Disable()
             EasyshellLib.getElement('APPLY').Click()
-            self.Logfile("[PASS]: disable permanetly")
             return True
         except:
             self.Logfile('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
@@ -2550,7 +2550,9 @@ class TaskSwitcher(EasyShellTest):
     def enableSoundIconReadOnly(self):
         self.enable()
         EasyshellLib.getElement('DisplaySoundIconInteraction').Disable()
+        EasyshellLib.getElement('Permanent').Enable()
         EasyshellLib.getElement('APPLY').Click()
+        EasyshellLib.getElement('Exit').Click()
         self.Logfile("[PASS]: sound icon read only settings")
 
     def checkSoundReadOnly(self):
@@ -2559,12 +2561,14 @@ class TaskSwitcher(EasyShellTest):
             self.Logfile("[PASS]: sound value is not shown")
             return True
         else:
-            self.Logfile("[Fail]: sound value is shown")
-            self.capture("[Fail]: sound value is shown, expect readonly")
+            self.Logfile("[Fail]: sound value is shown, Expect not shown")
+            self.capture('SoundReadOnly', "[Fail]: sound value is shown, expect not shown")
             return False
 
     def enableSoundInteraction(self):
+        self.enable()
         EasyshellLib.getElement('DisplaySound').Enable()
+        EasyshellLib.getElement('Permanent').Enable()
         EasyshellLib.getElement('DisplaySoundIconInteraction').Enable()
         EasyshellLib.getElement('APPLY').Click()
         self.Logfile("[PASS]: enable sound interaction")
@@ -2572,20 +2576,23 @@ class TaskSwitcher(EasyShellTest):
     def checkSoundInteraction(self):
         """
         判断sound interaction 是否工作
-        1. 判断当前音量大小，大于80时降低音量操作，小于80时增加音量操作
+        1. 判断当前音量大小，大于60时降低音量操作，小于80时增加音量操作
         2. 通过鼠标键盘两种操作来测试功能
         """
         EasyshellLib.getElement('SoundIcon').Click()
+        time.sleep(3)
         if not EasyshellLib.getElement('SoundAdjust').IsOffScreen:
-            EasyshellLib.getElement('SoundIcon').Click()
+            # EasyshellLib.getElement('SoundIcon').Click()
             currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
-            if int(currentVol) < 80:
-                EasyshellLib.getElement('SoundAdjustBar').Drag(10, 0)
+            currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
+            if int(currentVol) < 60:
+                # increase volumn +10
+                EasyshellLib.CommonLib.DragDrop(currentThumb[0], currentThumb[1], currentThumb[0]+10, currentThumb[1])
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
-                    self.Logfile("[PASS]: Sound Adjust by Mouse")
+                    self.Logfile("[PASS]: Sound Adjusted by Mouse")
                 else:
-                    self.Logfile("[FAIL]: Sound Adjust by Mouse")
+                    self.Logfile("[FAIL]: Sound Adjusted by Mouse")
                     return False
                 CommonLib.SendKey(CommonLib.Keys.VK_RIGHT)
                 finalVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
@@ -2715,7 +2722,7 @@ class General_Test(EasyShellTest):
         time.sleep(1)
         if EasyshellLib.getElement('ExitSave').Exists():
             self.Logfile('[PASS]: Exit Menu Test Pass, save dialog pops up')
-            EasyshellLib.getElement('ButtonCancel').Click()
+            return True
         else:
             self.Logfile('[FAIL]: Exist Menu Test Fail, save dialog not pop up')
             self.capture('Exit_Menu', '[FAIL]: Exist Menu Test Fail, save dialog not pop up')
@@ -2726,23 +2733,133 @@ class General_Test(EasyShellTest):
         time.sleep(1)
         if EasyshellLib.getElement('ExitSave').Exists():
             self.Logfile('[PASS]: Exit Button Test Pass, save dialog pops up')
-            EasyshellLib.getElement('ButtonCancel').Click()
+            return True
         else:
             self.Logfile('[FAIL]: Exist Button Test Fail, save dialog not pop up')
             self.capture('Exit_Button', '[FAIL]: Exist Button Test Fail, save dialog not pop up')
             return False
 
-    def exit_test(self):
+    def __exit_check(self, item, button, state):
+        if button.upper() == 'YES':
+            EasyshellLib.getElement('ButtonYES').Click()
+            self.launch()
+            if EasyshellLib.getElement('AllowLock').GetStatus() != state:
+                EasyshellLib.getElement('Exit').Click()
+                self.Logfile('[PASS]: Exist {} Test PASS'.format(item))
+                return True
+            else:
+                EasyshellLib.getElement('Exit').Click()
+                self.Logfile('[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
+                             ''.format(item, 'Enable' if state == 1 else 'Disabled'))
+                self.capture('Exit_{}'.format(item), '[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
+                                                     ''.format(item, 'Enable' if state == 1 else 'Disabled'))
+                return False
+        elif button.upper() == 'NO':
+            EasyshellLib.getElement('ButtonNO').Click()
+            self.launch()
+            if EasyshellLib.getElement('AllowLock').GetStatus() == state:
+                EasyshellLib.getElement('Exit').Click()
+                self.Logfile('[PASS]: Exit {} Test PASS'.format(item))
+                return True
+            else:
+                EasyshellLib.getElement('Exit').Click()
+                self.Logfile('[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
+                             ''.format(item, 'Enable' if state == 1 else 'Disabled'))
+                self.capture('Exit_{}'.format(item), '[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
+                                                     ''.format(item, 'Enable' if state == 1 else 'Disabled'))
+                return False
+        else:
+            print('aaa')
+            pass
+
+    def exit_button(self, button):
         self.launch()
-        if EasyshellLib.getElement('AllowLock').GetStatus():
+        state = EasyshellLib.getElement('AllowLock').GetStatus()
+        print(type(state))
+        if state:
             EasyshellLib.getElement('AllowLock').Disable()
         else:
             EasyshellLib.getElement('AllowLock').Enable()
         # ---------test exit button -------------------------------------------
-        self.__exit_button()
+        if self.__exit_button():
+            return self.__exit_check('button', button, state)
+        else:
+            return False
+
+    def exit_menu(self, button):
+        self.launch()
+        state = EasyshellLib.getElement('AllowLock').GetStatus()
+        if EasyshellLib.getElement('AllowLock').GetStatus():
+            EasyshellLib.getElement('AllowLock').Disable()
+        else:
+            EasyshellLib.getElement('AllowLock').Enable()
         # ---------test exit menu -------------------------------------------
-        self.__exit_menu()
+        if self.__exit_menu():
+            return self.__exit_check('menu', button, state)
+        else:
+            return False
+
+    def set_hide_during_session(self, state):
+        General_Test().resetEasyshell()
+        self.launch()
+        EasyshellLib.getElement('Settings').Click()
+        if state.upper() == 'ON':
+            EasyshellLib.getElement('HideEasyShell').Enable()
+        else:
+            EasyshellLib.getElement('HideEasyShell').Disable()
+        EasyshellLib.getElement('APPLY').Click()
+
+    def check_hide_during_session(self, state):
+        EasyshellLib.CommonLib.TextControl(Name='test_app').Click()
+        if state:
+            if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
+                print('pass')
+                EasyshellLib.CommonLib.WindowControl(RegexName='.*Notepad').Close()
+                return True
+            else:
+                print('fail')
+                return False
+        else:
+            if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+                EasyshellLib.CommonLib.WindowControl(RegexName='.*Notepad').Close()
+                print('pass')
+                return True
+            else:
+                print('fail')
+                return False
+
+    def hex2rgb(self, hex_str):
+        real_str = hex_str[-6:]
+        splited = re.findall(r'(.{2})', real_str)
+        return tuple([int(i, 16) for i in splited])
+
+    def check_copyright(self):
+        self.launch()
+        flag = True
+        version = EasyshellLib.getElement('CopyRight').Name
+        ver = re.findall(r'(.*)Copy.*', version)[0].replace('-', '').strip()
+        copy = re.findall(r'.* Copyright(.*)HP', version)[0][3:].strip()
+        comp = re.findall(r'.*-\d\d\d\d(.*)', version)[0].strip()
+        if ver != self.sections['version']:
+            flag = False
+            self.Logfile('[FAIL]:Version Check Fail, expect:{}'.format(self.sections['version']))
+            self.capture('check_version', '[FAIL]:Version Check Fail, expect:{}'.format(self.sections['version']))
+        if copy != self.sections['copyright']:
+            flag = False
+            self.Logfile('[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
+            self.capture('check_copyright', '[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
+        if comp != self.sections['company']:
+            flag = False
+            self.Logfile('[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
+            self.capture('check_company', '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
+        EasyshellLib.getElement('Exit').Click()
+        return flag
 
 
 if __name__ == '__main__':
-    General_Test().exit_test()
+    # import uiautomation
+    # rect = uiautomation.ThumbControl(AutomationId='Thumb').BoundingRectangle
+    # uiautomation.DragDrop(rect[0], rect[1], rect[0]-10, rect[1])
+    # TaskSwitcher().enableSoundInteraction()
+    TaskSwitcher().checkSoundInteraction()
+    pass

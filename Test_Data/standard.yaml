@@ -1,6 +1,6 @@
 app:
     DisplayName: 'test_app'
-    path: 'test'
+    path: 'c:\windows\system32\notepad.exe'
     args: ''
     delayLaunch: '0'
     adminOnly: "False"
