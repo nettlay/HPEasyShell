@@ -2573,53 +2573,88 @@ class TaskSwitcher(EasyShellTest):
         EasyshellLib.getElement('APPLY').Click()
         self.Logfile("[PASS]: enable sound interaction")
 
-    def checkSoundInteraction(self):
+    def check_SoundInteraction_key(self):
         """
         判断sound interaction 是否工作
         1. 判断当前音量大小，大于60时降低音量操作，小于80时增加音量操作
         2. 通过鼠标键盘两种操作来测试功能
         """
-        EasyshellLib.getElement('SoundIcon').Click()
-        time.sleep(3)
+
+        if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
+            EasyshellLib.getElement('SoundIcon').Click()
+            time.sleep(1)
         if not EasyshellLib.getElement('SoundAdjust').IsOffScreen:
             # EasyshellLib.getElement('SoundIcon').Click()
             currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
             currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
             if int(currentVol) < 60:
                 # increase volumn +10
-                EasyshellLib.CommonLib.DragDrop(currentThumb[0], currentThumb[1], currentThumb[0]+10, currentThumb[1])
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
-                if currentVol != tempVol:
-                    self.Logfile("[PASS]: Sound Adjusted by Mouse")
-                else:
-                    self.Logfile("[FAIL]: Sound Adjusted by Mouse")
-                    return False
-                CommonLib.SendKey(CommonLib.Keys.VK_RIGHT)
+                CommonLib.SendKey(CommonLib.Keys.VK_RIGHT, count=3)
                 finalVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if finalVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjust by Keyboard")
                     return True
                 else:
-                    self.Logfile("[FAIL]: Sound Adjust by Keyboard")
+                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
+                    self.capture('SoundInteraction_Key', "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
                     return False
             else:
-                EasyshellLib.getElement('SoundAdjustBar').Drag(-10, 0)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
-                if currentVol != tempVol:
-                    self.Logfile("[PASS]: Sound Adjust by Mouse")
-                else:
-                    self.Logfile("[FAIL]: Sound Adjust by Mouse")
-                    return False
-                CommonLib.SendKey(CommonLib.Keys.VK_LEFT)
+                CommonLib.SendKey(CommonLib.Keys.VK_LEFT, count=3)
                 finalVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if finalVol != tempVol:
                     self.Logfile("[PASS]: {} Sound Adjust by Keyboard")
                     return True
                 else:
                     self.Logfile("[FAIL]: {} Sound Adjust by Keyboard")
+                    self.capture('SoundInteraction_Key',
+                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,  finalVol))
                     return False
         else:
             self.Logfile("[Fail]: sound value is not shown")
+            self.capture('SoundInteraction_Key',
+                         "[FAIL]: Sound adjust bar is not shown")
+            return False
+
+    def check_SoundInteraction_mouse(self):
+        """
+        判断sound interaction 是否工作
+        1. 判断当前音量大小，大于60时降低音量操作，小于80时增加音量操作
+        2. 通过鼠标键盘两种操作来测试功能
+        """
+
+        if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
+            EasyshellLib.getElement('SoundIcon').Click()
+            time.sleep(1)
+        if not EasyshellLib.getElement('SoundAdjust').IsOffScreen:
+            # EasyshellLib.getElement('SoundIcon').Click()
+            currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
+            currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
+            current_x = currentThumb[0]
+            current_y = int((currentThumb[1]+currentThumb[3])/2)
+            if int(currentVol) < 60:
+                # increase volumn +10
+                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x+10, current_y)
+                tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
+                if currentVol != tempVol:
+                    self.Logfile("[PASS]: Sound Adjusted by Mouse")
+                else:
+                    self.capture("SoundInteraction_Mosue", "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    return False
+            else:
+                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x-10, current_y)
+                tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
+                if currentVol != tempVol:
+                    self.Logfile("[PASS]: Sound Adjust by Mouse")
+                else:
+                    self.capture("SoundInteraction_Mosue", "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    return False
+        else:
+            self.Logfile("[FAIL]: sound adjust bar is not shown")
+            self.capture("SoundInteraction_Mouse", "[FAIL]: sound adjust bar is not shown")
             return False
 
 
@@ -2860,6 +2895,10 @@ if __name__ == '__main__':
     # import uiautomation
     # rect = uiautomation.ThumbControl(AutomationId='Thumb').BoundingRectangle
     # uiautomation.DragDrop(rect[0], rect[1], rect[0]-10, rect[1])
-    # TaskSwitcher().enableSoundInteraction()
-    TaskSwitcher().checkSoundInteraction()
+    TaskSwitcher().enableSoundInteraction()
+    EasyshellLib.CommonUtils.SwitchToUser()
+    EasyshellLib.CommonUtils.Reboot()
+    TaskSwitcher().check_SoundInteraction_key()
+    EasyshellLib.CommonUtils.SwitchToAdmin()
+    EasyshellLib.CommonUtils.Reboot()
     pass
