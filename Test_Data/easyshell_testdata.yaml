@@ -566,4 +566,40 @@ createStoreFront:
         Autolaunch: OFF
         ConnectionTimeout: 5
         DesktopToolbar: OFF
-        
+
+background:
+  default:
+    main: [23, 59, 119]
+    title: [0, 150, 214]
+    text: [255, 255, 255]
+    active: [0, 255, 0]
+  Blue:
+    main: [0, 112, 172]
+    title: [36, 143, 197]
+    text: [255, 255, 255]
+    active: [0, 255, 0]
+  Green:
+    main: [0, 78, 29]
+    title: [46, 129, 43]
+    text: [255, 255, 255]
+    active: [0, 255, 0]
+  Red:
+    main: [107, 27, 63]
+    title: [160, 31, 88]
+    text: [255, 255, 255]
+    active: [0, 255, 0]
+  Purple:
+    main: [97, 0, 93]
+    title: [152, 73, 148]
+    text: 255, 255, 255
+    active: [0, 255, 0]
+  light:
+    main: [238, 238, 238]
+    title: [255, 255, 255]
+    text: [0, 0, 0]
+    active: [0, 255, 0]
+  dark:
+    main: [24, 24, 24]
+    title: [0, 0, 0]
+    text: [255, 255, 255]
+    active: [0, 255, 0]
