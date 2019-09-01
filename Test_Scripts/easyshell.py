@@ -1,14 +1,17 @@
 import platform
+import random
 import re
 
 import win32api, win32con
+from math import sqrt
+
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
 import os
 import time
 import traceback
 import pysnooper
-from PIL import ImageGrab, ImageDraw, ImageFont
+from PIL import ImageGrab, ImageDraw, ImageFont, Image
 
 
 def ClearContent(length=50):
@@ -971,75 +974,6 @@ class UserSettings(EasyShellTest):
                         self.Logfile("[Fail]: {} is shown".format(name))
                         self.capture(profile, "[Fail]: {} is shown".format(name))
         return flag
-
-
-class Background(EasyShellTest):
-    def __init__(self):
-        EasyShellTest.__init__(self)
-
-    # -------------------------------back ground ---------------------------------------
-    def set_background(self, bg='Custom'):
-        # bg support:
-        # {custom | default | Blue | Green | Red | Purple | light | dark}
-        # please strictly use above value, including upper and lower letters
-        self.Logfile('---------Begin To Set Background ---------------')
-        UserSettings().modify('test1')
-        self.launch()
-        try:
-            print(bg)
-            if bg == 'Custom':
-                file = 'customBG'
-                EasyshellLib.getElement('AllowUserSetting').Enable()
-                EasyshellLib.getElement('EnableCustom').Enable()
-                EasyshellLib.getElement('BGFileLocationButton').GetInvokePattern().Invoke()
-                EasyshellLib.getElement('BGFileURLEdit').SetValue(os.path.join(self.misc, "%s.jpg" % file))
-                EasyshellLib.getElement('BGFileOpen').Click()
-                EasyshellLib.getElement('APPLY').Click()
-                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
-                return True
-            else:
-                userSettings = self.sections['userSettings']['test1']
-                for item in userSettings:
-                    EasyshellLib.getElement(item.split(':')[0]).Enable()
-                # EasyshellLib.getElement('AllowUserSetting').Enable()
-
-                # for t in EasyshellLib.UserSettings_Dict.values():
-                #     t.Enable()
-                EasyshellLib.getElement('EnableCustom').Disable()
-                EasyshellLib.getElement('SelectTheme').GetInvokePattern().Invoke()
-                # -------------------select listitem by match the name----------------
-                bgcomb = EasyshellLib.getElement('BGTheme')
-                bgcomb.Click()
-                time.sleep(3)
-                txt = CommonLib.TextControl(RegexName='.*%s.*' % bg)
-                txt.Click()
-                EasyshellLib.getElement('OK').GetInvokePattern().Invoke()
-                EasyshellLib.getElement('APPLY').Click()
-                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
-                return True
-        except:
-            self.Logfile('[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
-            self.capture("background", '[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
-            return False
-
-    def check_background(self, bg='custom'):
-        self.Logfile('---------Begin To Check Background ---------------')
-        EasyshellLib.getElement('UserSettings').Click()
-        CommonLib.PaneControl(AutomationId='mainFrame').CaptureToImage('%s.jpg' % bg)
-        rgb1 = EasyshellLib.CommonUtils.getPicRGB('%s.jpg' % bg)
-        rgb2 = EasyshellLib.CommonUtils.getPicRGB(os.path.join(self.misc, '%s.jpg' % bg))
-        compare = EasyshellLib.CommonUtils.compareByRGB(rgb1, rgb2)
-        print(compare)
-        os.remove('%s.jpg' % bg)
-        if compare > 0.9:
-            print('pass')
-            self.Logfile('[PASS]: check {} Background file\n'.format(bg))
-            return True
-        else:
-            print('Fail')
-            self.Logfile('[FAIL]: Check {} Background file\n'.format(bg))
-            self.capture("background", '[FAIL]: Check {} Background file\n'.format(bg))
-            return False
 
 
 class Shell_Application(EasyShellTest):
@@ -2596,8 +2530,11 @@ class TaskSwitcher(EasyShellTest):
                     self.Logfile("[PASS]: Sound Adjust by Keyboard")
                     return True
                 else:
-                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
-                    self.capture('SoundInteraction_Key', "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
+                    self.Logfile(
+                        "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
+                    self.capture('SoundInteraction_Key',
+                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,
+                                                                                                       finalVol))
                     return False
             else:
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
@@ -2609,7 +2546,8 @@ class TaskSwitcher(EasyShellTest):
                 else:
                     self.Logfile("[FAIL]: {} Sound Adjust by Keyboard")
                     self.capture('SoundInteraction_Key',
-                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,  finalVol))
+                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,
+                                                                                                       finalVol))
                     return False
         else:
             self.Logfile("[Fail]: sound value is not shown")
@@ -2632,25 +2570,31 @@ class TaskSwitcher(EasyShellTest):
             currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
             currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
             current_x = currentThumb[0]
-            current_y = int((currentThumb[1]+currentThumb[3])/2)
+            current_y = int((currentThumb[1] + currentThumb[3]) / 2)
             if int(currentVol) < 60:
                 # increase volumn +10
-                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x+10, current_y)
+                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x + 10, current_y)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjusted by Mouse")
                 else:
-                    self.capture("SoundInteraction_Mosue", "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
-                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    self.capture("SoundInteraction_Mosue",
+                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
+                                                                                                       tempVol))
+                    self.Logfile(
+                        "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
                     return False
             else:
-                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x-10, current_y)
+                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x - 10, current_y)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjust by Mouse")
                 else:
-                    self.capture("SoundInteraction_Mosue", "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
-                    self.Logfile("[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    self.capture("SoundInteraction_Mosue",
+                                 "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
+                                                                                                       tempVol))
+                    self.Logfile(
+                        "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
                     return False
         else:
             self.Logfile("[FAIL]: sound adjust bar is not shown")
@@ -2863,11 +2807,6 @@ class General_Test(EasyShellTest):
                 print('fail')
                 return False
 
-    def hex2rgb(self, hex_str):
-        real_str = hex_str[-6:]
-        splited = re.findall(r'(.{2})', real_str)
-        return tuple([int(i, 16) for i in splited])
-
     def check_copyright(self):
         self.launch()
         flag = True
@@ -2875,10 +2814,12 @@ class General_Test(EasyShellTest):
         ver = re.findall(r'(.*)Copy.*', version)[0].replace('-', '').strip()
         copy = re.findall(r'.* Copyright(.*)HP', version)[0][3:].strip()
         comp = re.findall(r'.*-\d\d\d\d(.*)', version)[0].strip()
-        if ver != self.sections['version']:
-            flag = False
-            self.Logfile('[FAIL]:Version Check Fail, expect:{}'.format(self.sections['version']))
-            self.capture('check_version', '[FAIL]:Version Check Fail, expect:{}'.format(self.sections['version']))
+        with open('version.txt') as f:
+            version = f.read()
+            if not version in ver:
+                flag = False
+                self.Logfile('[FAIL]:Version Check Fail, expect:{}'.format(version))
+                self.capture('check_version', '[FAIL]:Version Check Fail, expect:{}'.format(version))
         if copy != self.sections['copyright']:
             flag = False
             self.Logfile('[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
@@ -2891,14 +2832,181 @@ class General_Test(EasyShellTest):
         return flag
 
 
+class Background(EasyShellTest):
+    def __init__(self):
+        EasyShellTest.__init__(self)
+        self.section_name = 'background'
+
+    def __random_value(self):
+        return random.randint(5, 88)
+
+    def random_set_custom_color(self):
+        EasyshellLib.getElement('ColorAdjust').AccessibleSetValue(str(self.__random_value()))
+        current_thumb = EasyshellLib.getElement('ColorAdjustBar').BoundingRectangle
+        EasyshellLib.CommonLib.Click(current_thumb[0] - 100, current_thumb[1])
+
+    def get_custom_color(self):
+        return EasyshellLib.getElement('Select_Color').EditControl().CurrentValue()
+
+    def select_theme(self, theme):
+        try:
+            self.resetEasyshell()
+            self.launch()
+            EasyshellLib.getElement('SelectTheme').Click()
+            EasyshellLib.getElement('BGTheme').Click()
+            time.sleep(1)
+            EasyshellLib.CommonLib.TextControl(RegexName='.*{}.*'.format(theme)).Click()
+            EasyshellLib.getElement('ButtonOK').Click()
+            EasyshellLib.getElement('APPLY').Click()
+            EasyshellLib.getElement('Exit').Click()
+            return True
+        except:
+            self.Logfile('[FAIL]: {} Select theme fail'.format(theme))
+            self.capture('theme_color', '[FAIL]: {} Select theme fail:\n{}'.format(theme, traceback.format_exc()))
+            return False
+
+    def get_colors(self):
+        EasyshellLib.getElement('SelectTheme').Click()
+        EasyshellLib.getElement('MainColor').Click()
+        main_c = self.hex2rgb(self.get_custom_color())
+        EasyshellLib.getElement('ButtonCANCEL').Click()
+        EasyshellLib.getElement('TitleColor').Click()
+        title_c = self.hex2rgb(self.get_custom_color())
+        EasyshellLib.getElement('ButtonCANCEL').Click()
+        EasyshellLib.getElement('TextForegroundColor').Click()
+        text_c = self.hex2rgb(self.get_custom_color())
+        EasyshellLib.getElement('ButtonCANCEL').Click()
+        EasyshellLib.getElement('ButtonCANCEL').Click()
+        EasyshellLib.getElement('Exit').Click()
+        return [main_c, title_c, text_c]
+
+    def check_theme_color(self, theme):
+        flag = True
+        color_data = self.sections[self.section_name]
+        EasyshellLib.getElement('UserTitles').Click()
+        EasyshellLib.getElement('xTile').Click()
+        EasyshellLib.getElement('xTile').SetFocus()
+        EasyshellLib.getElement('xTile').CaptureToImage('temp_color.png')
+        img = Image.open('temp_color.png')
+        size = img.size
+        title_pix = img.getpixel((2, 2))[:3]
+        text_pix = img.getpixel((size[0]/10, size[1]/3))[:3]
+        active_pix = img.getpixel((size[0]-1, size[1]/2))[:3]
+        EasyshellLib.getElement('Main_Pane').CaptureToImage('temp_color.png')
+        img1 = Image.open('temp_color.png')
+        size1 = img1.size
+        main1_pix = img1.getpixel((1, 1))[:3]
+        main2_pix = img1.getpixel((size1[0]-1, 1))[:3]
+        main3_pix = img1.getpixel((1, size1[1]-1))[:3]
+        main4_pix = img1.getpixel((size1[0]-1, size1[1]-1))[:3]
+        main_color = color_data[theme]['main']
+        # img1 = ImageGrab.grab()
+        if self.compare_RGB(title_pix, color_data[theme]['title']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color title check fail'.format(theme))
+            self.capture('theme_color', '[FAIL]: {} color title check fail'.format(theme))
+        if self.compare_RGB(text_pix, color_data[theme]['text']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color text foreground check fail'.format(theme))
+            self.capture('theme_color', '[FAIL]: {} color text foreground check fail'.format(theme))
+        if self.compare_RGB(active_pix, color_data[theme]['active']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color active status check fail'.format(theme))
+            self.capture('theme_color', '[FAIL]: {} color active status check fail'.format(theme))
+        if self.compare_RGB(main1_pix, main_color) < 0.98 or \
+            self.compare_RGB(main2_pix, main_color) < 0.98 or \
+            self.compare_RGB(main3_pix, main_color) < 0.98 or \
+            self.compare_RGB(main4_pix, main_color) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color main background check fail'.format(theme))
+            self.capture('theme_color', '[FAIL]: {} color main background check fail'.format(theme))
+        # print(img1.getpixel((size[0] - 1, size[1] - 1)))
+        if flag:
+            self.Logfile('[PASS]: {} color title check PASS'.format(theme))
+        os.remove('temp_color.png')
+        return flag
+
+    def compare_RGB(self, rgb1, rgb2):
+        r3 = rgb1[0] - rgb2[0]
+        g3 = rgb1[1] - rgb2[1]
+        b3 = rgb1[2] - rgb2[2]
+        diff = sqrt(r3 * r3 + g3 * g3 + b3 * b3) / sqrt(255 * 255 + 255 * 255 + 255 * 255)
+        return (1 - diff)
+
+    def hex2rgb(self, hex_str):
+        real_str = str(hex_str)[-6:]
+        splited = re.findall(r'(.{2})', real_str)
+        return tuple([int(i, 16) for i in splited])
+
+    # -------------------------------back ground ---------------------------------------
+    def set_background(self, bg='Custom'):
+        # bg support:
+        # {custom | default | Blue | Green | Red | Purple | light | dark}
+        # please strictly use above value, including upper and lower letters
+        self.Logfile('---------Begin To Set Background ---------------')
+        UserSettings().modify('test1')
+        self.launch()
+        try:
+            print(bg)
+            if bg == 'Custom':
+                file = 'customBG'
+                EasyshellLib.getElement('AllowUserSetting').Enable()
+                EasyshellLib.getElement('EnableCustom').Enable()
+                EasyshellLib.getElement('BGFileLocationButton').GetInvokePattern().Invoke()
+                EasyshellLib.getElement('BGFileURLEdit').SetValue(os.path.join(self.misc, "%s.jpg" % file))
+                EasyshellLib.getElement('BGFileOpen').Click()
+                EasyshellLib.getElement('APPLY').Click()
+                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
+                return True
+            else:
+                userSettings = self.sections['userSettings']['test1']
+                for item in userSettings:
+                    EasyshellLib.getElement(item.split(':')[0]).Enable()
+                # EasyshellLib.getElement('AllowUserSetting').Enable()
+
+                # for t in EasyshellLib.UserSettings_Dict.values():
+                #     t.Enable()
+                EasyshellLib.getElement('EnableCustom').Disable()
+                EasyshellLib.getElement('SelectTheme').GetInvokePattern().Invoke()
+                # -------------------select listitem by match the name----------------
+                bgcomb = EasyshellLib.getElement('BGTheme')
+                bgcomb.Click()
+                time.sleep(3)
+                txt = CommonLib.TextControl(RegexName='.*%s.*' % bg)
+                txt.Click()
+                EasyshellLib.getElement('OK').GetInvokePattern().Invoke()
+                EasyshellLib.getElement('APPLY').Click()
+                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
+                return True
+        except:
+            self.Logfile('[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
+            self.capture("background", '[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
+            return False
+
+    def check_background(self, bg='custom'):
+        self.Logfile('---------Begin To Check Background ---------------')
+        EasyshellLib.getElement('UserSettings').Click()
+        CommonLib.PaneControl(AutomationId='mainFrame').CaptureToImage('%s.jpg' % bg)
+        rgb1 = EasyshellLib.CommonUtils.getPicRGB('%s.jpg' % bg)
+        rgb2 = EasyshellLib.CommonUtils.getPicRGB(os.path.join(self.misc, '%s.jpg' % bg))
+        compare = EasyshellLib.CommonUtils.compareByRGB(rgb1, rgb2)
+        print(compare)
+        os.remove('%s.jpg' % bg)
+        if compare > 0.9:
+            print('pass')
+            self.Logfile('[PASS]: check {} Background file\n'.format(bg))
+            return True
+        else:
+            print('Fail')
+            self.Logfile('[FAIL]: Check {} Background file\n'.format(bg))
+            self.capture("background", '[FAIL]: Check {} Background file\n'.format(bg))
+            return False
+
+
 if __name__ == '__main__':
-    # import uiautomation
-    # rect = uiautomation.ThumbControl(AutomationId='Thumb').BoundingRectangle
-    # uiautomation.DragDrop(rect[0], rect[1], rect[0]-10, rect[1])
-    TaskSwitcher().enableSoundInteraction()
+    Background().select_theme('default')
     EasyshellLib.CommonUtils.SwitchToUser()
     EasyshellLib.CommonUtils.Reboot()
-    TaskSwitcher().check_SoundInteraction_key()
+    Background().check_theme_color('default')
     EasyshellLib.CommonUtils.SwitchToAdmin()
     EasyshellLib.CommonUtils.Reboot()
-    pass
