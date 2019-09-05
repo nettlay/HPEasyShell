@@ -591,7 +591,7 @@ background:
   Purple:
     main: [97, 0, 93]
     title: [152, 73, 148]
-    text: 255, 255, 255
+    text: [255, 255, 255]
     active: [0, 255, 0]
   light:
     main: [238, 238, 238]

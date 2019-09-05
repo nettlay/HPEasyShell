@@ -125,7 +125,7 @@ class EasyShellTest:
 
     def clearKioskAdmin(self):
         reg = CommonLib.Reg_Utils()
-        key = reg.isKeyExist(r'HKEY_LOCAL_MACHINE\SOFTWARE\HP\HP Easy Shell')
+        key = reg.isKeyExist(r'SOFTWARE\HP\HP Easy Shell')
         if key:
             reg.create_value(key, 'KioskModeAdmin', 0, 'False')
 
@@ -2788,7 +2788,8 @@ class General_Test(EasyShellTest):
             EasyshellLib.getElement('HideEasyShell').Disable()
         EasyshellLib.getElement('APPLY').Click()
 
-    def check_hide_during_session(self, state):
+    @staticmethod
+    def check_hide_during_session(state):
         EasyshellLib.CommonLib.TextControl(Name='test_app').Click()
         if state:
             if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
@@ -2816,7 +2817,7 @@ class General_Test(EasyShellTest):
         comp = re.findall(r'.*-\d\d\d\d(.*)', version)[0].strip()
         with open('version.txt') as f:
             version = f.read()
-            if not version in ver:
+            if version not in ver:
                 flag = False
                 self.Logfile('[FAIL]:Version Check Fail, expect:{}'.format(version))
                 self.capture('check_version', '[FAIL]:Version Check Fail, expect:{}'.format(version))
@@ -2844,6 +2845,9 @@ class Background(EasyShellTest):
         EasyshellLib.getElement('ColorAdjust').AccessibleSetValue(str(self.__random_value()))
         current_thumb = EasyshellLib.getElement('ColorAdjustBar').BoundingRectangle
         EasyshellLib.CommonLib.Click(current_thumb[0] - 100, current_thumb[1])
+        color = self.get_custom_color()
+        EasyshellLib.getElement('ButtonOK').Click()
+        return color
 
     def get_custom_color(self):
         return EasyshellLib.getElement('Select_Color').EditControl().CurrentValue()
@@ -2890,15 +2894,15 @@ class Background(EasyShellTest):
         img = Image.open('temp_color.png')
         size = img.size
         title_pix = img.getpixel((2, 2))[:3]
-        text_pix = img.getpixel((size[0]/10, size[1]/3))[:3]
-        active_pix = img.getpixel((size[0]-1, size[1]/2))[:3]
+        text_pix = img.getpixel((size[0] / 10, size[1] / 3))[:3]
+        active_pix = img.getpixel((size[0] - 1, size[1] / 2))[:3]
         EasyshellLib.getElement('Main_Pane').CaptureToImage('temp_color.png')
         img1 = Image.open('temp_color.png')
         size1 = img1.size
         main1_pix = img1.getpixel((1, 1))[:3]
-        main2_pix = img1.getpixel((size1[0]-1, 1))[:3]
-        main3_pix = img1.getpixel((1, size1[1]-1))[:3]
-        main4_pix = img1.getpixel((size1[0]-1, size1[1]-1))[:3]
+        main2_pix = img1.getpixel((size1[0] - 1, 1))[:3]
+        main3_pix = img1.getpixel((1, size1[1] - 1))[:3]
+        main4_pix = img1.getpixel((size1[0] - 1, size1[1] - 1))[:3]
         main_color = color_data[theme]['main']
         # img1 = ImageGrab.grab()
         if self.compare_RGB(title_pix, color_data[theme]['title']) < 0.98:
@@ -2914,9 +2918,9 @@ class Background(EasyShellTest):
             self.Logfile('[FAIL]: {} color active status check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color active status check fail'.format(theme))
         if self.compare_RGB(main1_pix, main_color) < 0.98 or \
-            self.compare_RGB(main2_pix, main_color) < 0.98 or \
-            self.compare_RGB(main3_pix, main_color) < 0.98 or \
-            self.compare_RGB(main4_pix, main_color) < 0.98:
+                self.compare_RGB(main2_pix, main_color) < 0.98 or \
+                self.compare_RGB(main3_pix, main_color) < 0.98 or \
+                self.compare_RGB(main4_pix, main_color) < 0.98:
             flag = False
             self.Logfile('[FAIL]: {} color main background check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color main background check fail'.format(theme))
@@ -2926,17 +2930,19 @@ class Background(EasyShellTest):
         os.remove('temp_color.png')
         return flag
 
-    def compare_RGB(self, rgb1, rgb2):
+    @staticmethod
+    def compare_RGB(rgb1, rgb2):
         r3 = rgb1[0] - rgb2[0]
         g3 = rgb1[1] - rgb2[1]
         b3 = rgb1[2] - rgb2[2]
         diff = sqrt(r3 * r3 + g3 * g3 + b3 * b3) / sqrt(255 * 255 + 255 * 255 + 255 * 255)
         return (1 - diff)
 
-    def hex2rgb(self, hex_str):
+    @staticmethod
+    def hex2rgb(hex_str):
         real_str = str(hex_str)[-6:]
         splited = re.findall(r'(.{2})', real_str)
-        return tuple([int(i, 16) for i in splited])
+        return [int(i, 16) for i in splited]
 
     # -------------------------------back ground ---------------------------------------
     def set_background(self, bg='Custom'):
@@ -2944,69 +2950,105 @@ class Background(EasyShellTest):
         # {custom | default | Blue | Green | Red | Purple | light | dark}
         # please strictly use above value, including upper and lower letters
         self.Logfile('---------Begin To Set Background ---------------')
-        UserSettings().modify('test1')
-        self.launch()
         try:
-            print(bg)
-            if bg == 'Custom':
-                file = 'customBG'
-                EasyshellLib.getElement('AllowUserSetting').Enable()
-                EasyshellLib.getElement('EnableCustom').Enable()
-                EasyshellLib.getElement('BGFileLocationButton').GetInvokePattern().Invoke()
-                EasyshellLib.getElement('BGFileURLEdit').SetValue(os.path.join(self.misc, "%s.jpg" % file))
-                EasyshellLib.getElement('BGFileOpen').Click()
-                EasyshellLib.getElement('APPLY').Click()
-                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
-                return True
-            else:
-                userSettings = self.sections['userSettings']['test1']
-                for item in userSettings:
-                    EasyshellLib.getElement(item.split(':')[0]).Enable()
-                # EasyshellLib.getElement('AllowUserSetting').Enable()
-
-                # for t in EasyshellLib.UserSettings_Dict.values():
-                #     t.Enable()
-                EasyshellLib.getElement('EnableCustom').Disable()
-                EasyshellLib.getElement('SelectTheme').GetInvokePattern().Invoke()
-                # -------------------select listitem by match the name----------------
-                bgcomb = EasyshellLib.getElement('BGTheme')
-                bgcomb.Click()
-                time.sleep(3)
-                txt = CommonLib.TextControl(RegexName='.*%s.*' % bg)
-                txt.Click()
-                EasyshellLib.getElement('OK').GetInvokePattern().Invoke()
-                EasyshellLib.getElement('APPLY').Click()
-                self.Logfile('[PASS]: Set {} Background file\n'.format(bg))
-                return True
+            self.resetEasyshell()
+            self.launch()
+            EasyshellLib.getElement('SelectTheme').Click()
+            EasyshellLib.getElement('BGTheme').Click()
+            time.sleep(1)
+            EasyshellLib.CommonLib.TextControl(RegexName='.*{}.*'.format(bg)).Click()
+            EasyshellLib.getElement('MainBackground').Click()
+            main_color = self.hex2rgb(self.random_set_custom_color())
+            EasyshellLib.getElement('TileBackground').Click()
+            tile_color = self.hex2rgb(self.random_set_custom_color())
+            EasyshellLib.getElement('TextForeground').Click()
+            text_color = self.hex2rgb(self.random_set_custom_color())
+            EasyshellLib.getElement('TileActive').Click()
+            activetile_color = self.hex2rgb(self.random_set_custom_color())
+            EasyshellLib.getElement('ButtonOK').Click()
+            EasyshellLib.getElement('APPLY').Click()
+            with open('temp_color.txt', 'w') as f:
+                f.write('main_color:{}\ntile_color:{}\ntext_color:{}'
+                        '\ntileactive_color:{}\n'.format(main_color, tile_color, text_color, activetile_color))
+            self.Logfile('[PASS]: Set {} Background \n'.format(bg))
+            return True
         except:
-            self.Logfile('[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
-            self.capture("background", '[FAIL]: Set {} Background file\n{}\n'.format(bg, traceback.format_exc()))
+            self.Logfile('[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
+            self.capture("background", '[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
             return False
 
     def check_background(self, bg='custom'):
-        self.Logfile('---------Begin To Check Background ---------------')
-        EasyshellLib.getElement('UserSettings').Click()
-        CommonLib.PaneControl(AutomationId='mainFrame').CaptureToImage('%s.jpg' % bg)
-        rgb1 = EasyshellLib.CommonUtils.getPicRGB('%s.jpg' % bg)
-        rgb2 = EasyshellLib.CommonUtils.getPicRGB(os.path.join(self.misc, '%s.jpg' % bg))
-        compare = EasyshellLib.CommonUtils.compareByRGB(rgb1, rgb2)
-        print(compare)
-        os.remove('%s.jpg' % bg)
-        if compare > 0.9:
-            print('pass')
-            self.Logfile('[PASS]: check {} Background file\n'.format(bg))
-            return True
-        else:
-            print('Fail')
-            self.Logfile('[FAIL]: Check {} Background file\n'.format(bg))
-            self.capture("background", '[FAIL]: Check {} Background file\n'.format(bg))
+        flag = True
+        main_color = ''
+        tile_color = ''
+        text_color = ''
+        tileactive_color = ''
+        if not os.path.exists('temp_color.txt'):
+            self.Logfile('[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
+            self.capture("background", '[FAIL]: check {} Background, custom color file not exist\n'.format(bg))
             return False
+        with open('temp_color.txt') as f:
+            colors = f.readlines()
+        for color in colors:
+            if 'main_color' in color:
+                main_color = color.split(':')[1].replace('[', '').replace(']', '').strip().split(',')
+                main_color = [int(i) for i in main_color]
+            if 'tile_color' in color:
+                tile_color = color.split(':')[1].replace('[', '').replace(']', '').strip().split(',')
+                tile_color = [int(i) for i in tile_color]
+            if 'text_color' in color:
+                text_color = color.split(':')[1].replace('[', '').replace(']', '').strip().split(',')
+                text_color = [int(i) for i in text_color]
+            if 'tileactive_color' in color:
+                tileactive_color = color.split(':')[1].replace('[', '').replace(']', '').strip().split(',')
+                tileactive_color = [int(i) for i in tileactive_color]
+        EasyshellLib.getElement('UserTitles').Click()
+        EasyshellLib.getElement('xTile').Click()
+        EasyshellLib.getElement('xTile').SetFocus()
+        EasyshellLib.getElement('xTile').CaptureToImage('temp_color.png')
+        img = Image.open('temp_color.png')
+        size = img.size
+        title_pix = img.getpixel((1, 1))[:3]
+        text_pix = img.getpixel((size[0] / 10, size[1] / 3))[:3]
+        active_pix = img.getpixel((size[0] - 1, size[1] / 2))[:3]
+        EasyshellLib.getElement('Main_Pane').CaptureToImage('temp_color.png')
+        img1 = Image.open('temp_color.png')
+        size1 = img1.size
+        main1_pix = img1.getpixel((1, 1))[:3]
+        main2_pix = img1.getpixel((size1[0] - 1, 1))[:3]
+        main3_pix = img1.getpixel((1, size1[1] - 1))[:3]
+        main4_pix = img1.getpixel((size1[0] - 1, size1[1] - 1))[:3]
+        # img1 = ImageGrab.grab()
+        if self.compare_RGB(title_pix, tile_color) < 0.98:
+            flag = False
+            print(title_pix, tile_color)
+            self.Logfile('[FAIL]: {} color title check fail'.format(bg))
+            self.capture('theme_color', '[FAIL]: {} color title check fail'.format(bg))
+        if self.compare_RGB(text_pix, text_color) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color text foreground check fail'.format(bg))
+            self.capture('theme_color', '[FAIL]: {} color text foreground check fail'.format(bg))
+        if self.compare_RGB(active_pix, tileactive_color) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color active status check fail'.format(bg))
+            self.capture('theme_color', '[FAIL]: {} color active status check fail'.format(bg))
+        if self.compare_RGB(main1_pix, main_color) < 0.98 or \
+                self.compare_RGB(main2_pix, main_color) < 0.98 or \
+                self.compare_RGB(main3_pix, main_color) < 0.98 or \
+                self.compare_RGB(main4_pix, main_color) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color main background check fail'.format(bg))
+            self.capture('theme_color', '[FAIL]: {} color main background check fail'.format(bg))
+        # print(img1.getpixel((size[0] - 1, size[1] - 1)))
+        if flag:
+            self.Logfile('[PASS]: {} color title check PASS'.format(bg))
+        os.remove('temp_color.png')
+        os.remove('temp_color.txt')
+        return flag
 
 
 if __name__ == '__main__':
     Background().select_theme('default')
-    EasyshellLib.CommonUtils.SwitchToUser()
-    EasyshellLib.CommonUtils.Reboot()
-    Background().check_theme_color('default')
-    EasyshellLib.CommonUtils.SwitchToAdmin()
-    EasyshellLib.CommonUtils.Reboot()
+    # Background().check_theme_color('light')
+    # Background().set_background()
+    # Background().check_background()
