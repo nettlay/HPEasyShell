@@ -2623,8 +2623,7 @@ class TaskSwitcher(EasyShellTest):
         1. 判断当前音量大小，大于60时降低音量操作，小于80时增加音量操作
         2. 通过鼠标键盘两种操作来测试功能
         """
-
-        for i in range(0):
+        for i in range(10):
             """
             第一次启动的时候click会有问题，所以需要循环点击，判断进度条出现的时候继续后面操作
             """
@@ -3120,6 +3119,5 @@ if __name__ == '__main__':
     # TaskSwitcher().check_SoundInteraction_key()
     # General_Test().resetEasyshell()
     # General_Test().reg_export()
-    General_Test().reg_import()
-    # General_Test().modify()
-    # General_Test().import_check()
+    # General_Test().reg_import()
+    TaskSwitcher().check_SoundInteraction_mouse()
