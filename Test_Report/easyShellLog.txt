@@ -1,2 +1,0 @@
-[Thu Sep  5 15:15:55 2019]:[PASS]: custom color title check PASS
-[Thu Sep  5 15:16:23 2019]:[PASS]: custom color title check PASS

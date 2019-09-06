@@ -1,10 +1,9 @@
+import ftplib
 import platform
 import random
 import re
-
 import win32api, win32con
 from math import sqrt
-
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
 import os
@@ -64,8 +63,8 @@ class EasyShellTest:
         settings = easyshell_data.get_sub_item('settings')
         reg = CommonLib.Reg_Utils()
         # clear settings
-        if reg.isKeyExist(r'software\hp\hp easy shell\connections\rdp'):
-            reg.clear_subkeys(r'software\hp\hp easy shell\connections\rdp')
+        if reg.isKeyExist(r'software\hp\hp easy shell\connections\RDP'):
+            reg.clear_subkeys(r'software\hp\hp easy shell\connections\RDP')
         if reg.isKeyExist(r'software\hp\hp easy shell\connections\VMware'):
             reg.clear_subkeys(r'software\hp\hp easy shell\connections\VMware')
         if reg.isKeyExist(r'software\hp\hp easy shell\connections\CitrixICA'):
@@ -171,7 +170,7 @@ class EasyShellTest:
                 else element=textcontrol.getparent.getparent
         :return: Bool
         """
-        time.sleep(3)
+        time.sleep(1)
         test = self.sections[self.section_name][profile]
         name = test["Name"]
         if op.upper() == 'NOTEXIST':
@@ -226,6 +225,56 @@ class EasyShellTest:
                 return False
         else:
             return True
+
+
+class Logon:
+    def __init__(self):
+        pass
+
+    def logon(self):
+        pass
+
+
+class RDPLogon(Logon):
+    def __init__(self):
+        Logon.__init__(self)
+        self.mark = 'rdp'
+
+    def check_ftp_flag(self, ip='15.83.251.201',user=r'sh\cheng.balance', passwd='password.321', logon_flag='rdp_logon', timeout=60):
+        ftp = ftplib.FTP(ip)
+        ftp.login(user, passwd)
+        ftp.cwd('/Function/Automation/log')
+        for i in range(timeout):
+            files = ftp.nlst()
+            print(files)
+            if logon_flag in files:
+                print('pass')
+                ftp.delete(logon_flag)
+                break
+            time.sleep(1)
+        ftp.close()
+
+    def logon(self, profile):
+        yml = EasyshellLib.CommonLib.YmlUtils('{}\\easyshell_testdata.yaml'.format(EasyShellTest().data))
+        rdp_temps = yml.get_sub_item('createRDP')
+        rdp_data = rdp_temps[profile]
+
+        if EasyshellLib.getElement('Connect').Exists():
+            EasyshellLib.getElement('Connect').Click()
+        time.sleep(3)
+        if EasyshellLib.getElement('RDPPassword').Exists():
+            EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
+            EasyshellLib.getElement('ButtonOK').Click()
+        time.sleep(3)
+        EasyshellLib.getElement('ButtonYES').Click()
+
+class StoreFront(Logon):
+    def __init__(self):
+        Logon.__init__(self)
+        self.mark = 'store'
+
+    def logon(self):
+        pass
 
 
 class UserInterfacSettings(EasyShellTest):
@@ -2064,9 +2113,10 @@ class Shell_View(EasyShellTest):
             return False
 
 
-class Shell_RDP(EasyShellTest):
+class Shell_RDP(EasyShellTest, Logon):
     def __init__(self):
         EasyShellTest.__init__(self)
+        Logon.__init__(self)
         self.section_name = 'createRDP'
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -2246,6 +2296,17 @@ class Shell_RDP(EasyShellTest):
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             return False
 
+    def logon(self, profile):
+        self.utils(profile, 'launch')
+        time.sleep(10)
+        if EasyshellLib.getElement('Connect').Exists():
+            EasyshellLib.getElement('Connect').Click()
+        time.sleep(3)
+        if EasyshellLib.getElement('RDPPassword').Exists():
+            EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
+            EasyshellLib.getElement('ButtonOK').Click()
+        time.sleep(3)
+        EasyshellLib.getElement('ButtonYES').Click()
 
 class Shell_Citrix(EasyShellTest):
     def __init__(self):
@@ -2513,14 +2574,15 @@ class TaskSwitcher(EasyShellTest):
         1. 判断当前音量大小，大于60时降低音量操作，小于80时增加音量操作
         2. 通过鼠标键盘两种操作来测试功能
         """
-
-        if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
-            EasyshellLib.getElement('SoundIcon').Click()
-            time.sleep(1)
+        for i in range(10):
+            if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
+                EasyshellLib.getElement('SoundIcon').Click()
+            else:
+                break
         if not EasyshellLib.getElement('SoundAdjust').IsOffScreen:
             # EasyshellLib.getElement('SoundIcon').Click()
             currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
-            currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
+            EasyshellLib.getElement('SoundAdjustBar').Click()
             if int(currentVol) < 60:
                 # increase volumn +10
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
@@ -2562,12 +2624,18 @@ class TaskSwitcher(EasyShellTest):
         2. 通过鼠标键盘两种操作来测试功能
         """
 
-        if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
-            EasyshellLib.getElement('SoundIcon').Click()
-            time.sleep(1)
+        for i in range(0):
+            """
+            第一次启动的时候click会有问题，所以需要循环点击，判断进度条出现的时候继续后面操作
+            """
+            if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
+                EasyshellLib.getElement('SoundIcon').Click()
+            else:
+                break
         if not EasyshellLib.getElement('SoundAdjust').IsOffScreen:
             # EasyshellLib.getElement('SoundIcon').Click()
             currentVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
+            EasyshellLib.getElement('SoundAdjustBar').Click()
             currentThumb = EasyshellLib.getElement('SoundAdjustBar').BoundingRectangle
             current_x = currentThumb[0]
             current_y = int((currentThumb[1] + currentThumb[3]) / 2)
@@ -2646,15 +2714,13 @@ class General_Test(EasyShellTest):
             return False
 
     def reg_import(self):
-        os.popen(r'c:/temp/easyshellsettings.reg')
-        time.sleep(2)
-        if EasyshellLib.getElement('REG_EDIT_WARNNING').Exists(0, 0):
-            EasyshellLib.getElement('ButtonYES').Click()
-            time.sleep(2)
-            if EasyshellLib.getElement('REG_EDIT').Exists(0, 0):
-                EasyshellLib.getElement('ButtonOK').Click()
-                self.Logfile('[PASS]:c:/temp/easyshellsettings.reg import successfully')
-        else:
+        try:
+            for path in self.appPath:
+                if os.path.exists(path):
+                    os.popen('"{}\\hpeasyshell.exe" /import c:\\temp\\easyshellsettings.reg'.format(os.path.dirname(path)))
+            self.Logfile('[PASS]:c:/temp/easyshellsettings.reg import successfully')
+            return True
+        except:
             self.Logfile('[FAIL]:c:/temp/easyshellsettings.reg import FAIL, please double check reg file')
             self.capture('ImportSettings', 'c:/temp/easyshellsettings.reg import FAIL, please double check reg file')
             return False
@@ -2664,9 +2730,11 @@ class General_Test(EasyShellTest):
         EasyshellLib.getElement('Applications').Click()
         self.utils('resetapp', 'delete')
         EasyshellLib.getElement('StoreFront').Click()
-        self.utils('resetapp', 'delete')
+        self.section_name = 'createStoreFront'
+        self.utils('resetstore', 'delete')
         EasyshellLib.getElement('WebSites').Click()
-        self.utils('resetapp', 'delete')
+        self.section_name = 'createWebsites'
+        self.utils('resetweb', 'delete')
 
     def import_check(self, imported=True):
         EasyshellLib.getElement("UserTitles").Click()
@@ -2815,7 +2883,7 @@ class General_Test(EasyShellTest):
         ver = re.findall(r'(.*)Copy.*', version)[0].replace('-', '').strip()
         copy = re.findall(r'.* Copyright(.*)HP', version)[0][3:].strip()
         comp = re.findall(r'.*-\d\d\d\d(.*)', version)[0].strip()
-        with open('version.txt') as f:
+        with open(os.path.join(self.path, 'version.txt')) as f:
             version = f.read()
             if version not in ver:
                 flag = False
@@ -2967,7 +3035,7 @@ class Background(EasyShellTest):
             activetile_color = self.hex2rgb(self.random_set_custom_color())
             EasyshellLib.getElement('ButtonOK').Click()
             EasyshellLib.getElement('APPLY').Click()
-            with open('temp_color.txt', 'w') as f:
+            with open(os.path.join(self.log_path, 'temp_color.txt'), 'w') as f:
                 f.write('main_color:{}\ntile_color:{}\ntext_color:{}'
                         '\ntileactive_color:{}\n'.format(main_color, tile_color, text_color, activetile_color))
             self.Logfile('[PASS]: Set {} Background \n'.format(bg))
@@ -2983,11 +3051,11 @@ class Background(EasyShellTest):
         tile_color = ''
         text_color = ''
         tileactive_color = ''
-        if not os.path.exists('temp_color.txt'):
+        if not os.path.exists(os.path.join(self.log_path, 'temp_color.txt')):
             self.Logfile('[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
             self.capture("background", '[FAIL]: check {} Background, custom color file not exist\n'.format(bg))
             return False
-        with open('temp_color.txt') as f:
+        with open(os.path.join(self.log_path, 'temp_color.txt')) as f:
             colors = f.readlines()
         for color in colors:
             if 'main_color' in color:
@@ -3043,12 +3111,15 @@ class Background(EasyShellTest):
         if flag:
             self.Logfile('[PASS]: {} color title check PASS'.format(bg))
         os.remove('temp_color.png')
-        os.remove('temp_color.txt')
+        os.remove(os.path.join(self.log_path, 'temp_color.txt'))
         return flag
 
 
 if __name__ == '__main__':
-    Background().select_theme('default')
-    # Background().check_theme_color('light')
-    # Background().set_background()
-    # Background().check_background()
+    # Shell_RDP().logon('standardRDP')
+    # TaskSwitcher().check_SoundInteraction_key()
+    # General_Test().resetEasyshell()
+    # General_Test().reg_export()
+    General_Test().reg_import()
+    # General_Test().modify()
+    # General_Test().import_check()

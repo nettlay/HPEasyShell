@@ -42,7 +42,7 @@ createWebsites:
         AllCloseEmbedIE: False
     resetweb:
         EmbaedPaneName: test
-        Name: test
+        Name: test_web
         Address: http://15.83.240.126
         DefaultHome: False
         UseIE: False
@@ -170,7 +170,7 @@ createApp:
         Hidemissapp: 0
     resetapp:
         WindowName: test
-        Name: test
+        Name: test_app
         Path:
             - test
         Argument: None
@@ -552,7 +552,7 @@ createStoreFront:
         ConnectionTimeout: 5
         DesktopToolbar: OFF
     resetstore:
-        Name: test
+        Name: test_store
         URL: test
         SelectStore: False
         StoreName: fcxds.sh.dto

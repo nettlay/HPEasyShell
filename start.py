@@ -78,7 +78,7 @@ class Test:
         with open(os.path.join(self.path, 'flag.txt'), 'r') as f:
             src = f.read().upper()
             if "TEST FINISHED" in src:
-                print("begin to return")
+                print("test finished")
                 return "test finished"
         # ---------Clear template folder by services in volumn C:
         dirs = os.listdir('c:\\')
