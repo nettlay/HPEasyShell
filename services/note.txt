@@ -1,0 +1,6 @@
+Install service:
+1.runappasService.exe install
+2.Set service auto start in services.msc
+3.Create c:\svc folder
+4.copy svcconfig.ini and exe file you want to run into c:\svc
+reboot
