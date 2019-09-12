@@ -2644,6 +2644,7 @@ class TaskSwitcher(EasyShellTest):
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjusted by Mouse")
+                    return True
                 else:
                     self.capture("SoundInteraction_Mosue",
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
@@ -2656,6 +2657,7 @@ class TaskSwitcher(EasyShellTest):
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjust by Mouse")
+                    return True
                 else:
                     self.capture("SoundInteraction_Mosue",
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
