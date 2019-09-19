@@ -1,5 +1,4 @@
 import uuid
-
 import math
 import winreg
 import cv2
@@ -24,6 +23,10 @@ Minimize: Only Name is useful, AutomationId actually is "" even though we can ge
 
 
 class QAUtils:
+    @staticmethod
+    def import_cert(file):
+        os.system(r'c:\windows\sysnative\certutil -addstore root {}'.format(file))
+
     @staticmethod
     def hex2rgb(hexcolor):
         rgb = [(hexcolor >> 16) & 0xff,

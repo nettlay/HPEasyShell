@@ -2,6 +2,7 @@ import ftplib
 import platform
 import random
 import re
+import requests
 import win32api, win32con
 from math import sqrt
 import Test_Scripts.EasyShell_Lib as EasyshellLib
@@ -11,7 +12,8 @@ import time
 import traceback
 import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont, Image
-
+import pywifi
+from subprocess import check_output
 
 def ClearContent(length=50):
     for temp in range(length):
@@ -50,11 +52,39 @@ class EasyShellTest:
                 if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
                     continue
                 else:
-                    print('get window')
+                    # print('get window')
                     time.sleep(10)
                     break
 
+    def check_main_window(self, exist):
+        wnd_exist = EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0)
+        return bool(exist) is bool(wnd_exist)
+
+    @staticmethod
+    def enbale_kiosk():
+        reg = CommonLib.Reg_Utils()
+        general_key = reg.isKeyExist(r'software\hp\hp easy shell')
+        if general_key:
+            reg.create_value(general_key, 'KioskMode', 0, 'True')
+            reg.create_value(general_key, 'KioskModeAdmin', 0, 'False')
+
+    @staticmethod
+    def disable_kiosk():
+        reg = CommonLib.Reg_Utils()
+        general_key = reg.isKeyExist(r'software\hp\hp easy shell')
+        if general_key:
+            reg.create_value(general_key, 'KioskMode', 0, 'False')
+            reg.create_value(general_key, 'KioskModeAdmin', 0, 'False')
+
     def resetEasyshell(self):
+        """
+            1. create app: test_app
+            2. create connection: test_rdp
+            3. create storefront: test_store
+            4. create websites: test_web
+            5. enable kiosk mode
+            6. disable kiosk admin
+        """
         easyshell_data = CommonLib.YmlUtils(os.path.join(self.data, 'standard.yaml'))
         app = easyshell_data.get_sub_item('app')
         rdp = easyshell_data.get_sub_item('rdp')
@@ -3116,10 +3146,142 @@ class Background(EasyShellTest):
         return flag
 
 
+class Wifi(TaskSwitcher):
+    def __init__(self):
+        TaskSwitcher.__init__(self)
+        self.section_name = 'wifi'
+
+    def __check_wifi_exist(self):
+        wifi = pywifi.PyWiFi()
+        iface = wifi.interfaces()
+        if len(iface)>0:
+            return True
+        else:
+            return False
+
+    def enable_wifi(self, readonly=False):
+        self.enablePermanent()
+        EasyshellLib.getElement('AllowUserSetting').Enable()
+        EasyshellLib.getElement('AllowWifiConfig').Enable()
+        EasyshellLib.getElement('DisplayWifi').Enable()
+        if readonly:
+            EasyshellLib.getElement('DisplayWifiInterAction').Disable()
+        else:
+            EasyshellLib.getElement('DisplayWifiInterAction').Enable()
+        EasyshellLib.getElement('APPLY').Click()
+
+    def disable_wifi(self):
+        self.enablePermanent()
+        EasyshellLib.getElement('DisplayWifi').Disable()
+        EasyshellLib.getElement('APPLY').Click()
+
+    def check_icon(self, exist=True):
+        if not self.__check_wifi_exist():
+            self.Logfile('[FAIL]:Wifi HW not detected')
+            self.capture('check_wifi', '[FAIL]:Wifi HW not detected')
+            return False
+        if exist:
+            return bool(not EasyshellLib.getElement('WifiIcon').IsOffScreen)
+        else:
+            return bool(EasyshellLib.getElement('WifiIcon').IsOffScreen)
+
+    def check_readonly(self, readonly=False):
+        if not self.__check_wifi_exist():
+            self.Logfile('[FAIL]:Wifi HW not detected')
+            self.capture('check_readonly', '[FAIL]:Wifi HW not detected')
+            return False
+        EasyshellLib.getElement('WifiIcon').Click(waitTime=2)
+        wifi_wnd = EasyshellLib.getElement('WIFI_SELECTION').Exists()
+        if readonly:
+            if wifi_wnd:
+                self.Logfile('[FAIL]:Wifi Check Fail, expect: readonly')
+                self.capture('check_readonly', '[FAIL]:Wifi Check Fail, expect: readonly')
+                return False
+            else:
+                self.Logfile('[PASS]:Wifi readonly Check, expect: readonly')
+                return True
+        else:
+            if wifi_wnd:
+                self.Logfile('[PASS]:Wifi readonly Check, expect: not readonly')
+                return True
+            else:
+                self.Logfile('[FAIL]:Wifi Check Fail, expect: not readonly')
+                self.capture('check_readonly', '[FAIL]:Wifi Check Fail, expect: not readonly')
+                return False
+
+    def connect_wifi(self, profile, count=1, launchBy='icon'):
+        test = self.sections[self.section_name][profile]
+        self.__network_name = test['NetworkName']
+        self.__security_type = test['SecurityType']
+        self.__encryption_type = test['EncryptionType']
+        self.__security_key = test['SecurityKey']
+        self.disconnect()
+        for i in range(count):
+            if not self.__check_wifi_exist():
+                self.Logfile('[FAIL]:Wifi HW not detected')
+                self.capture('check_wifi', '[FAIL]:Wifi HW not detected')
+                return False
+            if launchBy.upper()=='ICON':
+                EasyshellLib.getElement('WifiIcon').Click(waitTime=2)
+            elif launchBy.upper()=='SETTINGS':
+                EasyshellLib.getElement('UserSettings').Click()
+                EasyshellLib.getElement('SysWirelessIcon').Click(waitTime=2)
+            else:
+                pass
+            wifi_wnd = EasyshellLib.getElement('WIFI_SELECTION').Exists()
+            if not wifi_wnd:
+                self.Logfile('[FAIL]:Wifi Configuration Window not found')
+                self.capture('connect_wifi', '[FAIL]:Wifi Configuration Window not found')
+                return False
+            search_pan = EasyshellLib.CommonLib.PaneControl(AutomationId='1236')
+            search_rect = search_pan.BoundingRectangle
+            EasyshellLib.CommonLib.Click(search_rect[0]+350, search_rect[1]+65, waitTime=2)
+            EasyshellLib.getElement('NetworkName').SetValue(self.__network_name)
+            EasyshellLib.getElement('SecurityType').Select(self.__security_type)
+            EasyshellLib.getElement('EncryptionType').Select(self.__encryption_type)
+            EasyshellLib.getElement('SecurityKey').SetValue(self.__security_key)
+            EasyshellLib.getElement('ButtonOK').Click(waitTime=2)
+            time.sleep(10) # wait for ssid connect
+            if self.__get_current_ssid()==self.__network_name:
+                # check is ssid connected, if not continue next loop, else, return
+                EasyshellLib.getElement('WIFI_SELECTION').TitleBarControl().ButtonControl().Click(simulateMove=False)
+                break
+            EasyshellLib.getElement('WIFI_SELECTION').TitleBarControl().ButtonControl().Click(simulateMove=False)
+
+    def check_network(self):
+        try:
+            requests.get('http://15.83.240.126', timeout=2)
+            return True
+        except:
+            self.Logfile('[FAIL]: Request to http://15.83.240.126 Fail')
+            self.capture('check_network', '[FAIL]: Request to http://15.83.240.126 Fail')
+            return False
+
+    def __get_current_ssid(self):
+        scanoutput = check_output(['ssid.bat'])
+        rs = scanoutput.strip().decode()
+        return rs
+
+    def disconnect(self):
+        wifi = pywifi.PyWiFi()
+        ifaces = wifi.interfaces()
+        if len(ifaces)>0:
+            ifaces[0].disconnect()
+            time.sleep(3)
+
+    def check_modify_wifi(self, profile, **kwargs):
+        self.connect_wifi(profile, 3, **kwargs)
+        if self.__get_current_ssid() == self.__network_name:
+            self.Logfile('[PASS]:ssid {} is connected to Wifi by {}'.format(self.__network_name, kwargs))
+            return True
+        else:
+            self.Logfile('[FAIL]:ssid {} is not connected to Wifi by {}'.format(self.__network_name, kwargs))
+            self.capture('check_modify_wifi', '[FAIL]:ssid {} is not connected to Wifi by '
+                                              '{}'.format(self.__network_name, kwargs))
+            return False
+
 if __name__ == '__main__':
-    # Shell_RDP().logon('standardRDP')
-    # TaskSwitcher().check_SoundInteraction_key()
-    # General_Test().resetEasyshell()
-    # General_Test().reg_export()
-    # General_Test().reg_import()
-    TaskSwitcher().check_SoundInteraction_mouse()
+    # Wifi().check_modify_wifi('WPAP')
+    print(Wifi().check_network())
+    pass
+

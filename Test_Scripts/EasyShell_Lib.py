@@ -1,9 +1,7 @@
 import platform
 
 from Library.CommonLib import QAUtils, TxtUtils, getElementByType
-import Library.CommonLib as CommonLib
 import os
-import uiautomation
 
 if not os.path.exists('c:\\svc'):
     os.mkdir("C:\\svc")

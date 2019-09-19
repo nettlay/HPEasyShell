@@ -566,7 +566,27 @@ createStoreFront:
         Autolaunch: OFF
         ConnectionTimeout: 5
         DesktopToolbar: OFF
-
+wifi:
+  WPA2P5G:
+    NetworkName: R1-Function-5G
+    SecurityType: WPA2-Personal
+    EncryptionType: AES
+    SecurityKey: Shanghai2014
+  WPA2P24G:
+    NetworkName: R1-Function-2.4G
+    SecurityType: WPA2-Personal
+    EncryptionType: AES
+    SecurityKey: Shanghai2014
+  WPAP24G:
+    NetworkName: R1-TC_2.4G_g_WPAP
+    SecurityType: WPA-Personal
+    EncryptionType: TKIP
+    SecurityKey: neoware1234
+  WPA2E5G:
+    NetworkName: R1-TC_5G_n_WPA2E
+    SecurityType: WPA2-Enterprise
+    EncryptionType: AES
+    SecurityKey: neoware1234
 background:
   default:
     main: [23, 59, 119]
