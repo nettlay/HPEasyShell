@@ -461,7 +461,7 @@ class User_Group:
 
 class YmlUtils:
     def __init__(self, filename):
-        with open(filename) as f:
+        with open(filename, encoding='utf-8') as f:
             self._content = yaml.safe_load(f)
 
     def get_item(self):

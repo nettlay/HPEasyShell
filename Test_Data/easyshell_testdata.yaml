@@ -587,6 +587,11 @@ wifi:
     SecurityType: WPA2-Enterprise
     EncryptionType: AES
     SecurityKey: neoware1234
+  WPA2PCH:
+    NetworkName: R1-TC-中文-SSID
+    SecurityType: WPA2-Personal
+    EncryptionType: AES
+    SecurityKey: neoware1234
 background:
   default:
     main: [23, 59, 119]

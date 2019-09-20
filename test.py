@@ -8,5 +8,7 @@ import traceback
 import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont
 import subprocess
+import chardet
+import uiautomation
 
-os.system('c:\windows\sysnative\certutil -addstore -f root rootca.cer')
+print(os.path.exists(r'c:\windows\sysnative\autologcfg.exe'))

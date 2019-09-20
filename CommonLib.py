@@ -1,5 +1,4 @@
 import uuid
-
 import math
 import winreg
 import cv2

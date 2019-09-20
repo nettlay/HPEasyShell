@@ -5,8 +5,8 @@ import re
 import requests
 import win32api, win32con
 from math import sqrt
-import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
+import Test_Scripts.EasyShell_Lib as EasyshellLib
 import os
 import time
 import traceback
@@ -14,6 +14,7 @@ import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont, Image
 import pywifi
 from subprocess import check_output
+
 
 def ClearContent(length=50):
     for temp in range(length):
@@ -55,6 +56,10 @@ class EasyShellTest:
                     # print('get window')
                     time.sleep(10)
                     break
+
+    def import_rootca(self):
+        cert_ca = os.path.join(self.data, 'rootca.cer')
+        EasyshellLib.CommonUtils.import_cert(cert_ca)
 
     def check_main_window(self, exist):
         wnd_exist = EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0)
@@ -270,7 +275,8 @@ class RDPLogon(Logon):
         Logon.__init__(self)
         self.mark = 'rdp'
 
-    def check_ftp_flag(self, ip='15.83.251.201',user=r'sh\cheng.balance', passwd='password.321', logon_flag='rdp_logon', timeout=60):
+    def check_ftp_flag(self, ip='15.83.251.201', user=r'sh\cheng.balance', passwd='password.321',
+                       logon_flag='rdp_logon', timeout=60):
         ftp = ftplib.FTP(ip)
         ftp.login(user, passwd)
         ftp.cwd('/Function/Automation/log')
@@ -285,7 +291,7 @@ class RDPLogon(Logon):
         ftp.close()
 
     def logon(self, profile):
-        yml = EasyshellLib.CommonLib.YmlUtils('{}\\easyshell_testdata.yaml'.format(EasyShellTest().data))
+        yml = CommonLib.YmlUtils('{}\\easyshell_testdata.yaml'.format(EasyShellTest().data))
         rdp_temps = yml.get_sub_item('createRDP')
         rdp_data = rdp_temps[profile]
 
@@ -297,6 +303,7 @@ class RDPLogon(Logon):
             EasyshellLib.getElement('ButtonOK').Click()
         time.sleep(3)
         EasyshellLib.getElement('ButtonYES').Click()
+
 
 class StoreFront(Logon):
     def __init__(self):
@@ -312,7 +319,7 @@ class UserInterfacSettings(EasyShellTest):
         EasyShellTest.__init__(self)
         self.section_name = 'userInterface'
 
-    def edit(self, profile):
+    def edit(self, profile, old=''):
         """
         :param profile: one of test parameters' combination
         """
@@ -743,7 +750,7 @@ class UserSettings(EasyShellTest):
         EasyShellTest.__init__(self)
         self.section_name = 'userSettings'
 
-    def edit(self, profile):
+    def edit(self, profile, old_profile=''):
         """
         :param profile: one of test parameters' combination
         """
@@ -2326,17 +2333,18 @@ class Shell_RDP(EasyShellTest, Logon):
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             return False
 
-    def logon(self, profile):
-        self.utils(profile, 'launch')
-        time.sleep(10)
-        if EasyshellLib.getElement('Connect').Exists():
-            EasyshellLib.getElement('Connect').Click()
-        time.sleep(3)
-        if EasyshellLib.getElement('RDPPassword').Exists():
-            EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
-            EasyshellLib.getElement('ButtonOK').Click()
-        time.sleep(3)
-        EasyshellLib.getElement('ButtonYES').Click()
+    # def logon(self, profile):
+    #     self.utils(profile, 'launch')
+    #     time.sleep(10)
+    #     if EasyshellLib.getElement('Connect').Exists():
+    #         EasyshellLib.getElement('Connect').Click()
+    #     time.sleep(3)
+    #     if EasyshellLib.getElement('RDPPassword').Exists():
+    #         EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
+    #         EasyshellLib.getElement('ButtonOK').Click()
+    #     time.sleep(3)
+    #     EasyshellLib.getElement('ButtonYES').Click()
+
 
 class Shell_Citrix(EasyShellTest):
     def __init__(self):
@@ -2670,7 +2678,7 @@ class TaskSwitcher(EasyShellTest):
             current_y = int((currentThumb[1] + currentThumb[3]) / 2)
             if int(currentVol) < 60:
                 # increase volumn +10
-                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x + 10, current_y)
+                CommonLib.DragDrop(current_x, current_y, current_x + 10, current_y)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjusted by Mouse")
@@ -2683,7 +2691,7 @@ class TaskSwitcher(EasyShellTest):
                         "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
                     return False
             else:
-                EasyshellLib.CommonLib.DragDrop(current_x, current_y, current_x - 10, current_y)
+                CommonLib.DragDrop(current_x, current_y, current_x - 10, current_y)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("[PASS]: Sound Adjust by Mouse")
@@ -2748,7 +2756,8 @@ class General_Test(EasyShellTest):
         try:
             for path in self.appPath:
                 if os.path.exists(path):
-                    os.popen('"{}\\hpeasyshell.exe" /import c:\\temp\\easyshellsettings.reg'.format(os.path.dirname(path)))
+                    os.popen(
+                        '"{}\\hpeasyshell.exe" /import c:\\temp\\easyshellsettings.reg'.format(os.path.dirname(path)))
             self.Logfile('[PASS]:c:/temp/easyshellsettings.reg import successfully')
             return True
         except:
@@ -2889,18 +2898,18 @@ class General_Test(EasyShellTest):
 
     @staticmethod
     def check_hide_during_session(state):
-        EasyshellLib.CommonLib.TextControl(Name='test_app').Click()
+        CommonLib.TextControl(Name='test_app').Click()
         if state:
             if not EasyshellLib.getElement('MAIN_WINDOW').Exists():
                 print('pass')
-                EasyshellLib.CommonLib.WindowControl(RegexName='.*Notepad').Close()
+                CommonLib.WindowControl(RegexName='.*Notepad').Close()
                 return True
             else:
                 print('fail')
                 return False
         else:
             if EasyshellLib.getElement('MAIN_WINDOW').Exists():
-                EasyshellLib.CommonLib.WindowControl(RegexName='.*Notepad').Close()
+                CommonLib.WindowControl(RegexName='.*Notepad').Close()
                 print('pass')
                 return True
             else:
@@ -2931,6 +2940,56 @@ class General_Test(EasyShellTest):
         EasyshellLib.getElement('Exit').Click()
         return flag
 
+    def __check_hotkey_manager(self):
+        isExist_file = os.path.exists(r'c:\windows\sysnative\HPHotkeyFilterCPL.exe')
+        isExist_UI = bool(EasyshellLib.getElement('HotkeyFilter').GetParentControl().IsEnabled)
+        if isExist_file is isExist_UI:
+            if isExist_file:
+                EasyshellLib.getElement('LogonManager').GetParentControl().Click()
+                if CommonLib.WindowControl(Name='HP Hotkey Filter').Exists():
+                    CommonLib.WindowControl(Name='HP Hotkey Filter').Close()
+                    return True
+                else:
+                    self.Logfile('[Fail]: Hotkey Filter is installed, but cannot be launched')
+                    self.capture('Integrated_check_hotkey', '[Fail]: Hotkey Filter is installed, but cannot be launched')
+                    return False
+            else:
+                return True
+        else:
+            self.Logfile('[Fail]: Hotkey Filter file do not match with UI')
+            self.capture('Integrated_check_hotkey', '[Fail]: Hotkey Filter file do not match with UI')
+            return False
+
+    def __check_logon_manager(self):
+        isExist_file = os.path.exists(r'c:\windows\sysnative\autologcfg.exe')
+        isExist_UI = bool(EasyshellLib.getElement('LogonManager').GetParentControl().IsEnabled)
+        if isExist_file is isExist_UI:
+            if isExist_file:
+                EasyshellLib.getElement('LogonManager').GetParentControl().Click()
+                if CommonLib.WindowControl(Name='HP Logon Manager').Exists():
+                    CommonLib.WindowControl(Name='HP Logon Manager').Close()
+                    return True
+                else:
+                    self.Logfile('[Fail]: Logon Manager is installed, but cannot be launched')
+                    self.capture('Integrated_check_logonmgr', '[Fail]: Logon manager is installed, but cannot be launched')
+                    return False
+            else:
+                return True
+        else:
+            self.Logfile('[Fail]: Logon manager file do not match with UI')
+            self.capture('Integrated_check_logonmgr', '[Fail]: Logon Manager file do not match with UI')
+            return False
+
+    def check_integrated_tool(self):
+        flag = True
+        EasyshellLib.getElement('Advanced').Click(waitTime=2)
+        if self.__check_logon_manager():
+            flag = False
+        if self.__check_hotkey_manager():
+            flag = False
+        EasyshellLib.getElement('ButtonClose').Click()
+        return flag
+
 
 class Background(EasyShellTest):
     def __init__(self):
@@ -2943,7 +3002,7 @@ class Background(EasyShellTest):
     def random_set_custom_color(self):
         EasyshellLib.getElement('ColorAdjust').AccessibleSetValue(str(self.__random_value()))
         current_thumb = EasyshellLib.getElement('ColorAdjustBar').BoundingRectangle
-        EasyshellLib.CommonLib.Click(current_thumb[0] - 100, current_thumb[1])
+        CommonLib.Click(current_thumb[0] - 100, current_thumb[1])
         color = self.get_custom_color()
         EasyshellLib.getElement('ButtonOK').Click()
         return color
@@ -2958,7 +3017,7 @@ class Background(EasyShellTest):
             EasyshellLib.getElement('SelectTheme').Click()
             EasyshellLib.getElement('BGTheme').Click()
             time.sleep(1)
-            EasyshellLib.CommonLib.TextControl(RegexName='.*{}.*'.format(theme)).Click()
+            CommonLib.TextControl(RegexName='.*{}.*'.format(theme)).Click()
             EasyshellLib.getElement('ButtonOK').Click()
             EasyshellLib.getElement('APPLY').Click()
             EasyshellLib.getElement('Exit').Click()
@@ -3055,7 +3114,7 @@ class Background(EasyShellTest):
             EasyshellLib.getElement('SelectTheme').Click()
             EasyshellLib.getElement('BGTheme').Click()
             time.sleep(1)
-            EasyshellLib.CommonLib.TextControl(RegexName='.*{}.*'.format(bg)).Click()
+            CommonLib.TextControl(RegexName='.*{}.*'.format(bg)).Click()
             EasyshellLib.getElement('MainBackground').Click()
             main_color = self.hex2rgb(self.random_set_custom_color())
             EasyshellLib.getElement('TileBackground').Click()
@@ -3154,7 +3213,7 @@ class Wifi(TaskSwitcher):
     def __check_wifi_exist(self):
         wifi = pywifi.PyWiFi()
         iface = wifi.interfaces()
-        if len(iface)>0:
+        if len(iface) > 0:
             return True
         else:
             return False
@@ -3212,6 +3271,7 @@ class Wifi(TaskSwitcher):
     def connect_wifi(self, profile, count=1, launchBy='icon'):
         test = self.sections[self.section_name][profile]
         self.__network_name = test['NetworkName']
+        print(self.__network_name)
         self.__security_type = test['SecurityType']
         self.__encryption_type = test['EncryptionType']
         self.__security_key = test['SecurityKey']
@@ -3221,9 +3281,9 @@ class Wifi(TaskSwitcher):
                 self.Logfile('[FAIL]:Wifi HW not detected')
                 self.capture('check_wifi', '[FAIL]:Wifi HW not detected')
                 return False
-            if launchBy.upper()=='ICON':
+            if launchBy.upper() == 'ICON':
                 EasyshellLib.getElement('WifiIcon').Click(waitTime=2)
-            elif launchBy.upper()=='SETTINGS':
+            elif launchBy.upper() == 'SETTINGS':
                 EasyshellLib.getElement('UserSettings').Click()
                 EasyshellLib.getElement('SysWirelessIcon').Click(waitTime=2)
             else:
@@ -3233,16 +3293,16 @@ class Wifi(TaskSwitcher):
                 self.Logfile('[FAIL]:Wifi Configuration Window not found')
                 self.capture('connect_wifi', '[FAIL]:Wifi Configuration Window not found')
                 return False
-            search_pan = EasyshellLib.CommonLib.PaneControl(AutomationId='1236')
+            search_pan = CommonLib.PaneControl(AutomationId='1236')
             search_rect = search_pan.BoundingRectangle
-            EasyshellLib.CommonLib.Click(search_rect[0]+350, search_rect[1]+65, waitTime=2)
+            CommonLib.Click(search_rect[0] + 350, search_rect[1] + 65, waitTime=2)
             EasyshellLib.getElement('NetworkName').SetValue(self.__network_name)
             EasyshellLib.getElement('SecurityType').Select(self.__security_type)
             EasyshellLib.getElement('EncryptionType').Select(self.__encryption_type)
             EasyshellLib.getElement('SecurityKey').SetValue(self.__security_key)
             EasyshellLib.getElement('ButtonOK').Click(waitTime=2)
-            time.sleep(10) # wait for ssid connect
-            if self.__get_current_ssid()==self.__network_name:
+            time.sleep(10)  # wait for ssid connect
+            if self.__get_current_ssid() == self.__network_name:
                 # check is ssid connected, if not continue next loop, else, return
                 EasyshellLib.getElement('WIFI_SELECTION').TitleBarControl().ButtonControl().Click(simulateMove=False)
                 break
@@ -3259,13 +3319,15 @@ class Wifi(TaskSwitcher):
 
     def __get_current_ssid(self):
         scanoutput = check_output(['ssid.bat'])
-        rs = scanoutput.strip().decode()
+        rs = scanoutput.decode()
+        # print(chardet.detect(rs))
+        # print(rs.decode('Windows-1252').encode('raw_unicode_escape'))
         return rs
 
     def disconnect(self):
         wifi = pywifi.PyWiFi()
         ifaces = wifi.interfaces()
-        if len(ifaces)>0:
+        if len(ifaces) > 0:
             ifaces[0].disconnect()
             time.sleep(3)
 
@@ -3280,8 +3342,10 @@ class Wifi(TaskSwitcher):
                                               '{}'.format(self.__network_name, kwargs))
             return False
 
-if __name__ == '__main__':
-    # Wifi().check_modify_wifi('WPAP')
-    print(Wifi().check_network())
-    pass
 
+if __name__ == '__main__':
+    # Wifi().import_rootca()
+    General_Test().check_integrated_tool()
+    # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
+    # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
+    pass

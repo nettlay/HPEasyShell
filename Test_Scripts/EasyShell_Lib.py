@@ -1,5 +1,4 @@
 import platform
-
 from Library.CommonLib import QAUtils, TxtUtils, getElementByType
 import os
 
