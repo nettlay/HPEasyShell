@@ -2312,17 +2312,14 @@ class Shell_RDP(EasyShellTest, Logon):
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                 else:
-                    if not os.path.exists(newcustomfile):
-                        self.Logfile('[Failed]: RDP Connection {} Edit, {} not exist'.format(oldname, newcustomfile))
-                        self.capture('EditRDP',
-                                     '[Failed]: RDP Connection {} Edit, {} not exist'.format(oldname, newcustomfile))
-                        return False
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
-                    time.sleep(1)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-                    CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-                    CommonLib.SendKeys(newcustomfile)
-                    CommonLib.SendKey(CommonLib.Keys.VK_TAB)
+                    CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    if EasyshellLib.getElement("RDP_ERROR").Exists():
+                        EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
+                    EasyshellLib.getElement('RDPBrowserFile').SetValue(newcustomfile)
+                    EasyshellLib.getElement('RDPBrowserOpen').Click()
+                    CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('[PASS]: RDP Connection {} Edit'.format(oldname))
@@ -2964,7 +2961,8 @@ class General_Test(EasyShellTest):
                     return True
                 else:
                     self.Logfile('[Fail]: Hotkey Filter is installed, but cannot be launched')
-                    self.capture('Integrated_check_hotkey', '[Fail]: Hotkey Filter is installed, but cannot be launched')
+                    self.capture('Integrated_check_hotkey',
+                                 '[Fail]: Hotkey Filter is installed, but cannot be launched')
                     return False
             else:
                 self.Logfile('[PASS]: Hotkey Filter is not installed')
@@ -2986,7 +2984,8 @@ class General_Test(EasyShellTest):
                     return True
                 else:
                     self.Logfile('[Fail]: Logon Manager is installed, but cannot be launched')
-                    self.capture('Integrated_check_logonmgr', '[Fail]: Logon manager is installed, but cannot be launched')
+                    self.capture('Integrated_check_logonmgr',
+                                 '[Fail]: Logon manager is installed, but cannot be launched')
                     return False
             else:
                 self.Logfile('[PASS]: Logon manager is not installed')
@@ -3124,11 +3123,14 @@ class Background(EasyShellTest):
         self.launch()
         EasyshellLib.getElement('EnableCustom').Enable()
         EasyshellLib.getElement('BGFileLocationButton').Click(waitTime=2)
+        if EasyshellLib.getElement("RDP_ERROR").Exists():
+            EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
         EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_name))
         # above rdpbrowserfile has the same automationid with this edit selection
         EasyshellLib.getElement('RDPBrowserOpen').Click()
         EasyshellLib.getElement('APPLY').Click()
         EasyshellLib.getElement('Exit').Click()
+        return True
 
     def check_bg_pic(self, profile):
         flag = True
@@ -3141,12 +3143,12 @@ class Background(EasyShellTest):
         top_left = img.getpixel((2, 2))[:3]
         top_mid = img.getpixel((size[0] / 2, 2))[:3]
         top_right = img.getpixel((size[0] - 2, 2))[:3]
-        mid_left = img.getpixel((2, size[1]/2))[:3]
-        mid_center = img.getpixel((size[0] / 2, size[1]/2))[:3]
-        mid_right = img.getpixel((size[0] - 2, size[1]/2))[:3]
-        bottom_left = img.getpixel((2, size[1]-2))[:3]
-        bottom_mid = img.getpixel((size[0] / 2, size[1]-2))[:3]
-        bottom_right = img.getpixel((size[0] - 2, size[1]-2))[:3]
+        mid_left = img.getpixel((2, size[1] / 2))[:3]
+        mid_center = img.getpixel((size[0] / 2, size[1] / 2))[:3]
+        mid_right = img.getpixel((size[0] - 2, size[1] / 2))[:3]
+        bottom_left = img.getpixel((2, size[1] - 2))[:3]
+        bottom_mid = img.getpixel((size[0] / 2, size[1] - 2))[:3]
+        bottom_right = img.getpixel((size[0] - 2, size[1] - 2))[:3]
         # ---------get profile colors for 9 points--------------
 
         if self.compare_RGB(top_left, color_data[profile]['top_left']) < 0.98:
@@ -3189,6 +3191,7 @@ class Background(EasyShellTest):
             self.Logfile('[PASS]: {} custom background picture check PASS'.format(profile))
         os.remove('temp_color.png')
         return flag
+
     # -------------------------------back ground ---------------------------------------
     def set_background(self, bg='Custom'):
         # This is for theme
