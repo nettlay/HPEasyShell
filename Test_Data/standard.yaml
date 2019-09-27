@@ -60,7 +60,7 @@ rdp:
     gatewayprofileusagemethod: "0"
     promptcredentialonce: "0"
     use redirection server name: "0"
-    rdgiskdcproxy: 0"
+    rdgiskdcproxy: "0"
     kdcproxyname: ""
     autolaunch: "False"
     WaitForNetwork: "False"

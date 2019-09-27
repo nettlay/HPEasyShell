@@ -61,7 +61,8 @@ class EasyShellTest:
         cert_ca = os.path.join(self.data, 'rootca.cer')
         EasyshellLib.CommonUtils.import_cert(cert_ca)
 
-    def check_main_window(self, exist):
+    @staticmethod
+    def check_main_window(exist):
         wnd_exist = EasyshellLib.getElement('MAIN_WINDOW').Exists(0, 0)
         return bool(exist) is bool(wnd_exist)
 
@@ -72,6 +73,10 @@ class EasyShellTest:
         if general_key:
             reg.create_value(general_key, 'KioskMode', 0, 'True')
             reg.create_value(general_key, 'KioskModeAdmin', 0, 'False')
+        reg.close(general_key)
+        winlog_key = reg.open(r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon')
+        reg.create_value(winlog_key, 'Shell', 0, "C:\\Program Files\\HP\\HP Easy Shell\\HPEasyShell.exe")
+        reg.close(winlog_key)
 
     @staticmethod
     def disable_kiosk():
@@ -80,6 +85,10 @@ class EasyShellTest:
         if general_key:
             reg.create_value(general_key, 'KioskMode', 0, 'False')
             reg.create_value(general_key, 'KioskModeAdmin', 0, 'False')
+        reg.close(general_key)
+        winlog_key = reg.open(r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon')
+        reg.create_value(winlog_key, 'Shell', 0, "explorer.exe")
+        reg.close(winlog_key)
 
     def resetEasyshell(self):
         """
@@ -148,6 +157,9 @@ class EasyShellTest:
         for name, value in settings.items():
             reg.create_value(setting_key, name, 0, value)
         reg.close(setting_key)
+        winlog_key = reg.open(r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon')
+        reg.create_value(winlog_key, 'Shell', 0, "C:\\Program Files\\HP\\HP Easy Shell\\HPEasyShell.exe")
+        reg.close(winlog_key)
 
     def setKioskAdmin(self):
         reg = CommonLib.Reg_Utils()
@@ -2948,12 +2960,14 @@ class General_Test(EasyShellTest):
                 EasyshellLib.getElement('LogonManager').GetParentControl().Click()
                 if CommonLib.WindowControl(Name='HP Hotkey Filter').Exists():
                     CommonLib.WindowControl(Name='HP Hotkey Filter').Close()
+                    self.Logfile('[PASS]: Hotkey Filter can be launched')
                     return True
                 else:
                     self.Logfile('[Fail]: Hotkey Filter is installed, but cannot be launched')
                     self.capture('Integrated_check_hotkey', '[Fail]: Hotkey Filter is installed, but cannot be launched')
                     return False
             else:
+                self.Logfile('[PASS]: Hotkey Filter is not installed')
                 return True
         else:
             self.Logfile('[Fail]: Hotkey Filter file do not match with UI')
@@ -2968,12 +2982,14 @@ class General_Test(EasyShellTest):
                 EasyshellLib.getElement('LogonManager').GetParentControl().Click()
                 if CommonLib.WindowControl(Name='HP Logon Manager').Exists():
                     CommonLib.WindowControl(Name='HP Logon Manager').Close()
+                    self.Logfile('[PASS]: Logon manager can be launched')
                     return True
                 else:
                     self.Logfile('[Fail]: Logon Manager is installed, but cannot be launched')
                     self.capture('Integrated_check_logonmgr', '[Fail]: Logon manager is installed, but cannot be launched')
                     return False
             else:
+                self.Logfile('[PASS]: Logon manager is not installed')
                 return True
         else:
             self.Logfile('[Fail]: Logon manager file do not match with UI')
@@ -2983,11 +2999,12 @@ class General_Test(EasyShellTest):
     def check_integrated_tool(self):
         flag = True
         EasyshellLib.getElement('Advanced').Click(waitTime=2)
-        if self.__check_logon_manager():
+        if not self.__check_logon_manager():
             flag = False
-        if self.__check_hotkey_manager():
+        if not self.__check_hotkey_manager():
             flag = False
         EasyshellLib.getElement('ButtonClose').Click()
+        EasyshellLib.getElement('Exit').Click()
         return flag
 
 
@@ -3102,8 +3119,79 @@ class Background(EasyShellTest):
         splited = re.findall(r'(.{2})', real_str)
         return [int(i, 16) for i in splited]
 
+    def set_bg_pic(self, pic_name='custom_bg.jpg'):
+        self.resetEasyshell()
+        self.launch()
+        EasyshellLib.getElement('EnableCustom').Enable()
+        EasyshellLib.getElement('BGFileLocationButton').Click(waitTime=2)
+        EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_name))
+        # above rdpbrowserfile has the same automationid with this edit selection
+        EasyshellLib.getElement('RDPBrowserOpen').Click()
+        EasyshellLib.getElement('APPLY').Click()
+        EasyshellLib.getElement('Exit').Click()
+
+    def check_bg_pic(self, profile):
+        flag = True
+        color_data = self.sections[self.section_name]
+        EasyshellLib.getElement('UserTitles').Click()
+        EasyshellLib.getElement('Main_Pane').CaptureToImage('temp_color.png')
+        img = Image.open('temp_color.png')
+        size = img.size
+        # ---------get UI colors for 9 points-------------------
+        top_left = img.getpixel((2, 2))[:3]
+        top_mid = img.getpixel((size[0] / 2, 2))[:3]
+        top_right = img.getpixel((size[0] - 2, 2))[:3]
+        mid_left = img.getpixel((2, size[1]/2))[:3]
+        mid_center = img.getpixel((size[0] / 2, size[1]/2))[:3]
+        mid_right = img.getpixel((size[0] - 2, size[1]/2))[:3]
+        bottom_left = img.getpixel((2, size[1]-2))[:3]
+        bottom_mid = img.getpixel((size[0] / 2, size[1]-2))[:3]
+        bottom_right = img.getpixel((size[0] - 2, size[1]-2))[:3]
+        # ---------get profile colors for 9 points--------------
+
+        if self.compare_RGB(top_left, color_data[profile]['top_left']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color top_left check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color top_left check fail'.format(profile))
+        if self.compare_RGB(top_mid, color_data[profile]['top_mid']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color top_mid check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color top_mid check fail'.format(profile))
+        if self.compare_RGB(top_right, color_data[profile]['top_right']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color top_right check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color top_right check fail'.format(profile))
+        if self.compare_RGB(mid_left, color_data[profile]['mid_left']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color mid_left check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color mid_left check fail'.format(profile))
+        if self.compare_RGB(mid_center, color_data[profile]['mid_center']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color mid_center check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color mid_center check fail'.format(profile))
+        if self.compare_RGB(mid_right, color_data[profile]['mid_right']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color mid_right check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color mid_right check fail'.format(profile))
+        if self.compare_RGB(bottom_left, color_data[profile]['bottom_left']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color bottom_left check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color bottom_left check fail'.format(profile))
+        if self.compare_RGB(bottom_mid, color_data[profile]['bottom_mid']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color bottom_mid check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color bottom_mid check fail'.format(profile))
+        if self.compare_RGB(bottom_right, color_data[profile]['bottom_right']) < 0.98:
+            flag = False
+            self.Logfile('[FAIL]: {} color bottom_right check fail'.format(profile))
+            self.capture('bg_color', '[FAIL]: {} color bottom_right check fail'.format(profile))
+        if flag:
+            self.Logfile('[PASS]: {} custom background picture check PASS'.format(profile))
+        os.remove('temp_color.png')
+        return flag
     # -------------------------------back ground ---------------------------------------
     def set_background(self, bg='Custom'):
+        # This is for theme
         # bg support:
         # {custom | default | Blue | Green | Red | Purple | light | dark}
         # please strictly use above value, including upper and lower letters
@@ -3136,6 +3224,7 @@ class Background(EasyShellTest):
             return False
 
     def check_background(self, bg='custom'):
+        # This is for theme
         flag = True
         main_color = ''
         tile_color = ''
@@ -3345,7 +3434,9 @@ class Wifi(TaskSwitcher):
 
 if __name__ == '__main__':
     # Wifi().import_rootca()
-    General_Test().check_integrated_tool()
+    # Background().set_bg_pic('custom_bg.png')
+    # Background().check_bg_pic('customBG1')
     # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
     # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
+    EasyShellTest().resetEasyshell()
     pass

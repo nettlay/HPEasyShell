@@ -327,6 +327,7 @@ class Reg_Utils:
             self.root = win32con.HKEY_CURRENT_USER
         self.flags = win32con.WRITE_OWNER | win32con.KEY_WOW64_64KEY | win32con.KEY_ALL_ACCESS
         self.reg_type = {0: win32con.REG_SZ, 1:win32con.REG_DWORD, 2:win32con.REG_BINARY}
+
     def open(self, path):
         key = win32api.RegOpenKeyEx(self.root, path, 0, self.flags)
         return key
@@ -420,8 +421,7 @@ class Reg_Utils:
 
 
 class User_Group:
-    def __init__(self, user='test', password='test', group='Administrators'):
-        self.group = group
+    def __init__(self, user='test', password='test'):
         self.user = user
         self.passwd = password
         self.user_info = dict(
@@ -452,9 +452,9 @@ class User_Group:
     def change_passwd(self, new_passwd):
         win32net.NetUserChangePassword(None, self.user, self.passwd, new_passwd)
 
-    def add_user_to_group(self):
+    def add_user_to_group(self, group='Administrators'):
         try:
-            win32net.NetLocalGroupAddMembers(None, self.group, 3, [self.group_info])
+            win32net.NetLocalGroupAddMembers(None, group, 3, [self.group_info])
         except:
             pass
 
@@ -824,3 +824,7 @@ def getElementByType(controlType, **kwargs):
     else:
         return Control(**kwargs)
 
+
+if __name__ == '__main__':
+    # a = win32net.NetUserGetInfo(win32net.NetGetAnyDCName(), win32api.GetUserName(), 2)
+    username = win32api.GetUserName()

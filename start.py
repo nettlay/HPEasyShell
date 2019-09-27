@@ -9,6 +9,12 @@ from openpyxl.styles import Font, colors
 
 error_font = Font(color=colors.RED)
 
+
+def general_report(format='yaml'):
+
+    pass
+
+
 def zipDir(dirpath, outFullName):
     """
     压缩指定文件夹
@@ -23,6 +29,7 @@ def zipDir(dirpath, outFullName):
         for filename in filenames:
             zip.write(os.path.join(path,filename),os.path.join(fpath,filename))
     zip.close()
+
 
 def clear_runtime_folder(path):
     arry = []

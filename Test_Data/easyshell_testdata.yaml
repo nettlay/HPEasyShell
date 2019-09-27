@@ -216,7 +216,7 @@ userInterface:
        - DisplayWriteFilter:ON
        - DisplayWriteFilterInteraction:ON
        - HideEasyShell:OFF
-       - EnableCustom:ON
+       - EnableCustom:OFF
        - EnableSmartcard:ON
     test_off: # Turn OFF All the settings
        - DisplayTitle:OFF
@@ -628,3 +628,13 @@ background:
     title: [0, 0, 0]
     text: [255, 255, 255]
     active: [0, 255, 0]
+  customBG1:
+    top_left: [255, 255, 1]
+    top_mid: [254, 0, 0]
+    top_right: [255, 192, 0]
+    mid_left: [112, 48, 160]
+    mid_center: [1, 32, 96]
+    mid_right: [146, 209, 79]
+    bottom_left: [0, 175, 80]
+    bottom_mid: [1, 176, 241]
+    bottom_right: [0, 113, 193]
