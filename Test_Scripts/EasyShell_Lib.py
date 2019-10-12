@@ -46,7 +46,7 @@ def getElement(name, **kwargs):
     elementId = getElementMapping()[name].split(':')[0]
     controltype = getElementMapping()[name].split(':')[1].upper()
     if elementId.startswith('"') and elementId.endswith('"'):
-        return getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
+        return getElementByType(controltype, RegexName=elementId.replace('"', ''), **kwargs)
     else:
         return getElementByType(controltype, AutomationId=elementId, **kwargs)
 

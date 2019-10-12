@@ -1,9 +1,7 @@
-import ftplib
 import platform
 import random
 import re
 import requests
-import win32api, win32con
 from math import sqrt
 import Library.CommonLib as CommonLib
 import Test_Scripts.EasyShell_Lib as EasyshellLib
@@ -14,6 +12,7 @@ import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont, Image
 import pywifi
 from subprocess import check_output
+from connection import RDPLogon
 
 
 def ClearContent(length=50):
@@ -272,58 +271,6 @@ class EasyShellTest:
                 return False
         else:
             return True
-
-
-class Logon:
-    def __init__(self):
-        pass
-
-    def logon(self):
-        pass
-
-
-class RDPLogon(Logon):
-    def __init__(self):
-        Logon.__init__(self)
-        self.mark = 'rdp'
-
-    def check_ftp_flag(self, ip='15.83.251.201', user=r'sh\cheng.balance', passwd='password.321',
-                       logon_flag='rdp_logon', timeout=60):
-        ftp = ftplib.FTP(ip)
-        ftp.login(user, passwd)
-        ftp.cwd('/Function/Automation/log')
-        for i in range(timeout):
-            files = ftp.nlst()
-            print(files)
-            if logon_flag in files:
-                print('pass')
-                ftp.delete(logon_flag)
-                break
-            time.sleep(1)
-        ftp.close()
-
-    def logon(self, profile):
-        yml = CommonLib.YmlUtils('{}\\easyshell_testdata.yaml'.format(EasyShellTest().data))
-        rdp_temps = yml.get_sub_item('createRDP')
-        rdp_data = rdp_temps[profile]
-
-        if EasyshellLib.getElement('Connect').Exists():
-            EasyshellLib.getElement('Connect').Click()
-        time.sleep(3)
-        if EasyshellLib.getElement('RDPPassword').Exists():
-            EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
-            EasyshellLib.getElement('ButtonOK').Click()
-        time.sleep(3)
-        EasyshellLib.getElement('ButtonYES').Click()
-
-
-class StoreFront(Logon):
-    def __init__(self):
-        Logon.__init__(self)
-        self.mark = 'store'
-
-    def logon(self):
-        pass
 
 
 class UserInterfacSettings(EasyShellTest):
@@ -2162,10 +2109,10 @@ class Shell_View(EasyShellTest):
             return False
 
 
-class Shell_RDP(EasyShellTest, Logon):
+class Shell_RDP(EasyShellTest, RDPLogon):
     def __init__(self):
         EasyShellTest.__init__(self)
-        Logon.__init__(self)
+        RDPLogon.__init__(self)
         self.section_name = 'createRDP'
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -3410,7 +3357,7 @@ class Wifi(TaskSwitcher):
             return False
 
     def __get_current_ssid(self):
-        scanoutput = check_output(['ssid.bat'])
+        scanoutput = check_output([os.path.join(self.data, 'ssid.bat')])
         rs = scanoutput.decode()
         # print(chardet.detect(rs))
         # print(rs.decode('Windows-1252').encode('raw_unicode_escape'))
@@ -3442,4 +3389,5 @@ if __name__ == '__main__':
     # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
     # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
     EasyShellTest().resetEasyshell()
+    Wifi().check_modify_wifi('WPA2P5G', launchBy='settings')
     pass

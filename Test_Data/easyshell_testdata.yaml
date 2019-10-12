@@ -456,6 +456,7 @@ createRDP:
         Name: standard_RFXWin10
         Hostname: rfxw10-1.sh.dto
         Username: zhao.sam
+        Password: zhao123
         Launchdelay: 0
         Arguments: None
         Autolaunch: OFF
@@ -465,7 +466,18 @@ createRDP:
         Name: edit_RFXWin10
         Hostname: rfxw10-1.sh.dto
         Username: zhao.sam
+        Password: zhao123
         Launchdelay: 0
+        Arguments: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Customfile: C:\svc\hpeasyshell\test_data\DEFAULT.rdp
+    test1_RDP:
+        Name: edit_RFXWin10
+        Hostname: rfxw10-1.sh.dto
+        Username: zhao.sam
+        Password: zhao123
+        Launchdelay: 30
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
@@ -473,7 +485,7 @@ createRDP:
 createView:
     standardView:
         Name: standardView
-        Hostname: fcxds.sh.dto
+        Hostname: vnsvr.sh.dto
         Launchdelay: 0
         Argument: None
         Autolaunch: OFF
@@ -485,9 +497,10 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
+        AppName: None
     editView:
         Name: editView
-        Hostname: fcxds.sh.dto
+        Hostname: vnsvr.sh.dto
         Launchdelay: 5
         Argument: None
         Autolaunch: OFF
@@ -499,12 +512,14 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
+        AppName: None
 createCitrix:
     standardCitrix:
         Name: standard_citrix
         Hostname: xd562svr01.sh.dto
         Username: zhao.sam
         Domain: sh.dto
+        Desktop: B-W1064
         Launchdelay: 0
         Autolaunch: OFF
         Persistent: OFF

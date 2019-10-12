@@ -1,3 +1,4 @@
+import ftplib
 import uuid
 import math
 import winreg
@@ -15,7 +16,7 @@ import win32netcon
 import subprocess
 import platform
 import ruamel.yaml as yaml
-
+import re
 '''
 Some element might mistake recognize automationId or Name:
 Minimize: Only Name is useful, AutomationId actually is "" even though we can get the value
@@ -26,6 +27,23 @@ class QAUtils:
     @staticmethod
     def import_cert(file):
         os.system(r'c:\windows\sysnative\certutil -addstore root {}'.format(file))
+
+    @staticmethod
+    def get_cert_id(name):
+        exist = None
+        f = os.popen(r'c:\windows\sysnative\certutil -store root')
+        rs = f.read()
+        patter = '================ Certificate(.*?)===========.*?Issuer: (.*?)NotBefore: '
+        a = re.findall(patter, rs, re.S)
+        for i in a:
+            if name.upper() in i[1].upper():
+                exist = int(i[0].strip())
+                break
+        return exist
+
+    @staticmethod
+    def del_cert(index:int):
+        os.system(r'c:\windows\sysnative\certutil -delstore root {}'.format(index))
 
     @staticmethod
     def hex2rgb(hexcolor):
@@ -515,6 +533,114 @@ class TxtUtils:
         self.set_msg(new_data)
 
 
+class FTPUtils:
+    def __init__(self, server, username, password):
+        self.ftp = ftplib.FTP(server)
+        self.ftp.login(username, password)
+        self.download_buffer = 1024
+        self.upload_buffer = 1024
+
+    def change_dir(self, work_dir):
+        self.ftp.cwd(work_dir)
+
+    def get_working_dir(self):
+        return self.ftp.pwd()
+
+    def get_item_list(self, work_dir):
+        self.ftp.cwd(work_dir)
+        return self.ftp.nlst()
+
+    def is_item_file(self, item):
+        try:
+            self.ftp.cwd(item)
+            self.ftp.cwd('..')
+            return False
+        except ftplib.error_perm as fe:
+            if not fe.args[0].startswith('550'):
+                raise
+            return True
+
+    def download_file(self, file_name, save_as_name):
+        file_handler = open(save_as_name, 'wb')
+        self.ftp.retrbinary("RETR " + file_name, file_handler.write, self.download_buffer)
+        file_handler.close()
+        return save_as_name
+
+    def download_dir(self, dir_name, save_as_dir):
+        if not os.path.exists(save_as_dir):
+            os.mkdir(save_as_dir)
+        self.ftp.cwd(dir_name)
+        for item in self.ftp.nlst():
+            if self.is_item_file(item):
+                self.download_file(item, os.path.join(save_as_dir, item))
+            else:
+                self.download_dir(item, os.path.join(save_as_dir, item))
+        self.ftp.cwd("..")
+        return save_as_dir
+
+    def upload_file(self, file_name, save_as_name):
+        self.ftp.storbinary('STOR ' + save_as_name, open(file_name, 'rb'), self.upload_buffer)
+        return save_as_name
+
+    def new_dir(self, dir_name):
+        try:
+            self.ftp.mkd(dir_name)
+        # ignore "directory already exists"
+        except ftplib.error_perm as fe:
+            if not fe.args[0].startswith('550'):
+                raise
+        return dir_name
+
+    def upload_dir(self, dir_path, save_as_dir):
+        try:
+            self.ftp.cwd(save_as_dir)
+        except ftplib.error_perm as fe:
+            if fe.args[0].startswith('550'):
+                self.new_dir(save_as_dir)
+                self.ftp.cwd(save_as_dir)
+        for item_name in os.listdir(dir_path):
+            local_path = os.path.join(dir_path, item_name)
+            if os.path.isfile(local_path):
+                self.ftp.storbinary('STOR ' + item_name, open(local_path, 'rb'), self.upload_buffer)
+            elif os.path.isdir(local_path):
+                ftp_folder = self.new_dir(item_name)
+                self.upload_dir(local_path, ftp_folder)
+                self.ftp.cwd("..")
+        return save_as_dir
+
+    def delete_file(self, file_name):
+        self.ftp.delete(file_name)
+        return file_name
+
+    def delete_dir(self, dir_name):
+        # Handle dir_name doesn't exist
+        try:
+            self.change_dir(dir_name)
+            items = self.ftp.nlst()
+        except ftplib.all_errors as e:
+            print(e)
+            return
+        for item in items:
+            if os.path.split(item)[1] in ('.', '..'):
+                continue
+            try:
+                self.change_dir(item)
+                self.change_dir('..')
+                self.delete_dir(item)
+            except ftplib.all_errors:
+                self.delete_file(item)
+        try:
+            self.change_dir('..')
+            self.ftp.rmd(dir_name)
+        except ftplib.all_errors as e:
+            print(e)
+        return dir_name
+
+    def close(self):
+        self.ftp.close()
+
+
+
 class Control(uiautomation.Control):
     def __init__(self, element, searchFromControl, searchDepth, searchWaitTime,
                  foundIndex, **searchPorpertyDict):
@@ -651,92 +777,6 @@ def SendKey(key, waitTime=0.1, count=1):
     for t in range(count):
         uiautomation.SendKey(key, waitTime=waitTime)
 
-#
-# def getElementByType(controlType, parent, **kwargs):
-#     # parent: Parent element
-#     # print(controlType, **kwargs)
-#     if controlType.upper() == "HYPERLINK":
-#         return parent.HyperlinkControl(**kwargs)
-#     elif controlType.upper() == 'IMAGE':
-#         return parent.ImageControl(**kwargs)
-#     elif controlType.upper() == 'APPBAR':
-#         return parent.AppBarControl(**kwargs)
-#     elif controlType.upper() == 'CALENDAR':
-#         return parent.CalendarControl(**kwargs)
-#     elif controlType.upper() == 'CUSTOM':
-#         return parent.CustomControl(**kwargs)
-#     elif controlType.upper() == 'DOCUMENT':
-#         return parent.DocumentControl(**kwargs)
-#     elif controlType.upper() == 'GROUP':
-#         return parent.GroupControl(**kwargs)
-#     elif controlType.upper() == 'HEADER':
-#         return parent.HeaderControl(**kwargs)
-#     elif controlType.upper() == 'HEADERITEM':
-#         return parent.HeaderItemControl(**kwargs)
-#     elif controlType.upper() == 'SPINNER':
-#         return parent.SpinnerControl(**kwargs)
-#     elif controlType.upper() == 'SLIDER':
-#         return parent.SliderControl(**kwargs)
-#     elif controlType.upper() == 'SEPARATOR':
-#         return parent.SeparatorControl(**kwargs)
-#     elif controlType.upper() == 'SEMANTICZOOM':
-#         return parent.SemanticZoomControl(**kwargs)
-#     elif controlType.upper() == 'MENUITEM':
-#         return parent.MenuItemControl(**kwargs)
-#     elif controlType.upper() == 'MENU':
-#         return parent.MenuControl(**kwargs)
-#     elif controlType.upper() == 'MENUBAR':
-#         return parent.MenuBarControl(**kwargs)
-#     elif controlType.upper() == 'TABLE':
-#         return parent.TableControl(**kwargs)
-#     elif controlType.upper() == 'STATUSBAR':
-#         return parent.StatusBarControl(**kwargs)
-#     elif controlType.upper() == 'SPLITBUTTON':
-#         return parent.SplitButtonControl(**kwargs)
-#     elif controlType.upper() == 'THUMB':
-#         return parent.ThumbControl(**kwargs)
-#     elif controlType.upper() == 'TITLEBAR':
-#         return parent.TitleBarControl(**kwargs)
-#     elif controlType.upper() == 'TOOLTIP':
-#         return parent.ToolTipControl(**kwargs)
-#     elif controlType.upper() == "BUTTON":
-#         return parent.ButtonControl(**kwargs)
-#     elif controlType.upper() == "COMBOX":
-#         return parent.ComboBoxControl(**kwargs)
-#     elif controlType.upper() == "CHECKBOX":
-#         return parent.CheckBoxControl(**kwargs)
-#     elif controlType.upper() == "DATAGRID":
-#         return parent.DataGridControl(**kwargs)
-#     elif controlType.upper() == "DATAITEM":
-#         return parent.DataItemControl(**kwargs)
-#     elif controlType.upper() == "EDIT":
-#         return parent.EditControl(**kwargs)
-#     elif controlType.upper() == "LIST":
-#         return parent.ListControl(**kwargs)
-#     elif controlType.upper() == "LISTITEM":
-#         return parent.ListItemControl(**kwargs)
-#     elif controlType.upper() == "PANE":
-#         return parent.PaneControl(**kwargs)
-#     elif controlType.upper() == "RADIOBUTTON":
-#         return parent.RadioButtonControl(**kwargs)
-#     elif controlType.upper() == "SCROLLBAR":
-#         return parent.ScrollBarControl(**kwargs)
-#     elif controlType.upper() == "TEXT":
-#         return parent.TextControl(**kwargs)
-#     elif controlType.upper() == "TREE":
-#         return parent.TreeControl(**kwargs)
-#     elif controlType.upper() == "TREEITEM":
-#         return parent.TreeItemControl(**kwargs)
-#     elif controlType.upper() == "WINDOW":
-#         return parent.WindowControl(**kwargs)
-#     elif controlType.upper() == 'PROGRESSBAR':
-#         return parent.ProgressBarControl(**kwargs)
-#     elif controlType.upper() == "TAB":
-#         return parent.TabControl(**kwargs)
-#     elif controlType.upper() == "TABITEM":
-#         return parent.TabItemControl(**kwargs)
-#     else:
-#         return parent.Control(**kwargs)
 
 def getElementByType(controlType, **kwargs):
     # parent: Parent element
