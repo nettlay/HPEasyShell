@@ -7,6 +7,8 @@
     <orderEntry type="module" module-name="Rewrite-ThinPro7.1" />
     <orderEntry type="module" module-name="Automation-Framework" />
     <orderEntry type="module" module-name="Automation-Framework" />
+    <orderEntry type="module" module-name="services" />
+    <orderEntry type="module" module-name="Automation-Framework" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Twisted Trial" />

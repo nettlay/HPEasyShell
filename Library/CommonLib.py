@@ -778,6 +778,14 @@ def SendKey(key, waitTime=0.1, count=1):
         uiautomation.SendKey(key, waitTime=waitTime)
 
 
+def combination_key(self, *args):
+    # args = [key1, key2, key3, ...]
+    for key in args:
+        self.KeyDown(key)
+    for key in args:
+        self.KeyUp(key)
+
+
 def getElementByType(controlType, **kwargs):
     # parent: Parent element
     # print(controlType, **kwargs)

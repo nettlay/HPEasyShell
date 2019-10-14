@@ -18,6 +18,7 @@ test status: send by local, remote get this command should return vdi's test sta
 
 class Logon:
     def __init__(self):
+        self.session_pane = 'RDPSessionPane'
         self.local_file = 'test_citrix.txt'
         self.remote_file = 'test_citrix_result.txt'
         self.log_path = '/Function/Automation/log/citrix'
@@ -25,6 +26,10 @@ class Logon:
 
     def input_credential(self):
         pass
+
+    def get_resolution(self):
+        rect = EasyshellLib.getElement(self.session_pane).BoundingRectangle
+        return rect[2] - rect[0], rect[3] - rect[1]
 
     def utils(self, profile='', op='exist', item='normal'):
         """
@@ -115,19 +120,21 @@ class Logon:
             print('delete ftp file fail')
         return flag.strip()
 
-    def wait_element(self, element, cycles=3):
+    @staticmethod
+    def wait_element(element, cycles=3):
         flag = None
         for i in range(cycles):
-            if element.Exists():
+            if element.Exists(0, 0):
                 flag = element
                 break
             else:
                 flag = None
+                print('loop', i)
                 time.sleep(1)
                 continue
         return flag
 
-    def logon(self):
+    def logon(self, profile):
         pass
 
     def wait_logon(self):
@@ -159,14 +166,10 @@ class Logon:
 class RDPLogon(Logon):
     def __init__(self):
         Logon.__init__(self)
+        self.session_pane = 'RDPSessionPane'
         self.local_file = 'test_rdp.txt'
         self.remote_file = 'test_rdp_result.txt'
         self.log_path = '/Function/Automation/log/rdp'
-
-    @staticmethod
-    def __get_resolution():
-        rect = EasyshellLib.getElement('RDPSessionPane').BoundingRectangle
-        return rect[2] - rect[0], rect[3] - rect[1]
 
     def check_resolution(self):
         pass
@@ -239,8 +242,15 @@ class StoreLogon(Logon):
 
 
 class ViewLogon(Logon):
+    """
+    MenuBar->MenuItem: if seleted, AccessibleCurrentState()=16
+    """
     def __init__(self):
         Logon.__init__(self)
+        self.session_pane = 'VMwareSession'
+        self.local_file = 'test_vmware.txt'
+        self.remote_file = 'test_vmware_result.txt'
+        self.log_path = '/Function/Automation/log/vmware'
 
     @staticmethod
     def install_ca(file):
@@ -271,12 +281,41 @@ class ViewLogon(Logon):
             app_name = CommonLib.PaneControl(Name=profile['AppName'])
             app_name.SetFocus()
             app_name.DoubleClick()
+            wait_time = 30000
+            current_cycle = 0
+            while 1:
+                if current_cycle>wait_time:
+                    break
+                """
+                Code here to check app windows show up
+                """
         elif profile['DesktopName']:
             CommonLib.WindowControl(Name='VMware Horizon Client').Click()
             # must add above click, or else will below focus fail
             desktop_name = CommonLib.PaneControl(Name=profile['DesktopName'])
             desktop_name.SetFocus()
             desktop_name.DoubleClick()
+            wnd = Logon().wait_element(CommonLib.WindowControl(Name=profile['DesktopName']), 5)
+            if wnd:
+                print('Find wnd')
+                os.system('echo test_logon>{}'.format(self.local_file))
+                ftp = CommonLib.FTPUtils(self.ftp_token['ip'], self.ftp_token['username'], self.ftp_token['password'])
+                ftp.change_dir(self.log_path)
+                ftp.upload_file(self.local_file, self.local_file)
+                # -------close license expire dialog for windows7- -----------
+                time.sleep(15)
+                x, y = self.get_resolution()
+                CommonLib.Click(int(x/2), int(y/3))
+                CommonLib.SendKey(CommonLib.Keys.VK_ESCAPE)
+                # ------------------------------------------------------------
+                status = self.get_test_status(ftp, 300)
+                print('finished wait get test status', status)
+                if status.upper() == 'PASS':
+                    print('logon pass')
+                else:
+                    print('logon fail, no result return, maybe not logoff')
+                ftp.close()
+
         else:
             print('do not need to launch session or app')
             return
@@ -298,24 +337,30 @@ class ViewBlast(ViewLogon):
 class VDITest:
     def __init__(self):
         self.test_req = None
-        self.local_file = 'test_rdp.txt'
-        self.remote_file = 'test_rdp_result.txt'
-        self.log_path = '/Function/Automation/log/rdp'
+        self.local_file = ''
+        self.remote_file = ''
+        self.log_path = ''
+        self.log_path_list = ['/Function/Automation/log/rdp', '/Function/Automation/log/vmware',
+                         '/Function/Automation/log/storefont', '/Function/Automation/log/citrix']
         self.tool_path = '/Function/Automation/vditest'
 
     def get_test(self):
         ftp = CommonLib.FTPUtils('15.83.251.201', 'sh\\cheng.balance', 'password.321')
-        ftp.change_dir(self.log_path)
-        if self.local_file in ftp.get_item_list(self.log_path):
-            ftp.download_file(self.local_file, self.local_file)
-            with open(self.local_file, 'r') as f:
-                _, test_item = f.read().strip().split('_')
-                vdi = os.path.splitext(self.local_file)[0].split('_')[1]
-            ftp.close()
-            return vdi, test_item
-        else:
-            print('No test needed')
-            return None
+        for log_path in self.log_path_list:
+            vdi_item = os.path.basename(log_path)
+            self.local_file = 'test_{}.txt'.format(vdi_item)
+            self.remote_file = 'test_{}_result.txt'.format(vdi_item)
+            ftp.change_dir(log_path)
+            if self.local_file in ftp.get_item_list(log_path):
+                self.log_path = log_path
+                ftp.download_file(self.local_file, self.local_file)
+                with open(self.local_file, 'r') as f:
+                    _, test_item = f.read().strip().split('_')
+                ftp.close()
+                return vdi_item, test_item
+        if self.log_path == '':
+                print('No test needed')
+
 
     def download_test(self):
         self.test_req = self.get_test()
@@ -327,6 +372,7 @@ class VDITest:
                 shutil.rmtree('c:\\scripts\\{}'.format(self.test_req[1].strip()))
             ftp = CommonLib.FTPUtils('15.83.251.201', 'sh\\cheng.balance', 'password.321')
             ftp.change_dir(self.tool_path + '/{}'.format(self.test_req[0]))
+            print(ftp.get_item_list('.'))
             ftp.download_dir(self.test_req[1].strip(), 'c:\\scripts\\{}'.format(self.test_req[1].strip()))
             ftp.change_dir(self.log_path)
             ftp.delete_file(self.local_file)
@@ -366,35 +412,30 @@ class VDITest:
                 continue
 
 
-import re
-
 if __name__ == '__main__':
-    # VDITest().start()
-    rdp_profile = dict(
-        Name='test_rdp',
-        Password='Shanghai2010',
-        Username='Administrator',
-        Hostname='15.83.248.204',
-        Autolaunch="OFF",
-        Launchdelay=0,
-        Persistent='OFF'
-    )
-    view_profile = dict(
-        Name='test_view',
-        Password='zhao123',
-        Username='zhao.sam',
-        Domain='sh.dto',
-        Hostname='vnsvr.sh.dto',
-        Autolaunch="OFF",
-        Launchdelay=0,
-        Persistent='OFF',
-        Layout='fullscreen',
-        ConnUSBStartup='OFF',
-        ConnUSBInsertion='OFF',
-        DesktopName='None',
-        AppName='P-Notepad_2012'
-    )
-    ViewLogon().logon(view_profile)
-    # app_name = CommonLib.PaneControl(Name=view_profile['AppName'])
-    # app_name.SetFocus()
-    # app_name.DoubleClick()
+    VDITest().start()
+    # rdp_profile = dict(
+    #     Name='test_rdp',
+    #     Password='Shanghai2010',
+    #     Username='Administrator',
+    #     Hostname='15.83.248.204',
+    #     Autolaunch="OFF",
+    #     Launchdelay=0,
+    #     Persistent='OFF'
+    # )
+    # view_profile = dict(
+    #     Name='test_view',
+    #     Password='zhao123',
+    #     Username='zhao.sam',
+    #     Domain='sh.dto',
+    #     Hostname='vnsvr.sh.dto',
+    #     Autolaunch="OFF",
+    #     Launchdelay=0,
+    #     Persistent='OFF',
+    #     Layout='fullscreen',
+    #     ConnUSBStartup='OFF',
+    #     ConnUSBInsertion='OFF',
+    #     DesktopName='Windows7C',
+    #     AppName=None
+    # )
+    # ViewLogon().logon(view_profile)

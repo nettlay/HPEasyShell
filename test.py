@@ -22,5 +22,5 @@ def logoff():
     os.system('shutdown -l')
 
 
-# a = uiautomation.PaneControl(AutomationId='793')# wait about 5min+
-# print(a.Exists())
+a = os.path.basename('/Function/Automation/log/rdp')
+print(a)
