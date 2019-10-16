@@ -236,7 +236,7 @@ class QAUtils:
                 time.sleep(2)
                 break
         if WindowControl(Name="All Control Panel Items").Exists():
-            WindowControl(Name="All Control Panel Items").GetWindowPattern().Close()
+            WindowControl(Name="All Control Panel Items").Close()
 
     @staticmethod
     def GetInstallationList(filename):
@@ -261,7 +261,7 @@ class QAUtils:
                 continue
             subitems = item.GetChildren()
             QAUtils.Write2File(filename, "{}:{}\n".format(subitems[0].Name, subitems[4].Name))
-        redirectWnd.GetWindowPattern().Close()
+        redirectWnd().Close()
 
     @staticmethod
     def LaunchAppFromFile(path):

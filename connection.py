@@ -27,6 +27,18 @@ class Logon:
     def input_credential(self):
         pass
 
+    @staticmethod
+    def install_ca(file):
+        EasyshellLib.CommonUtils.import_cert(file)
+
+    @staticmethod
+    def check_cert(name):
+        return EasyshellLib.CommonUtils.get_cert_id(name)
+
+    @staticmethod
+    def del_cert(index):
+        EasyshellLib.CommonUtils.del_cert(index)
+
     def get_resolution(self):
         rect = EasyshellLib.getElement(self.session_pane).BoundingRectangle
         return rect[2] - rect[0], rect[3] - rect[1]
@@ -118,20 +130,34 @@ class Logon:
             # ftp.delete_file(self.local_file)
         except:
             print('delete ftp file fail')
-        return flag.strip()
+        try:
+            flag = flag.strip()
+            return flag
+        except:
+            return flag
 
     @staticmethod
-    def wait_element(element, cycles=3):
+    def wait_element(element, cycles=3, exists=True):
         flag = None
-        for i in range(cycles):
-            if element.Exists(0, 0):
-                flag = element
-                break
-            else:
-                flag = None
-                print('loop', i)
-                time.sleep(1)
-                continue
+        if exists:
+            for i in range(cycles):
+                if element.Exists(0, 0):
+                    flag = element
+                    break
+                else:
+                    flag = None
+                    print('Exist loop %d'%i)
+                    time.sleep(1)
+                    continue
+        else:
+            for i in range(cycles):
+                if element.Exists(0, 0):
+                    print('Not exist loop %d'%i)
+                    time.sleep(1)
+                    continue
+                else:
+                    flag = True
+                    break
         return flag
 
     def logon(self, profile):
@@ -160,7 +186,14 @@ class Logon:
             return False
 
     def logoff(self):
-        return
+        os.system('echo test_logon_pass>{}'.format(self.remote_file))
+        ftp = CommonLib.FTPUtils(self.ftp_token['ip'], self.ftp_token['username'], self.ftp_token['password'])
+        ftp.change_dir(self.log_path)
+        ftp.upload_file(self.remote_file, self.remote_file)
+        os.remove(self.remote_file)
+        ftp.close()
+        print('begin to logoff after 3 senconds')
+        os.system('shutdown -l')
 
 
 class RDPLogon(Logon):
@@ -204,12 +237,15 @@ class RDPLogon(Logon):
             ftp.change_dir(self.log_path)
             ftp.upload_file(self.local_file, self.local_file)
             status = self.get_test_status(ftp, 300)
+            ftp.close()
+            if not status:
+                print('获取vdi返回结果超时(300秒)')
+                return False
             print('finished wait get test status', status)
             if status.upper() == 'PASS':
                 print('logon pass')
             else:
-                print('logon fail, no result return, maybe not logoff')
-            ftp.close()
+                print('测试Fail, 收到VDI的结果没有PASS')
             time.sleep(10)
             # check if connection will reconnected with persistent
             if profile['Persistent'] == 'ON':
@@ -234,11 +270,75 @@ class RDPLogon(Logon):
 
 
 class CitrixLogon(Logon):
-    pass
+    def __init__(self):
+        Logon.__init__(self)
+        self.session_pane = ''
+        self.local_file = 'test_citrix.txt'
+        self.remote_file = 'test_citrix_result.txt'
+        self.log_path = '/Function/Automation/log/citrix'
+
+    def logon(self, profile):
+        if profile['Autolaunch'] == 'OFF' or not profile['Autolaunch']:
+            self.utils(profile, 'launch', 'conn')
+        time.sleep(profile['Launchdelay'])
+        wnd = self.wait_element(EasyshellLib.getElement('CitrixWindows'), 30)
+        if wnd:
+            print('Citrix启动成功,窗口被打开')
+            wnd.Close()
+            if self.wait_element(EasyshellLib.getElement('CloseWindowDialog'), 10):
+                EasyshellLib.getElement('ButtonOK').Click()
 
 
 class StoreLogon(Logon):
-    pass
+    def __init__(self):
+        Logon.__init__(self)
+        self.session_pane = 'displayPanel'
+        self.local_file = 'test_storefont.txt'
+        self.remote_file = 'test_storefont_result.txt'
+        self.log_path = '/Function/Automation/log/storefont'
+
+    def logon(self, profile):
+        print('判断是否安装rootca, 如果没装则装到root下面')
+        if not self.check_cert('rootca'):
+            self.install_ca('.\\test_data\\rootca.cer')
+        print('判断autolaunch是否off, 如果为off, 手动启动connection')
+        if profile['Autolaunch'] == 'OFF' or not profile['Autolaunch']:
+            self.utils(profile, 'launch', 'conn')
+        time.sleep(profile['Launchdelay'])
+        time.sleep(5)
+        if EasyshellLib.getElement('StorePool').IsOffScreen:
+            print('Storefront桌面池没有启动, 测试FAIL!')
+            return False
+        CommonLib.TextControl(Name=profile['DesktopName']).GetParentControl().Click()
+        if profile['DesktopName']:
+            wnd = self.wait_element(CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 30)
+            if wnd:
+                print('开始上传test_storefont.txt, 等待15秒')
+                os.system('echo test_logon>{}'.format(self.local_file))
+                ftp = CommonLib.FTPUtils(self.ftp_token['ip'], self.ftp_token['username'], self.ftp_token['password'])
+                ftp.change_dir(self.log_path)
+                ftp.upload_file(self.local_file, self.local_file)
+                # -------close license expire dialog for windows7- -----------
+                time.sleep(15)
+                # ------------------------------------------------------------
+                print('开始等待vdi的结果返回,300s')
+                status = self.get_test_status(ftp, 300)
+                ftp.close()
+                if not status:
+                    print('获取vdi返回结果超时(300秒)')
+                    return False
+                if status.upper() == 'PASS':
+                    print('logon pass')
+                    print('检查session窗口{}是否关系(logoff成功)'.format(profile['DesktopName']))
+                    if self.wait_element(CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 180, False):
+                        EasyshellLib.getElement('Disconnect').Click()
+                    else:
+                        print('Logoff 超时!!')
+                else:
+                    print('测试Fail, 收到VDI的结果没有PASS')
+                print('所有Storefont测试结束')
+        elif profile['AppName']:
+            pass
 
 
 class ViewLogon(Logon):
@@ -252,26 +352,17 @@ class ViewLogon(Logon):
         self.remote_file = 'test_vmware_result.txt'
         self.log_path = '/Function/Automation/log/vmware'
 
-    @staticmethod
-    def install_ca(file):
-        EasyshellLib.CommonUtils.import_cert(file)
-
-    @staticmethod
-    def check_cert(name):
-        return EasyshellLib.CommonUtils.get_cert_id(name)
-
-    @staticmethod
-    def del_cert(index):
-        EasyshellLib.CommonUtils.del_cert(index)
-
     def logon(self, profile):
+        print('判断是否安装rootca, 如果没装则装到root下面')
         if not self.check_cert('rootca'):
             self.install_ca('.\\test_data\\rootca.cer')
+        print('判断autolaunch是否off, 如果为off, 手动启动connection')
         if profile['Autolaunch'] == 'OFF' or not profile['Autolaunch']:
             self.utils(profile, 'launch', 'conn')
         time.sleep(profile['Launchdelay'])
+        print('检查桌面池...')
         if not self.wait_element(CommonLib.PaneControl(AutomationId='793')):
-            print('Desktop pool not shown, test fail')
+            print('桌面池没有出现, 测试Fail')
             return False
         time.sleep(3)
         # launch desktop or app
@@ -290,31 +381,43 @@ class ViewLogon(Logon):
                 Code here to check app windows show up
                 """
         elif profile['DesktopName']:
+            print('让需要启动的桌面图标{}显示出来'.format(profile['DesktopName']))
             CommonLib.WindowControl(Name='VMware Horizon Client').Click()
             # must add above click, or else will below focus fail
             desktop_name = CommonLib.PaneControl(Name=profile['DesktopName'])
             desktop_name.SetFocus()
             desktop_name.DoubleClick()
-            wnd = Logon().wait_element(CommonLib.WindowControl(Name=profile['DesktopName']), 5)
-            if wnd:
-                print('Find wnd')
+            print('检查VMWare Session窗口{}是否出现'.format(profile['DesktopName']))
+            if self.wait_element(CommonLib.WindowControl(Name=profile['DesktopName']), 30):
+                print('开始上传test_vmware.txt, 等待15秒')
                 os.system('echo test_logon>{}'.format(self.local_file))
                 ftp = CommonLib.FTPUtils(self.ftp_token['ip'], self.ftp_token['username'], self.ftp_token['password'])
                 ftp.change_dir(self.log_path)
                 ftp.upload_file(self.local_file, self.local_file)
                 # -------close license expire dialog for windows7- -----------
                 time.sleep(15)
+                print('开始点击license对话框')
                 x, y = self.get_resolution()
                 CommonLib.Click(int(x/2), int(y/3))
                 CommonLib.SendKey(CommonLib.Keys.VK_ESCAPE)
                 # ------------------------------------------------------------
+                print('开始等待vdi的结果返回,300s')
                 status = self.get_test_status(ftp, 300)
+                ftp.close()
+                if not status:
+                    print('获取vdi返回结果超时(300秒)')
+                    return False
                 print('finished wait get test status', status)
                 if status.upper() == 'PASS':
                     print('logon pass')
+                    print('检查session窗口{}是否关系(logoff成功)'.format(profile['DesktopName']))
+                    if self.wait_element(CommonLib.WindowControl(Name=profile['DesktopName']), 180, False):
+                        EasyshellLib.getElement('VMwarePool').Close()
+                    else:
+                        print('Logoff 超时!!')
                 else:
-                    print('logon fail, no result return, maybe not logoff')
-                ftp.close()
+                    print('测试Fail, 收到VDI的结果没有PASS')
+                print('所有VMWare测试结束')
 
         else:
             print('do not need to launch session or app')
@@ -322,98 +425,8 @@ class ViewLogon(Logon):
         # wait 10 min for app or session launched
 
 
-class ViewRDP(ViewLogon):
-    pass
-
-
-class ViewPCOIP(ViewLogon):
-    pass
-
-
-class ViewBlast(ViewLogon):
-    pass
-
-
-class VDITest:
-    def __init__(self):
-        self.test_req = None
-        self.local_file = ''
-        self.remote_file = ''
-        self.log_path = ''
-        self.log_path_list = ['/Function/Automation/log/rdp', '/Function/Automation/log/vmware',
-                         '/Function/Automation/log/storefont', '/Function/Automation/log/citrix']
-        self.tool_path = '/Function/Automation/vditest'
-
-    def get_test(self):
-        ftp = CommonLib.FTPUtils('15.83.251.201', 'sh\\cheng.balance', 'password.321')
-        for log_path in self.log_path_list:
-            vdi_item = os.path.basename(log_path)
-            self.local_file = 'test_{}.txt'.format(vdi_item)
-            self.remote_file = 'test_{}_result.txt'.format(vdi_item)
-            ftp.change_dir(log_path)
-            if self.local_file in ftp.get_item_list(log_path):
-                self.log_path = log_path
-                ftp.download_file(self.local_file, self.local_file)
-                with open(self.local_file, 'r') as f:
-                    _, test_item = f.read().strip().split('_')
-                ftp.close()
-                return vdi_item, test_item
-        if self.log_path == '':
-                print('No test needed')
-
-
-    def download_test(self):
-        self.test_req = self.get_test()
-        if not os.path.exists('c:\\scripts'):
-            os.mkdir('c:\\scripts')
-        if self.test_req:
-            print(self.test_req[1].strip())
-            if os.path.exists('c:\\scripts\\{}'.format(self.test_req[1].strip())):
-                shutil.rmtree('c:\\scripts\\{}'.format(self.test_req[1].strip()))
-            ftp = CommonLib.FTPUtils('15.83.251.201', 'sh\\cheng.balance', 'password.321')
-            ftp.change_dir(self.tool_path + '/{}'.format(self.test_req[0]))
-            print(ftp.get_item_list('.'))
-            ftp.download_dir(self.test_req[1].strip(), 'c:\\scripts\\{}'.format(self.test_req[1].strip()))
-            ftp.change_dir(self.log_path)
-            ftp.delete_file(self.local_file)
-            ftp.close()
-            return True
-        else:
-            print('Fail, no test requirement upload to ftp')
-            return False
-
-    def run_test(self):
-        print(self.test_req, '---------------------------')
-        if self.test_req:
-            os.system(r'c:\scripts\{}\start.exe'.format(self.test_req[1]))
-
-    def get_status(self):
-        flag = None
-        if not os.path.exists('c:\\scripts\\{}\\flag.txt'.format(self.test_req[1])):
-            flag = None
-        with open('c:\\scripts\\{}\\flag.txt'.format(self.test_req[1])) as f:
-            status = f.read().strip()
-            if 'PASS' in status.upper():
-                flag = 'PASS'
-            elif 'RUNNING' in status.upper():
-                flag = 'RUNNING'
-            else:
-                flag = status.split(' ')[-1]
-        return flag
-
-    def start(self):
-        while 1:
-            if self.download_test():
-                self.run_test()
-                self.test_req = None
-            else:
-                print('wait')
-                time.sleep(5)
-                continue
-
 
 if __name__ == '__main__':
-    VDITest().start()
     # rdp_profile = dict(
     #     Name='test_rdp',
     #     Password='Shanghai2010',
@@ -438,4 +451,31 @@ if __name__ == '__main__':
     #     DesktopName='Windows7C',
     #     AppName=None
     # )
-    # ViewLogon().logon(view_profile)
+    # citrix_profile = dict(
+    #     Name='test_citrix',
+    #     Password='zhao123',
+    #     Username='zhao.sam',
+    #     Domain='sh.dto',
+    #     Hostname='XA65FP2SVR03.SH.DTO',
+    #     Autolaunch="OFF",
+    #     Launchdelay=0,
+    #     Persistent='OFF',
+    #     Remotesize='fullscreen',
+    # )
+    storefont_profile = dict(
+        Name='test_storefont',
+        Password='zhao123',
+        Username='zhao.sam',
+        Domain='sh.dto',
+        Hostname='fcxds.sh.dto',
+        Autolaunch="OFF",
+        Launchdelay=0,
+        Persistent='OFF',
+        CustomLogon=None,
+        DesktopToolbar="OFF",
+        DesktopName='Win10',
+        AppName=None
+    )
+    # CitrixLogon().logon(citrix_profile)
+    # StoreLogon().logoff()
+    StoreLogon().logon(storefont_profile)

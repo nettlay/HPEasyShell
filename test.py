@@ -21,6 +21,4 @@ def logoff():
     ftp.close()
     os.system('shutdown -l')
 
-
-a = os.path.basename('/Function/Automation/log/rdp')
-print(a)
+CommonLib.WindowControl(Name="All Control Panel Items").Close()

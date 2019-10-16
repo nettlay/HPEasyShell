@@ -516,10 +516,9 @@ createView:
 createCitrix:
     standardCitrix:
         Name: standard_citrix
-        Hostname: xd562svr01.sh.dto
+        Hostname: XA65FP2SVR03.SH.DTO
         Username: zhao.sam
         Domain: sh.dto
-        Desktop: B-W1064
         Launchdelay: 0
         Autolaunch: OFF
         Persistent: OFF
@@ -527,7 +526,7 @@ createCitrix:
         Remotecolor: True color
     editCitrix:
         Name: editCitrix
-        Hostname: xd562svr01.sh.dto
+        Hostname: XA65SVR03.sh.dto
         Username: zhao.sam
         Domain: sh.dto
         Launchdelay: 5
@@ -538,7 +537,7 @@ createCitrix:
 createStoreFront:
     standardStore:
         Name: standardStore
-        URL: fcxds.sh.dto
+        URL: https://fcxds.sh.dto/citrix/newstore
         SelectStore: False
         StoreName: fcxds.sh.dto
         Launchdelay: 0
@@ -551,6 +550,7 @@ createStoreFront:
         Autolaunch: OFF
         ConnectionTimeout: 60
         DesktopToolbar: OFF
+        DesktopName: None
     editStore:
         Name: editStore
         URL: edittest.sh.dto
@@ -566,6 +566,8 @@ createStoreFront:
         Autolaunch: ON
         ConnectionTimeout: 5
         DesktopToolbar: OFF
+        DesktopName: None
+        AppName: None
     resetstore:
         Name: test_store
         URL: test
@@ -581,6 +583,8 @@ createStoreFront:
         Autolaunch: OFF
         ConnectionTimeout: 5
         DesktopToolbar: OFF
+        DesktopName: None
+        AppName: None
 wifi:
   WPA2P5G:
     NetworkName: R1-Function-5G
