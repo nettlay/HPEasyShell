@@ -518,6 +518,7 @@ createCitrix:
         Name: standard_citrix
         Hostname: XA65FP2SVR03.SH.DTO
         Username: zhao.sam
+        Password: zhaopass
         Domain: sh.dto
         Launchdelay: 0
         Autolaunch: OFF
@@ -528,6 +529,7 @@ createCitrix:
         Name: editCitrix
         Hostname: XA65SVR03.sh.dto
         Username: zhao.sam
+        Password: zhaopass
         Domain: sh.dto
         Launchdelay: 5
         Autolaunch: OFF
@@ -548,6 +550,7 @@ createStoreFront:
         HideDomain: OFF
         CustomLogon: None
         Autolaunch: OFF
+        Persistent: OFF
         ConnectionTimeout: 60
         DesktopToolbar: OFF
         DesktopName: None
@@ -564,6 +567,7 @@ createStoreFront:
         HideDomain: OFF
         CustomLogon: test.icon
         Autolaunch: ON
+        Persistent: OFF
         ConnectionTimeout: 5
         DesktopToolbar: OFF
         DesktopName: None
@@ -581,6 +585,7 @@ createStoreFront:
         HideDomain: OFF
         CustomLogon: None
         Autolaunch: OFF
+        Persistent: OFF
         ConnectionTimeout: 5
         DesktopToolbar: OFF
         DesktopName: None

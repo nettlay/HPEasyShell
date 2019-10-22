@@ -436,21 +436,21 @@ if __name__ == '__main__':
     #     Launchdelay=0,
     #     Persistent='OFF'
     # )
-    # view_profile = dict(
-    #     Name='test_view',
-    #     Password='zhao123',
-    #     Username='zhao.sam',
-    #     Domain='sh.dto',
-    #     Hostname='vnsvr.sh.dto',
-    #     Autolaunch="OFF",
-    #     Launchdelay=0,
-    #     Persistent='OFF',
-    #     Layout='fullscreen',
-    #     ConnUSBStartup='OFF',
-    #     ConnUSBInsertion='OFF',
-    #     DesktopName='Windows7C',
-    #     AppName=None
-    # )
+    view_profile = dict(
+        Name='test_view',
+        Password='zhao123',
+        Username='zhao.sam',
+        Domain='sh.dto',
+        Hostname='vnsvr.sh.dto',
+        Autolaunch="OFF",
+        Launchdelay=0,
+        Persistent='OFF',
+        Layout='fullscreen',
+        ConnUSBStartup='OFF',
+        ConnUSBInsertion='OFF',
+        DesktopName='Windows7C',
+        AppName=None
+    )
     # citrix_profile = dict(
     #     Name='test_citrix',
     #     Password='zhao123',

@@ -1,7 +1,6 @@
 import platform
 import random
 import re
-import requests
 from math import sqrt
 import Library.CommonLib as CommonLib
 import Test_Scripts.EasyShell_Lib as EasyshellLib
@@ -12,7 +11,8 @@ import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont, Image
 import pywifi
 from subprocess import check_output
-from connection import RDPLogon
+from connection import RDPLogon, CitrixLogon, ViewLogon, StoreLogon
+import requests
 
 
 def ClearContent(length=50):
@@ -1898,11 +1898,35 @@ class Shell_StoreFront(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist'):
             self.Logfile('[PASS]:Storefront connection {} Check Exist'.format(profile))
-            return True
+            if self.check_logon(profile):
+                self.Logfile('[PASS]:Storefront connection {} Logon Pass'.format(profile))
+                return True
+            else:
+                self.Logfile('[FAIL]:Storefront connection {} Logon Fail'.format(profile))
+                self.capture('CheckRDP', '[FAIL]:Storefront connection {} Logon Fail'.format(profile))
+                return False
         else:
             self.Logfile('[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
             self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
             return False
+
+    def check_logon(self, profile):
+        test = self.sections[self.section_name][profile]
+        store_profile = dict(
+            Name=test["Name"],
+            Password=test['Password'],
+            Username=test['Username'],
+            Domain=test['Domain'],
+            Hostname=test['SelectStore'],
+            Autolaunch=test['Autolaunch'],
+            Launchdelay=test['Launchdelay'],
+            Persistent=test['Persistent'],
+            CustomLogon=None if test['CustomLogon'] == "None" else test['CustomLogon'],
+            DesktopToolbar=test['DesktopToolbar'],
+            DesktopName=None if test['DesktopName']=="None" else test['DesktopName'],
+            AppName=None if test['AppName']=="None" else test['AppName'],
+        )
+        return StoreLogon().logon(store_profile)
 
 
 class Shell_View(EasyShellTest):
@@ -2102,17 +2126,42 @@ class Shell_View(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:View connection {} Check Exist'.format(profile))
-            return True
+            if self.check_logon(profile):
+                self.Logfile('[PASS]:View connection {} Logon PASS'.format(profile))
+                return True
+            else:
+                self.capture('CheckView', '[FAIL]:View connection {} Logon Fail'.format(profile))
+                self.Logfile('[FAIL]:View connection {} Logon Fail'.format(profile))
+                return False
         else:
             self.capture('CheckView', '[FAIL]:View connection {} Check Not Exist'.format(profile))
             self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
             return False
 
+    def check_logon(self, profile):
+        test = self.sections['createView'][profile]
+        v_profile = dict(
+            Name=test["Name"],
+            Password=test["Password"],
+            Username=test["Username"],
+            Argument=None if test["Autolaunch"] == "None" else test["Autolaunch"],
+            Domain=test["Domain"],
+            Hostname=test["Password"],
+            Autolaunch=test["Autolaunch"],
+            Launchdelay=int(test["Launchdelay"]),
+            Persistent=test["Persistent"],
+            Layout=test["Layout"],
+            ConnUSBStartup=test["ConnUSBStartup"],
+            ConnUSBInsertion=test["ConnUSBInsertion"],
+            DesktopName=None if test["DesktopName"] == "None" else test["DesktopName"],
+            AppName=None if test["AppName"] == "None" else test["AppName"],
+        )
+        return ViewLogon().logon(v_profile)
 
-class Shell_RDP(EasyShellTest, RDPLogon):
+
+class Shell_RDP(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
-        RDPLogon.__init__(self)
         self.section_name = 'createRDP'
 
     @pysnooper.snoop(EasyShellTest().debug)
@@ -2283,23 +2332,32 @@ class Shell_RDP(EasyShellTest, RDPLogon):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:RDP connection {} Check Exist'.format(profile))
-            return True
+            if self.check_logon(profile):
+                self.Logfile('[PASS]:RDP connection {} Logon Pass'.format(profile))
+                return True
+            else:
+                self.Logfile('[FAIL]:RDP connection {} logon Fail'.format(profile))
+                self.capture('RDPCheck', '[FAIL]:RDP connection {} logon Fail'.format(profile))
+                return False
         else:
             self.Logfile('[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             return False
 
-    # def logon(self, profile):
-    #     self.utils(profile, 'launch')
-    #     time.sleep(10)
-    #     if EasyshellLib.getElement('Connect').Exists():
-    #         EasyshellLib.getElement('Connect').Click()
-    #     time.sleep(3)
-    #     if EasyshellLib.getElement('RDPPassword').Exists():
-    #         EasyshellLib.getElement('RDPPassword').SetValue('zhao123')
-    #         EasyshellLib.getElement('ButtonOK').Click()
-    #     time.sleep(3)
-    #     EasyshellLib.getElement('ButtonYES').Click()
+    def check_logon(self,profile):
+        test = self.sections[self.section_name][profile]
+        rdp_profile = dict(
+            Name=test["Name"],
+            Password='Shanghai2010',
+            Username=test['Username'],
+            Hostname=test['Hostname'],
+            Autolaunch=test['Autolaunch'],
+            Launchdelay=test['Launchdelay'],
+            Persistent=test['Persistent'],
+            Arguments=test['Arguments'],
+            Customfile=test['Customfile']
+        )
+        return RDPLogon().logon(rdp_profile)
 
 
 class Shell_Citrix(EasyShellTest):
@@ -2446,12 +2504,33 @@ class Shell_Citrix(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
-            return True
+            if self.check_logon(profile):
+                self.Logfile('[PASS]:CitrixICA connection {} Logon Pass'.format(profile))
+                return True
+            else:
+                self.Logfile('[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
+                self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
+                return False
         else:
             self.Logfile('[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             return False
 
+    def check_logon(self, profile):
+        test = self.sections[self.section_name][profile]
+        citrix_profile = dict(
+            Name=test["Name"],
+            Password='zhao123',
+            Username=test['Username'],
+            Domain=test['Domain'],
+            Hostname=test['Hostname'],
+            Autolaunch=test['Autolaunch'],
+            Launchdelay=test['Launchdelay'],
+            Persistent=test['Persistent'],
+            Remotecolor=test['Remotecolor'],
+            Remotesize=test['Remotesize']
+        )
+        return CitrixLogon().logon(citrix_profile)
 
 class TaskSwitcher(EasyShellTest):
     def __init__(self):
