@@ -31,16 +31,6 @@ def getElementMapping(filepath=ElementlibPath):
     return mappingDict
 
 
-# def getElement(name, parent=CommonLib, **kwargs):
-#     # name is defined name, format: defined name:"Name"/AutomationId:ControlType
-#     elementId = getElementMapping()[name].split(':')[0]
-#     controltype = getElementMapping()[name].split(':')[1].upper()
-#     if elementId.__contains__('"'):
-#         return getElementByType(controltype, parent=parent, Name=elementId.replace('"', ''), **kwargs)
-#     else:
-#         return getElementByType(controltype, parent=parent, AutomationId=elementId, **kwargs)
-
-
 def getElement(name, **kwargs):
     # name is defined name, format: defined name:"Name"/AutomationId:ControlType
     elementId = getElementMapping()[name].split(':')[0]

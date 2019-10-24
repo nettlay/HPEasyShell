@@ -1,10 +1,8 @@
-import shutil
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import Library.CommonLib as CommonLib
 import os
 import time
 import traceback
-import pysnooper
 
 """
 interaction command between local and remote session:
@@ -12,7 +10,8 @@ local file: test_vdi.txt (ex. test_rdp.txt)
 remote file: test_vdi_result.txt (ex. test_rdp_result.txt)
 test logon: send by local, remote get this command should logoff session
 test xxxxx: send by local, remote get this command should test function xxxxx
-test status: send by local, remote get this command should return vdi's test status "test_status_Finished | test_status_testing | None"
+test status: send by local, remote get this command should return vdi's test status 
+"test_status_Finished | test_status_testing | None"
 """
 
 
@@ -146,13 +145,13 @@ class Logon:
                     break
                 else:
                     flag = None
-                    print('Exist loop %d'%i)
+                    print('Exist loop %d' % i)
                     time.sleep(1)
                     continue
         else:
             for i in range(cycles):
                 if element.Exists(0, 0):
-                    print('Not exist loop %d'%i)
+                    print('Not exist loop %d' % i)
                     time.sleep(1)
                     continue
                 else:
@@ -311,7 +310,8 @@ class StoreLogon(Logon):
             return False
         CommonLib.TextControl(Name=profile['DesktopName']).GetParentControl().Click()
         if profile['DesktopName']:
-            wnd = self.wait_element(CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 30)
+            wnd = self.wait_element(
+                CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 30)
             if wnd:
                 print('开始上传test_storefont.txt, 等待15秒')
                 os.system('echo test_logon>{}'.format(self.local_file))
@@ -330,7 +330,9 @@ class StoreLogon(Logon):
                 if status.upper() == 'PASS':
                     print('logon pass')
                     print('检查session窗口{}是否关系(logoff成功)'.format(profile['DesktopName']))
-                    if self.wait_element(CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 180, False):
+                    if self.wait_element(
+                            CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])),
+                            180, False):
                         EasyshellLib.getElement('Disconnect').Click()
                     else:
                         print('Logoff 超时!!')
@@ -345,6 +347,7 @@ class ViewLogon(Logon):
     """
     MenuBar->MenuItem: if seleted, AccessibleCurrentState()=16
     """
+
     def __init__(self):
         Logon.__init__(self)
         self.session_pane = 'VMwareSession'
@@ -375,7 +378,7 @@ class ViewLogon(Logon):
             wait_time = 30000
             current_cycle = 0
             while 1:
-                if current_cycle>wait_time:
+                if current_cycle > wait_time:
                     break
                 """
                 Code here to check app windows show up
@@ -398,7 +401,7 @@ class ViewLogon(Logon):
                 time.sleep(15)
                 print('开始点击license对话框')
                 x, y = self.get_resolution()
-                CommonLib.Click(int(x/2), int(y/3))
+                CommonLib.Click(int(x / 2), int(y / 3))
                 CommonLib.SendKey(CommonLib.Keys.VK_ESCAPE)
                 # ------------------------------------------------------------
                 print('开始等待vdi的结果返回,300s')
@@ -423,7 +426,6 @@ class ViewLogon(Logon):
             print('do not need to launch session or app')
             return
         # wait 10 min for app or session launched
-
 
 
 if __name__ == '__main__':

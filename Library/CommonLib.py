@@ -640,7 +640,6 @@ class FTPUtils:
         self.ftp.close()
 
 
-
 class Control(uiautomation.Control):
     def __init__(self, element, searchFromControl, searchDepth, searchWaitTime,
                  foundIndex, **searchPorpertyDict):

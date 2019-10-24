@@ -31,14 +31,14 @@ class TestService(win32serviceutil.ServiceFramework):
                 pass
             else:
                 os.mkdir("C:\\svc")
-            curPth=os.getcwd()
-            configPath = os.path.join(curPth,'svcconfig.ini')
+            curPth = os.getcwd()
+            configPath = os.path.join(curPth, 'svcconfig.ini')
             shutil.copy(configPath, "c:\\svc\\svcconfig.ini")
         with open("c:\\svc\\svcconfig.ini") as f:
             rs = f.readlines()
             for line in rs:
-                if line.split(':',1)[0].strip().upper() == 'FILEPATH':
-                    self.filePath = line.split(':',1)[1].strip()
+                if line.split(':', 1)[0].strip().upper() == 'FILEPATH':
+                    self.filePath = line.split(':', 1)[1].strip()
         print(self.filePath)
 
     def SvcStop(self):

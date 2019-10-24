@@ -1,5 +1,5 @@
 import uiautomation
-import ruamel.yaml as yaml
+# import ruamel.yaml as yaml
 import time
 
 time.sleep(5)

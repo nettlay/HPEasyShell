@@ -1790,8 +1790,8 @@ class Shell_StoreFront(EasyShellTest):
             new = self.sections[self.section_name][newprofile]
             newName = new["Name"]
             newURL = new['URL']
-            newSelectStore = new['SelectStore']
-            newStoreName = new['StoreName']
+            # newSelectStore = new['SelectStore']
+            # newStoreName = new['StoreName']
             newLaunchdelay = new['Launchdelay']
             newLogonMethod = new['LogonMethod']
             newUsername = new['Username']
@@ -1805,17 +1805,17 @@ class Shell_StoreFront(EasyShellTest):
             old = self.sections[self.section_name][oldprofile]
             oldName = old["Name"]
             oldURL = old['URL']
-            oldSelectStore = old['SelectStore']
-            oldStoreName = old['StoreName']
-            oldLaunchdelay = old['Launchdelay']
-            oldLogonMethod = old['LogonMethod']
+            # oldSelectStore = old['SelectStore']
+            # oldStoreName = old['StoreName']
+            # oldLaunchdelay = old['Launchdelay']
+            # oldLogonMethod = old['LogonMethod']
             oldUsername = old['Username']
             oldPassword = old['Password']
             oldDomain = old['Domain']
             oldHideDomain = old['HideDomain']
             oldCustomLogon = old['CustomLogon']
             oldAutolaunch = old['Autolaunch']
-            oldConnectionTimeout = old['ConnectionTimeout']
+            # oldConnectionTimeout = old['ConnectionTimeout']
             oldDesktopToolbar = old['DesktopToolbar']
             self.launch()
             EasyshellLib.getElement('Settings').Click()
@@ -1923,8 +1923,8 @@ class Shell_StoreFront(EasyShellTest):
             Persistent=test['Persistent'],
             CustomLogon=None if test['CustomLogon'] == "None" else test['CustomLogon'],
             DesktopToolbar=test['DesktopToolbar'],
-            DesktopName=None if test['DesktopName']=="None" else test['DesktopName'],
-            AppName=None if test['AppName']=="None" else test['AppName'],
+            DesktopName=None if test['DesktopName'] == "None" else test['DesktopName'],
+            AppName=None if test['AppName'] == "None" else test['AppName'],
         )
         return StoreLogon().logon(store_profile)
 
@@ -2344,7 +2344,7 @@ class Shell_RDP(EasyShellTest):
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             return False
 
-    def check_logon(self,profile):
+    def check_logon(self, profile):
         test = self.sections[self.section_name][profile]
         rdp_profile = dict(
             Name=test["Name"],
@@ -2531,6 +2531,7 @@ class Shell_Citrix(EasyShellTest):
             Remotesize=test['Remotesize']
         )
         return CitrixLogon().logon(citrix_profile)
+
 
 class TaskSwitcher(EasyShellTest):
     def __init__(self):
