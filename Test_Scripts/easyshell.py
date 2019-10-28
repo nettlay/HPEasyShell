@@ -2,7 +2,6 @@ import platform
 import random
 import re
 from math import sqrt
-import Library.CommonLib as CommonLib
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import os
 import time
@@ -13,7 +12,7 @@ import pywifi
 from subprocess import check_output
 from connection import RDPLogon, CitrixLogon, ViewLogon, StoreLogon
 import requests
-
+from Library import CommonLib
 
 def ClearContent(length=50):
     for temp in range(length):
@@ -1898,7 +1897,7 @@ class Shell_StoreFront(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist'):
             self.Logfile('[PASS]:Storefront connection {} Check Exist'.format(profile))
-            if self.check_logon(profile):
+            if self.__check_logon(profile):
                 self.Logfile('[PASS]:Storefront connection {} Logon Pass'.format(profile))
                 return True
             else:
@@ -1910,7 +1909,7 @@ class Shell_StoreFront(EasyShellTest):
             self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
             return False
 
-    def check_logon(self, profile):
+    def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
         store_profile = dict(
             Name=test["Name"],
@@ -1973,12 +1972,12 @@ class Shell_View(EasyShellTest):
             else:
                 CommonLib.SendKeys(Argument)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if Autolaunch == 'OFF' or not Autolaunch:
+            if Autolaunch == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if Persistent == 'OFF' or not Persistent:
+            if Persistent == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -2004,7 +2003,8 @@ class Shell_View(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKeys(Domain)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            CommonLib.SendKeys(DesktopName)
+            if DesktopName != 'None':
+                CommonLib.SendKeys(DesktopName)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
@@ -2126,7 +2126,7 @@ class Shell_View(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:View connection {} Check Exist'.format(profile))
-            if self.check_logon(profile):
+            if self.__check_logon(profile):
                 self.Logfile('[PASS]:View connection {} Logon PASS'.format(profile))
                 return True
             else:
@@ -2138,7 +2138,7 @@ class Shell_View(EasyShellTest):
             self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
             return False
 
-    def check_logon(self, profile):
+    def __check_logon(self, profile):
         test = self.sections['createView'][profile]
         v_profile = dict(
             Name=test["Name"],
@@ -2153,7 +2153,7 @@ class Shell_View(EasyShellTest):
             Layout=test["Layout"],
             ConnUSBStartup=test["ConnUSBStartup"],
             ConnUSBInsertion=test["ConnUSBInsertion"],
-            DesktopName=None if test["DesktopName"] == "None" else test["DesktopName"],
+            DesktopName=None if test["SelDesktopName"] == "None" else test["SelDesktopName"],
             AppName=None if test["AppName"] == "None" else test["AppName"],
         )
         return ViewLogon().logon(v_profile)
@@ -2196,22 +2196,22 @@ class Shell_RDP(EasyShellTest):
             ClearContent(4)
             CommonLib.SendKeys(launchdelay)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if not arguments == 'None' or arguments is not None:
+            if arguments != 'None':
                 CommonLib.SendKeys(arguments)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if autolaunch == 'OFF' or not autolaunch:
+            if autolaunch == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if persistent == 'OFF' or not persistent:
+            if persistent == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if customfile == 'OFF' or not customfile:
+            if customfile == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             else:
@@ -2332,7 +2332,7 @@ class Shell_RDP(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:RDP connection {} Check Exist'.format(profile))
-            if self.check_logon(profile):
+            if self.__check_logon(profile):
                 self.Logfile('[PASS]:RDP connection {} Logon Pass'.format(profile))
                 return True
             else:
@@ -2344,11 +2344,11 @@ class Shell_RDP(EasyShellTest):
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             return False
 
-    def check_logon(self, profile):
+    def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
         rdp_profile = dict(
             Name=test["Name"],
-            Password='Shanghai2010',
+            Password=test['Password'],
             Username=test['Username'],
             Hostname=test['Hostname'],
             Autolaunch=test['Autolaunch'],
@@ -2403,12 +2403,12 @@ class Shell_Citrix(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_DELETE)
             CommonLib.SendKeys(launchdelay)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if autolaunch == 'OFF' or not autolaunch:
+            if autolaunch == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
-            if persistent == 'OFF' or not persistent:
+            if persistent == 'OFF':
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -2504,7 +2504,7 @@ class Shell_Citrix(EasyShellTest):
         EasyshellLib.getElement('UserTitles').Click()
         if self.utils(profile, 'exist', 'connection'):
             self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
-            if self.check_logon(profile):
+            if self.__check_logon(profile):
                 self.Logfile('[PASS]:CitrixICA connection {} Logon Pass'.format(profile))
                 return True
             else:
@@ -2516,7 +2516,7 @@ class Shell_Citrix(EasyShellTest):
             self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             return False
 
-    def check_logon(self, profile):
+    def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
         citrix_profile = dict(
             Name=test["Name"],
@@ -2775,7 +2775,7 @@ class General_Test(EasyShellTest):
         if not os.path.exists(r'c:\temp'):
             os.mkdir(r'c:\temp')
         EasyshellLib.getElement('SaveToFile').SetValue(r'c:\temp\easyshellsettings.reg')
-        EasyshellLib.getElement('ButtonSave').Click()
+        CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
         time.sleep(1)
         if EasyshellLib.getElement('OVERRIDE').Exists():
             EasyshellLib.getElement('ButtonYES').Click()
@@ -2981,7 +2981,7 @@ class General_Test(EasyShellTest):
         isExist_UI = bool(EasyshellLib.getElement('HotkeyFilter').GetParentControl().IsEnabled)
         if isExist_file is isExist_UI:
             if isExist_file:
-                EasyshellLib.getElement('LogonManager').GetParentControl().Click()
+                EasyshellLib.getElement('HotkeyFilter').GetParentControl().Click()
                 if CommonLib.WindowControl(Name='HP Hotkey Filter').Exists():
                     CommonLib.WindowControl(Name='HP Hotkey Filter').Close()
                     self.Logfile('[PASS]: Hotkey Filter can be launched')
@@ -3154,7 +3154,8 @@ class Background(EasyShellTest):
             EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
         EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_name))
         # above rdpbrowserfile has the same automationid with this edit selection
-        EasyshellLib.getElement('RDPBrowserOpen').Click()
+        CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+        time.sleep(2)
         EasyshellLib.getElement('APPLY').Click()
         EasyshellLib.getElement('Exit').Click()
         return True
@@ -3468,6 +3469,6 @@ if __name__ == '__main__':
     # Background().check_bg_pic('customBG1')
     # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
     # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
-    EasyShellTest().resetEasyshell()
-    Wifi().check_modify_wifi('WPA2P5G', launchBy='settings')
-    pass
+    # Shell_View().create('standardView')
+    Shell_View().check('standardView')
+

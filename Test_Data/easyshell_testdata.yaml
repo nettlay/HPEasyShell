@@ -454,9 +454,9 @@ userSettings:
 createRDP:
     standardRDP:
         Name: standard_RFXWin10
-        Hostname: rfxw10-1.sh.dto
-        Username: zhao.sam
-        Password: zhao123
+        Hostname: rfxw10-2.sh.dto
+        Username: sh\cheng.balance
+        Password: password.321
         Launchdelay: 0
         Arguments: None
         Autolaunch: OFF
@@ -497,6 +497,7 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
+        SelDesktopName: B-W764
         AppName: None
     editView:
         Name: editView
@@ -512,6 +513,7 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
+        SelDesktopName: B-W764
         AppName: None
 createCitrix:
     standardCitrix:
@@ -544,8 +546,8 @@ createStoreFront:
         StoreName: fcxds.sh.dto
         Launchdelay: 0
         LogonMethod: Username and password
-        Username: test
-        Password: passwd
+        Username: cheng.balance
+        Password: password.321
         Domain: sh.dto
         HideDomain: OFF
         CustomLogon: None
@@ -553,7 +555,8 @@ createStoreFront:
         Persistent: OFF
         ConnectionTimeout: 60
         DesktopToolbar: OFF
-        DesktopName: None
+        DesktopName: Win10
+        AppName: None
     editStore:
         Name: editStore
         URL: edittest.sh.dto

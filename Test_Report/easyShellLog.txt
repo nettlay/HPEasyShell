@@ -1,2 +1,0 @@
-
-[Wed Sep 25 15:21:45 2019]:[PASS]: customBG1 color title check PASS

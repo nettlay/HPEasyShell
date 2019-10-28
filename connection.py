@@ -136,7 +136,7 @@ class Logon:
             return flag
 
     @staticmethod
-    def wait_element(element, cycles=3, exists=True):
+    def wait_element(element, cycles=5, exists=True):
         flag = None
         if exists:
             for i in range(cycles):
@@ -191,7 +191,6 @@ class Logon:
         ftp.upload_file(self.remote_file, self.remote_file)
         os.remove(self.remote_file)
         ftp.close()
-        print('begin to logoff after 3 senconds')
         os.system('shutdown -l')
 
 
@@ -211,6 +210,7 @@ class RDPLogon(Logon):
             self.utils(profile, 'launch', 'conn')
             # check connection not launch directly when launchdelay 30
         time.sleep(profile['Launchdelay'])
+        time.sleep(2)
         if self.wait_element(
                 EasyshellLib.getElement('Connect', searchFromControl=EasyshellLib.getElement('RDP_WARNNING'))):
             EasyshellLib.getElement('Connect',
@@ -219,23 +219,30 @@ class RDPLogon(Logon):
             print('-----------Manual Launch fail, connection not launch------------------------')
             return False
         # loop 3 times to wait for warning dialog pops up
-        time.sleep(1)
+        time.sleep(2)
+        print('等待密码输入框, 密码: ' + profile['Password'])
         if self.wait_element(EasyshellLib.getElement('RDPPassword')):
             EasyshellLib.getElement('RDPPassword').SetValue(profile['Password'])
             EasyshellLib.getElement('ButtonOK').Click()
         # loop 3 times wait for certificate dialog pops up
-        time.sleep(1)
+        time.sleep(2)
+        print('等待证书提示框')
         if self.wait_element(EasyshellLib.getElement('ViewCertificate')):
             EasyshellLib.getElement('ButtonYES').Click()
         # loop 60 cycles to wait for RDP session
-        time.sleep(1)
+        time.sleep(2)
+        print('等待session窗口')
         if self.wait_element(EasyshellLib.getElement('RDPSessionWindow'), 60):
+            print('session窗口出现, 上传测试item')
             # send test logon to remote session
             os.system('echo test_logon>{}'.format(self.local_file))
             ftp = CommonLib.FTPUtils(self.ftp_token['ip'], self.ftp_token['username'], self.ftp_token['password'])
             ftp.change_dir(self.log_path)
             ftp.upload_file(self.local_file, self.local_file)
-            status = self.get_test_status(ftp, 300)
+            if self.remote_file in ftp.get_item_list('.'):
+                ftp.delete_file(self.remote_file)
+            print('等待vdi返回结果 300秒')
+            status = self.get_test_status(ftp, 600)
             ftp.close()
             if not status:
                 print('获取vdi返回结果超时(300秒)')
@@ -301,17 +308,17 @@ class StoreLogon(Logon):
         if not self.check_cert('rootca'):
             self.install_ca('.\\test_data\\rootca.cer')
         print('判断autolaunch是否off, 如果为off, 手动启动connection')
-        if profile['Autolaunch'] == 'OFF' or not profile['Autolaunch']:
+        if profile['Autolaunch'] == 'OFF':
             self.utils(profile, 'launch', 'conn')
         time.sleep(profile['Launchdelay'])
         time.sleep(5)
-        if EasyshellLib.getElement('StorePool').IsOffScreen:
+        if not EasyshellLib.getElement('StorePool').Exists():
             print('Storefront桌面池没有启动, 测试FAIL!')
             return False
-        CommonLib.TextControl(Name=profile['DesktopName']).GetParentControl().Click()
         if profile['DesktopName']:
+            CommonLib.TextControl(Name=profile['DesktopName']).GetParentControl().Click()
             wnd = self.wait_element(
-                CommonLib.WindowControl(RegexName='{} - Desktop Viewer'.format(profile['DesktopName'])), 30)
+                CommonLib.WindowControl(RegexName='{} - .*'.format(profile['DesktopName'])), 30)
             if wnd:
                 print('开始上传test_storefont.txt, 等待15秒')
                 os.system('echo test_logon>{}'.format(self.local_file))
@@ -340,7 +347,12 @@ class StoreLogon(Logon):
                     print('测试Fail, 收到VDI的结果没有PASS')
                 print('所有Storefont测试结束')
         elif profile['AppName']:
-            pass
+            return True
+        else:
+            print('No app or desktop need to be launch, logon exit')
+            if EasyshellLib.getElement('Disconnect').Exists():
+                EasyshellLib.getElement('Disconnect').Click()
+            return True
 
 
 class ViewLogon(Logon):
@@ -360,7 +372,7 @@ class ViewLogon(Logon):
         if not self.check_cert('rootca'):
             self.install_ca('.\\test_data\\rootca.cer')
         print('判断autolaunch是否off, 如果为off, 手动启动connection')
-        if profile['Autolaunch'] == 'OFF' or not profile['Autolaunch']:
+        if profile['Autolaunch'] == 'OFF':
             self.utils(profile, 'launch', 'conn')
         time.sleep(profile['Launchdelay'])
         print('检查桌面池...')
@@ -464,20 +476,20 @@ if __name__ == '__main__':
     #     Persistent='OFF',
     #     Remotesize='fullscreen',
     # )
-    storefont_profile = dict(
-        Name='test_storefont',
-        Password='zhao123',
-        Username='zhao.sam',
-        Domain='sh.dto',
-        Hostname='fcxds.sh.dto',
-        Autolaunch="OFF",
-        Launchdelay=0,
-        Persistent='OFF',
-        CustomLogon=None,
-        DesktopToolbar="OFF",
-        DesktopName='Win10',
-        AppName=None
-    )
+    # storefont_profile = dict(
+    #     Name='test_storefont',
+    #     Password='zhao123',
+    #     Username='zhao.sam',
+    #     Domain='sh.dto',
+    #     Hostname='fcxds.sh.dto',
+    #     Autolaunch="OFF",
+    #     Launchdelay=0,
+    #     Persistent='OFF',
+    #     CustomLogon=None,
+    #     DesktopToolbar="OFF",
+    #     DesktopName='Win10',
+    #     AppName=None
+    # )
     # CitrixLogon().logon(citrix_profile)
-    # StoreLogon().logoff()
-    StoreLogon().logon(storefont_profile)
+    RDPLogon().logoff()
+    # StoreLogon().logon(storefont_profile)
