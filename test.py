@@ -1,5 +1,5 @@
 import time
-
+from win32com.client import DispatchEx
 from Test_Scripts import easyshell
 import os
 
@@ -12,4 +12,5 @@ def logoff():
     ftp.close()
     os.system('shutdown -l')
 
-easyshell.CommonLib.ButtonControl(Name="Open").Click()
+
+DispatchEx('Quicktest.Application', '15.83.248.204')
