@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Font, colors
 
 error_font = Font(color=colors.RED)
+pass_font = Font(color=colors.GREEN)
 
 
 def general_report(format='yaml'):
@@ -92,6 +93,8 @@ class Test:
             if "_MEI" in folder:
                 os.system('rd /s /q c:\\{}'.format(folder))
         # ------------------------------------
+        if not os.path.exists(self.testing):
+            os.mkdir(self.testing)
         wb = load_workbook(self.testset)
         sheets = wb.sheetnames  # 获得表单名字
         ws = wb[sheets[0]]
@@ -113,6 +116,7 @@ class Test:
                 self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)))
             if self.result:
                 ws.cell(row=i, column=2).value = "PASS"
+                ws.cell(row=i, column=2).font = pass_font
                 wb.save(self.testset)
             else:
                 ws.cell(row=i, column=2).value = "FAIL"
@@ -158,6 +162,14 @@ class Test:
             if result == 'FAIL':
                 self.result = False
                 continue
+            if checkPoint.upper() == "DEFINE":
+                if ";" in command:
+                    command_list = command.split(";")
+                    for i in command_list:
+                        exec(i)
+                else:
+                    exec(command)
+                continue
             if checkPoint.upper() == "Y":
                 print(command)
                 rs = eval(command)
@@ -165,6 +177,7 @@ class Test:
                 if value is None:
                     if rs:
                         ws.cell(row=i, column=4).value = "PASS"
+                        ws.cell(row=i, column=4).font = pass_font
                         wb.save(name)
                         EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
                     else:
@@ -178,6 +191,7 @@ class Test:
                         value = str(value).upper().replace('$NOT', '').strip()
                         if str(rs).upper() != value:
                             ws.cell(row=i, column=4).value = "PASS"
+                            ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
                         else:
@@ -195,6 +209,7 @@ class Test:
                         v2 = int(v2.strip())
                         if v1 < rs < v2:
                             ws.cell(row=i, column=4).value = "PASS"
+                            ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
                         else:
@@ -207,6 +222,7 @@ class Test:
                     else:
                         if str(rs).upper() == str(value).upper():
                             ws.cell(row=i, column=4).value = "PASS"
+                            ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
                         else:

@@ -1909,6 +1909,18 @@ class Shell_StoreFront(EasyShellTest):
             self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
             return False
 
+    def check_connection(self, profile):
+        if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
+        if self.utils(profile, 'exist'):
+            self.Logfile('[PASS]:Storefront connection {} Check Exist'.format(profile))
+            return True
+        else:
+            self.Logfile('[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
+            self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
+            return False
+
     def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
         store_profile = dict(
@@ -2138,6 +2150,18 @@ class Shell_View(EasyShellTest):
             self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
             return False
 
+    def check_connection(self, profile):
+        if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
+        if self.utils(profile, 'exist', 'connection'):
+            self.Logfile('[PASS]:View connection {} Check Exist'.format(profile))
+            return True
+        else:
+            self.capture('CheckView', '[FAIL]:View connection {} Check Not Exist'.format(profile))
+            self.Logfile('[FAIL]:View connection {} Check Not Exist'.format(profile))
+            return False
+
     def __check_logon(self, profile):
         test = self.sections['createView'][profile]
         v_profile = dict(
@@ -2311,10 +2335,11 @@ class Shell_RDP(EasyShellTest):
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
+                    time.sleep(1)
                     if EasyshellLib.getElement("RDP_ERROR").Exists():
                         EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
                     EasyshellLib.getElement('RDPBrowserFile').SetValue(newcustomfile)
-                    EasyshellLib.getElement('RDPBrowserOpen').Click()
+                    CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
@@ -2339,6 +2364,18 @@ class Shell_RDP(EasyShellTest):
                 self.Logfile('[FAIL]:RDP connection {} logon Fail'.format(profile))
                 self.capture('RDPCheck', '[FAIL]:RDP connection {} logon Fail'.format(profile))
                 return False
+        else:
+            self.Logfile('[FAIL]:RDP connection {} Check Not Exist'.format(profile))
+            self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
+            return False
+
+    def check_connection(self, profile):
+        if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
+        if self.utils(profile, 'exist', 'connection'):
+            self.Logfile('[PASS]:RDP connection {} Check Exist'.format(profile))
+            return True
         else:
             self.Logfile('[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
@@ -2511,6 +2548,18 @@ class Shell_Citrix(EasyShellTest):
                 self.Logfile('[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
                 self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
                 return False
+        else:
+            self.Logfile('[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
+            self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
+            return False
+
+    def check_connection(self, profile):
+        if EasyshellLib.getElement('MAIN_WINDOW').Exists():
+            EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
+        EasyshellLib.getElement('UserTitles').Click()
+        if self.utils(profile, 'exist', 'connection'):
+            self.Logfile('[PASS]:CitrixICA connection {} Check Exist'.format(profile))
+            return True
         else:
             self.Logfile('[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
@@ -3470,5 +3519,7 @@ if __name__ == '__main__':
     # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
     # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
     # Shell_View().create('standardView')
-    Shell_View().check('standardView')
+    rdp = Shell_Citrix()
+    # rdp.create('standardRDP')
+    rdp.check_connection('standardCitrix')
 

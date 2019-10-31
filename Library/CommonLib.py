@@ -439,7 +439,7 @@ class Reg_Utils:
 
 
 class User_Group:
-    def __init__(self, user='test', password='test'):
+    def __init__(self, user='test', password='test', group=''):
         self.user = user
         self.passwd = password
         self.user_info = dict(

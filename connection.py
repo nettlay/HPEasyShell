@@ -252,6 +252,7 @@ class RDPLogon(Logon):
                 print('logon pass')
             else:
                 print('测试Fail, 收到VDI的结果没有PASS')
+                return False
             time.sleep(10)
             # check if connection will reconnected with persistent
             if profile['Persistent'] == 'ON':
@@ -265,7 +266,7 @@ class RDPLogon(Logon):
             else:
                 time.sleep(profile['Launchdelay'])
                 if self.wait_element(
-                        EasyshellLib.getElement('Connect', searchFromControl=EasyshellLib.getElement('RDP_WARNNING'))):
+                        EasyshellLib.getElement('Connect', searchFromControl=EasyshellLib.getElement('RDP_WARNNING')), cycles=3):
                     print('-------------perisitent OFF Fail ------------------')
                 else:
                     print('-------------perisitent OFF PASS ------------------')
@@ -441,15 +442,15 @@ class ViewLogon(Logon):
 
 
 if __name__ == '__main__':
-    # rdp_profile = dict(
-    #     Name='test_rdp',
-    #     Password='Shanghai2010',
-    #     Username='Administrator',
-    #     Hostname='15.83.248.204',
-    #     Autolaunch="OFF",
-    #     Launchdelay=0,
-    #     Persistent='OFF'
-    # )
+    rdp_profile = dict(
+        Name='test_rdp',
+        Password='Shanghai2010',
+        Username='Administrator',
+        Hostname='15.83.248.204',
+        Autolaunch="OFF",
+        Launchdelay=0,
+        Persistent='OFF'
+    )
     view_profile = dict(
         Name='test_view',
         Password='zhao123',
@@ -491,5 +492,5 @@ if __name__ == '__main__':
     #     AppName=None
     # )
     # CitrixLogon().logon(citrix_profile)
-    RDPLogon().logoff()
+    RDPLogon().logon(rdp_profile)
     # StoreLogon().logon(storefont_profile)
