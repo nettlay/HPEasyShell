@@ -439,7 +439,7 @@ class Reg_Utils:
 
 
 class User_Group:
-    def __init__(self, user='test', password='test', group=''):
+    def __init__(self, user='test', password='test'):
         self.user = user
         self.passwd = password
         self.user_info = dict(
@@ -465,6 +465,7 @@ class User_Group:
         try:
             win32net.NetUserAdd(None, 1, self.user_info)
         except:
+            print('Add new user [{}] fail'.format(self.user_info['name']))
             pass
 
     def change_passwd(self, new_passwd):

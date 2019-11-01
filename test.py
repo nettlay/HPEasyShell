@@ -1,7 +1,7 @@
-# import time
-# from win32com.client import DispatchEx
-# from Test_Scripts import easyshell
-# import os
+import time
+from win32com.client import DispatchEx
+from Test_Scripts import easyshell
+import os
 
 
 # def logoff():
@@ -12,3 +12,6 @@
 #     ftp.close()
 #     os.system('shutdown -l')
 
+import uiautomation
+
+print(uiautomation.TextControl(AutomationId='LabelTime', searchFromControl=uiautomation.WindowControl(Name="HP Easy Shell")).IsOffScreen)

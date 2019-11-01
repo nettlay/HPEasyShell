@@ -31,12 +31,15 @@ def getElementMapping(filepath=ElementlibPath):
     return mappingDict
 
 
-def getElement(name, **kwargs):
+def getElement(name, regex=True, **kwargs):
     # name is defined name, format: defined name:"Name"/AutomationId:ControlType
     elementId = getElementMapping()[name].split(':')[0]
     controltype = getElementMapping()[name].split(':')[1].upper()
     if elementId.startswith('"') and elementId.endswith('"'):
-        return getElementByType(controltype, RegexName=elementId.replace('"', ''), **kwargs)
+        if regex:
+            return getElementByType(controltype, RegexName=elementId.replace('"', ''), **kwargs)
+        else:
+            return getElementByType(controltype, Name=elementId.replace('"', ''), **kwargs)
     else:
         return getElementByType(controltype, AutomationId=elementId, **kwargs)
 

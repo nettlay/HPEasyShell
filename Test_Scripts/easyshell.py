@@ -480,16 +480,18 @@ class UserInterfacSettings(EasyShellTest):
                             self.capture(profile, "[Fail]: {} is not shown".format(name))
                     # ---Label that display mac/time/version... at the bottom of UI -----
                     if name == 'DisplayTime':
-                        if not EasyshellLib.getElement('Time').IsOffScreen:
+                        if not EasyshellLib.getElement('Time', regex=False, searchFromControl=EasyshellLib.getElement("MAIN_WINDOW")).IsOffScreen:
                             self.Logfile("[PASS]: {} is shown".format(name))
                             real_time = EasyshellLib.CommonUtils.getLocalTime('%H:%M')
                             show_time = EasyshellLib.getElement('Time').Name
                             if real_time.split(':')[0] in show_time or str(
                                     int(real_time.split(':')[0]) + 12) in show_time:
                                 self.Logfile("-->[PASS]: {} real time format".format(name))
+                                return True
                             else:
                                 self.Logfile("-->[Fail]: {} real time format".format(name))
                                 self.capture(profile, "-->[Fail]: {} real time format".format(name))
+                                return False
                         else:
                             flag = False
                             self.Logfile("[Fail]: {} is not shown".format(name))
@@ -674,7 +676,7 @@ class UserInterfacSettings(EasyShellTest):
                     # ---Label that display mac/time/version... at the bottom of UI -----
                     if name == 'DisplayTime':
                         MainWnd = EasyshellLib.getElement("MAIN_WINDOW")
-                        if EasyshellLib.getElement('Time', parent=MainWnd).IsOffScreen:
+                        if EasyshellLib.getElement('Time', searchFromControl=MainWnd, regex=False).BoundingRectangle[3]==0:
                             self.Logfile("[PASS]: {} is not shown".format(name))
                         else:
                             flag = False
@@ -2637,6 +2639,47 @@ class TaskSwitcher(EasyShellTest):
             self.capture('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
             return False
 
+    def enableDisplayTime(self):
+        try:
+            self.enable()
+            EasyshellLib.getElement('DisplaySwitcherTime').Enable()
+            EasyshellLib.getElement('APPLY').Click()
+            return True
+        except:
+            self.Logfile("[Fail]: enable display Switcher Time")
+            self.capture("[Fail]: enable display Switcher Time")
+            return False
+
+    def disableDisplayTime(self):
+        try:
+            self.enable()
+            EasyshellLib.getElement('DisplaySwitcherTime').Disable()
+            EasyshellLib.getElement('APPLY').Click()
+            return True
+        except:
+            self.Logfile("[Fail]: enable display Switcher Time")
+            self.capture("[Fail]: enable display Switcher Time")
+            return False
+
+    def checkDisplayTime(self, exist=True):
+        switchBar = EasyshellLib.getElement('TASK_SWITCHER')
+        if exist:
+            if EasyshellLib.getElement('Time', searchFromControl=switchBar).Exists():
+                self.Logfile("[PASS]: Task SwitcherBar Time is shown")
+                return True
+            else:
+                self.Logfile("[Fail]: Task SwitcherBar Time is not shown, Expect shown")
+                self.capture("[Fail]: Task switcherBar Time is not Shown, Expect shown")
+                return False
+        else:
+            if EasyshellLib.getElement('Time', searchFromControl=switchBar).Exists():
+                self.Logfile("[PASS]: Task SwitcherBar Time is not shown")
+                return True
+            else:
+                self.Logfile("[Fail]: Task SwitcherBar Time is shown, Expect not shown")
+                self.capture("[Fail]: Task switcherBar Time is Shown, Expect not shown")
+                return False
+
     def checkPermanent(self):
         if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
             self.Logfile("[Fail]: Task SwitcherBar is not shown")
@@ -2800,13 +2843,13 @@ class General_Test(EasyShellTest):
 
     @staticmethod
     def create_user(user='standard_user', password='test'):
-        user = CommonLib.User_Group(user, password, 'Users')
+        user = CommonLib.User_Group(user, password)
         user.add_user()
-        user.add_user_to_group()
+        user.add_user_to_group('Users')
 
     @staticmethod
     def create_admin(user='standard_admin', passwd='test'):
-        user = CommonLib.User_Group(user, passwd, 'Administrators')
+        user = CommonLib.User_Group(user, passwd)
         user.add_user()
         user.add_user_to_group()
 
@@ -2819,10 +2862,12 @@ class General_Test(EasyShellTest):
             reg.close(key)
 
     def reg_export(self):
-        self.launch()
-        EasyshellLib.getElement('Export').Click()
         if not os.path.exists(r'c:\temp'):
             os.mkdir(r'c:\temp')
+        self.launch()
+        EasyshellLib.getElement('Export').Click(waitTime=1)
+        if EasyshellLib.getElement("RDP_ERROR").Exists():
+            EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
         EasyshellLib.getElement('SaveToFile').SetValue(r'c:\temp\easyshellsettings.reg')
         CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
         time.sleep(1)
@@ -3519,7 +3564,7 @@ if __name__ == '__main__':
     # EasyshellLib.CommonUtils.import_cert('rootCA.cer')
     # os.system('c:\windows\sysnative\certutil -addstore root rootCA.cer')
     # Shell_View().create('standardView')
-    rdp = Shell_Citrix()
-    # rdp.create('standardRDP')
-    rdp.check_connection('standardCitrix')
-
+    # UserInterfacSettings().edit('test_x1')
+    # UserSettings().edit('test_off')
+    General_Test().create_admin()
+    General_Test().create_user()
