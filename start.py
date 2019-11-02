@@ -127,9 +127,10 @@ class Test:
                     if self.case_result[index]['case_name'] == testName:
                         current_case_rs = self.case_result[index]
                 if not current_case_rs:
-                    self.case_result.extend([{'case_name': testName, 'result': "", 'steps': [], 'uut_name': self.current_ip}])
+                    self.case_result.extend(
+                        [{'case_name': testName, 'result': "", 'steps': [], 'uut_name': self.current_ip}])
                     self.rs_yml.write(self.case_result)
-                    current_case_rs=self.case_result[-1]
+                    current_case_rs = self.case_result[-1]
                 # -------------------------------------------------------------------------------
                 print('Begin run test case: {}'.format(testName))
                 self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)), current_case_rs)
@@ -166,7 +167,6 @@ class Test:
         # os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
 
     def runTestcase(self, name, current_case_rs):
-
         wb = load_workbook(name)
         sheets = wb.sheetnames  # 获得表单名字
         ws = wb[sheets[0]]
@@ -204,7 +204,9 @@ class Test:
                         ws.cell(row=i, column=4).font = pass_font
                         wb.save(name)
                         EasyShellTest().Logfile("[Pass]:{} check".format(command))
-                        current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                        current_case_rs['steps'].append(
+                            {"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs,
+                             'note': step_info})
                         self.rs_yml.write(self.case_result)
                     else:
                         self.single_case_result = False
@@ -212,7 +214,9 @@ class Test:
                         ws.cell(row=i, column=4).font = error_font
                         wb.save(name)
                         EasyShellTest().Logfile("[Fail]:{} check, Expect:{},Actual:{}".format(command, "True", rs))
-                        current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                        current_case_rs['steps'].append(
+                            {"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs,
+                             'note': step_info})
                         self.rs_yml.write(self.case_result)
                 else:
                     if '$NOT' in str(value).upper():
@@ -222,7 +226,9 @@ class Test:
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("[Pass]:{} check".format(command))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
                         else:
                             self.single_case_result = False
@@ -231,7 +237,9 @@ class Test:
                             wb.save(name)
                             EasyShellTest().Logfile(
                                 "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
                     elif '$BETWEEN' in str(value).upper():
                         value = str(value).upper().replace('$BETWEEN', '').strip()
@@ -244,7 +252,9 @@ class Test:
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("[Pass]:{} check".format(command))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
                         else:
                             self.single_case_result = False
@@ -253,7 +263,9 @@ class Test:
                             wb.save(name)
                             EasyShellTest().Logfile(
                                 "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
                     else:
                         if str(rs).upper() == str(value).upper():
@@ -261,7 +273,9 @@ class Test:
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
                             EasyShellTest().Logfile("[Pass]:{} check".format(command))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
                         else:
                             self.single_case_result = False
@@ -270,7 +284,9 @@ class Test:
                             wb.save(name)
                             EasyShellTest().Logfile(
                                 "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
-                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            current_case_rs['steps'].append(
+                                {"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs,
+                                 'note': step_info})
                             self.rs_yml.write(self.case_result)
             elif checkPoint.upper() == 'N':
                 print(command)
