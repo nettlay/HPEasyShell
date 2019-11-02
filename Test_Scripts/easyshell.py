@@ -1,6 +1,7 @@
 import platform
 import random
 import re
+import shutil
 from math import sqrt
 import Test_Scripts.EasyShell_Lib as EasyshellLib
 import os
@@ -1116,6 +1117,21 @@ class Shell_Application(EasyShellTest):
                     self.Logfile("[Failed]:App {} Maximized".format(Name))
                     self.capture(profile, "[Failed]:App {} Maximized".format(Name))
                     flag = False
+            # ------ special requirement for issue when run cmd in user kiosk mode, cmd is disabled ----------
+            # ------- Run notepad and check if notepad is launched -------------------------------------------
+            if "cmd.exe" in WindowName.lower():
+                CommonLib.WindowControl(RegexName=WindowName).Maximize()
+                CommonLib.SendKeys("notepad")
+                CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+                time.sleep(2)
+                if CommonLib.WindowControl(RegexName=".*Notepad").Exists():
+                    self.Logfile('[PASS]: Application CMD works normal')
+                    flag = True
+                else:
+                    self.Logfile('[Fail]: Application CMD do not work, notepad is not launched')
+                    self.capture(profile, '[Fail]: Application CMD do not work, notepad is not launched')
+                    flag = False
+            # -------------------- special requirement end here ----------------------------------------------
             if Persistent:
                 if CommonLib.WindowControl(RegexName=WindowName).Exists():
                     CommonLib.WindowControl(RegexName=WindowName).Close()
@@ -2639,6 +2655,15 @@ class TaskSwitcher(EasyShellTest):
             self.capture('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
             return False
 
+    def enableNotificationTray(self):
+        pass
+
+    def disableNotificationTray(self):
+        pass
+
+    def checkNotificationTray(self):
+        pass
+
     def enableDisplayTime(self):
         try:
             self.enable()
@@ -3240,13 +3265,15 @@ class Background(EasyShellTest):
         return [int(i, 16) for i in splited]
 
     def set_bg_pic(self, pic_name='custom_bg.jpg'):
+        pic_path = r"C:\Users\user\Desktop\{}".format(pic_name)
+        shutil.copyfile(os.path.join(self.data, pic_name), r"C:\Users\user\Desktop\{}".format(pic_name))
         self.resetEasyshell()
         self.launch()
         EasyshellLib.getElement('EnableCustom').Enable()
         EasyshellLib.getElement('BGFileLocationButton').Click(waitTime=2)
         if EasyshellLib.getElement("RDP_ERROR").Exists():
             EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
-        EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_name))
+        EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_path))
         # above rdpbrowserfile has the same automationid with this edit selection
         CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
         time.sleep(2)

@@ -462,6 +462,26 @@ createRDP:
         Autolaunch: OFF
         Persistent: OFF
         Customfile: OFF
+    standardRDP1:
+        Name: standard_RFXWin10
+        Hostname: rfxw10-1.sh.dto
+        Username: sh\cheng.balance
+        Password: password.321
+        Launchdelay: 0
+        Arguments: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Customfile: OFF
+    standardRDP2:
+        Name: standard_RFXWin10
+        Hostname: rfxw10-2.sh.dto
+        Username: sh\cheng.balance
+        Password: password.321
+        Launchdelay: 0
+        Arguments: None
+        Autolaunch: OFF
+        Persistent: OFF
+        Customfile: OFF
     editRDP:
         Name: edit_RFXWin10
         Hostname: rfxw10-1.sh.dto

@@ -42,6 +42,7 @@ def clear_runtime_folder(path):
 
 class Test:
     def __init__(self):
+        self.result = {}
         easyshelltest = EasyShellTest()
         self.path = easyshelltest.path
         self.result = True  # sigle test case result
