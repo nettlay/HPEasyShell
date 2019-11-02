@@ -480,11 +480,15 @@ class User_Group:
 
 class YmlUtils:
     def __init__(self, filename):
-        with open(filename, encoding='utf-8') as f:
-            self._content = yaml.safe_load(f)
+        self.__fiename = filename
+        if not os.path.exists(self.__fiename):
+            with open(self.__fiename, 'w', encoding='utf-8') as f:
+                f.close()
+        self._content = self.get_item()
 
     def get_item(self):
-        return self._content
+        with open(self.__fiename, encoding='utf-8') as f:
+            return yaml.safe_load(f)
 
     def get_item_keys(self):
         return self._content.keys()
@@ -497,6 +501,29 @@ class YmlUtils:
 
     def get_sub_item_value(self, item, sub_item_key):
         pass
+
+    def write(self, msg):
+        with open(self.__fiename, 'w', encoding='utf-8') as f:
+            yaml.safe_dump(msg, f)
+            f.flush()
+            f.close()
+# yml = YmlUtils("Z:\\workspace3\\hpeasyshell\\test_report\\result.yml")
+# case = yml.get_item()
+# if not case:
+#     yml.write([{'case_name': 'test2', 'result': '', 'steps': [], 'uut_name': '145666'}])
+#     time.sleep(9)
+#     case = yml.get_item()
+#     print(case)
+# for index in range(len(case)):
+#     time.sleep(1)
+#     if case[index].get('case_name') == 'test4':
+#         print('if')
+#         case1 = case[index]
+#         case1['steps'].append({"test":"2323", "step_name":"step_n"})
+#     else:
+#         print('else')
+#         case.extend([{'case_name': 'test2', 'result': '', 'steps': [], 'uut_name': '145666'}])
+# yml.write(case)
 
 
 class TxtUtils:

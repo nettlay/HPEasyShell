@@ -45,12 +45,17 @@ class Test:
         self.result = {}
         easyshelltest = EasyShellTest()
         self.path = easyshelltest.path
-        self.result = True  # sigle test case result
+        self.single_case_result = True  # sigle test case result
         self.casepath = easyshelltest.casepath
         self.logpath = easyshelltest.log_path
+        if not os.path.exists(self.logpath):
+            os.mkdir(self.logpath)
         self.misc = easyshelltest.misc
         self.testset = easyshelltest.testset
         self.testing = easyshelltest.testing
+        self.rs_yml = CommonLib.YmlUtils(os.path.join(self.logpath, 'result.yml'))
+        self.case_result = self.rs_yml.get_item()
+        self.current_ip = EasyshellLib.CommonUtils.getNetInfo()['IP']
 
     def getAttachment(self, attachmentFilePath):
         attachment = MIMEText(open(attachmentFilePath, 'rb').read(), 'base64', 'utf-8')
@@ -101,7 +106,7 @@ class Test:
         ws = wb[sheets[0]]
         rows = ws.max_row
         for i in range(2, rows + 1):
-            self.result = True
+            current_case_rs = None
             testName = ws.cell(row=i, column=1).value
             result = ws.cell(row=i, column=2).value
             if testName is None:
@@ -114,15 +119,32 @@ class Test:
                 if not os.path.exists(os.path.join(self.testing, '{}.xlsx'.format(testName))):
                     os.system('copy {} {}'.format(os.path.join(self.casepath, '{}.xlsx'.format(testName)),
                                                   os.path.join(self.testing, '{}.xlsx'.format(testName))))
-                self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)))
-            if self.result:
+                # ------ load current test case, if not exist, append one ----------------------
+                if not self.case_result:
+                    self.rs_yml.write([{'case_name': testName, 'result': "", 'steps': [], 'uut_name': self.current_ip}])
+                    self.case_result = self.rs_yml.get_item()
+                for index in range(len(self.case_result)):
+                    if self.case_result[index]['case_name'] == testName:
+                        current_case_rs = self.case_result[index]
+                if not current_case_rs:
+                    self.case_result.extend([{'case_name': testName, 'result': "", 'steps': [], 'uut_name': self.current_ip}])
+                    self.rs_yml.write(self.case_result)
+                    current_case_rs=self.case_result[-1]
+                # -------------------------------------------------------------------------------
+                print('Begin run test case: {}'.format(testName))
+                self.runTestcase(os.path.join(self.testing, '{}.xlsx'.format(testName)), current_case_rs)
+            if self.single_case_result:
                 ws.cell(row=i, column=2).value = "PASS"
                 ws.cell(row=i, column=2).font = pass_font
                 wb.save(self.testset)
+                current_case_rs['result'] = 'pass'
+                self.rs_yml.write(self.case_result)
             else:
                 ws.cell(row=i, column=2).value = "FAIL"
                 ws.cell(row=i, column=2).font = error_font
                 wb.save(self.testset)
+                current_case_rs['result'] = 'fail'
+                self.rs_yml.write(self.case_result)
         zipDir(self.logpath, os.path.join(self.path, 'report.zip'))
         mail_list = []
         with open(os.path.join(self.path, 'mail_list.txt')) as f:
@@ -139,12 +161,12 @@ class Test:
         print(subject)
         print(mail_list)
         # mail_list = ["balance.cheng@hp.com"]
-        self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
-        os.remove(os.path.join(self.path, 'report.zip'))
-        os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
+        # self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
+        # os.remove(os.path.join(self.path, 'report.zip'))
+        # os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
 
-    def runTestcase(self, name):
-        print('Begin run test case: {}'.format(name))
+    def runTestcase(self, name, current_case_rs):
+
         wb = load_workbook(name)
         sheets = wb.sheetnames  # 获得表单名字
         ws = wb[sheets[0]]
@@ -161,7 +183,7 @@ class Test:
             if result == 'PASS':
                 continue
             if result == 'FAIL':
-                self.result = False
+                self.single_case_result = False
                 continue
             if checkPoint.upper() == "DEFINE":
                 if ";" in command:
@@ -174,19 +196,24 @@ class Test:
             if checkPoint.upper() == "Y":
                 print(command)
                 rs = eval(command)
-                print(rs)
+                step_rs, step_name, step_info, pic_path = rs[0], rs[1], rs[2], rs[3]
+                pic_path = os.path.join(self.logpath, 'screenshot\\{}.jpg'.format(pic_path))
                 if value is None:
-                    if rs:
+                    if step_rs.upper() == "PASS":
                         ws.cell(row=i, column=4).value = "PASS"
                         ws.cell(row=i, column=4).font = pass_font
                         wb.save(name)
-                        EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
+                        EasyShellTest().Logfile("[Pass]:{} check".format(command))
+                        current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                        self.rs_yml.write(self.case_result)
                     else:
-                        self.result = False
+                        self.single_case_result = False
                         ws.cell(row=i, column=4).value = "FAIL"
                         ws.cell(row=i, column=4).font = error_font
                         wb.save(name)
-                        EasyShellTest().Logfile("--->[Fail]:{} check, Expect:{},Actual:{}".format(command, "True", rs))
+                        EasyShellTest().Logfile("[Fail]:{} check, Expect:{},Actual:{}".format(command, "True", rs))
+                        current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                        self.rs_yml.write(self.case_result)
                 else:
                     if '$NOT' in str(value).upper():
                         value = str(value).upper().replace('$NOT', '').strip()
@@ -194,14 +221,18 @@ class Test:
                             ws.cell(row=i, column=4).value = "PASS"
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
+                            EasyShellTest().Logfile("[Pass]:{} check".format(command))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
                         else:
-                            self.result = False
+                            self.single_case_result = False
                             ws.cell(row=i, column=4).value = "FAIL"
                             ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
                             EasyShellTest().Logfile(
-                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                                "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
                     elif '$BETWEEN' in str(value).upper():
                         value = str(value).upper().replace('$BETWEEN', '').strip()
                         rs = int(rs)
@@ -212,31 +243,40 @@ class Test:
                             ws.cell(row=i, column=4).value = "PASS"
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
+                            EasyShellTest().Logfile("[Pass]:{} check".format(command))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
                         else:
-                            self.result = False
+                            self.single_case_result = False
                             ws.cell(row=i, column=4).value = "FAIL"
                             ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
                             EasyShellTest().Logfile(
-                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                                "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
                     else:
                         if str(rs).upper() == str(value).upper():
                             ws.cell(row=i, column=4).value = "PASS"
                             ws.cell(row=i, column=4).font = pass_font
                             wb.save(name)
-                            EasyShellTest().Logfile("--->[Pass]:{} check".format(command))
+                            EasyShellTest().Logfile("[Pass]:{} check".format(command))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': 'None', 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
                         else:
-                            self.result = False
+                            self.single_case_result = False
                             ws.cell(row=i, column=4).value = "FAIL"
                             ws.cell(row=i, column=4).font = error_font
                             wb.save(name)
                             EasyShellTest().Logfile(
-                                "--->[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                                "[Fail]:{} check, Expect:{},Actual:{}".format(command, value, rs))
+                            current_case_rs['steps'].append({"step_name": step_name, 'actual': pic_path, 'expect': 'None', 'result': step_rs, 'note':step_info})
+                            self.rs_yml.write(self.case_result)
             elif checkPoint.upper() == 'N':
                 print(command)
                 if 'Reboot' in str(command):
                     ws.cell(row=i, column=4).value = "PASS"
+                    ws.cell(row=i, column=4).font = pass_font
                     wb.save(name)
                     clear_runtime_folder("C:")
                     exec(command)
@@ -244,6 +284,7 @@ class Test:
                     print(command)
                     exec(command)
                     ws.cell(row=i, column=4).value = "PASS"
+                    ws.cell(row=i, column=4).font = pass_font
                     wb.save(name)
                     print('save no check')
             else:

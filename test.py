@@ -1,7 +1,7 @@
-import shutil
-import time
-from win32com.client import DispatchEx
-from Test_Scripts import easyshell
+# import shutil
+# import time
+# from win32com.client import DispatchEx
+# from Test_Scripts import easyshell
 import os
 
 
@@ -12,15 +12,6 @@ import os
 #     ftp.upload_file('test_rdp_result.txt', 'test_rdp_result.txt')
 #     ftp.close()
 #     os.system('shutdown -l')
-WindowName = '.*cmd.exe'
-easyshell.CommonLib.WindowControl(RegexName=WindowName).Maximize()
-easyshell.CommonLib.SendKeys("notepad")
-easyshell.CommonLib.SendKey(easyshell.CommonLib.Keys.VK_ENTER)
-time.sleep(2)
-if easyshell.CommonLib.WindowControl(RegexName=".*Notepad").Exists():
-    print('[PASS]: Application CMD works normal')
-    easyshell.CommonLib.WindowControl(RegexName=".*Notepad").Close()
-    flag = True
-else:
-    print('[Fail]: Application CMD do not work, notepad is not launched')
-    flag = False
+import uiautomation
+
+uiautomation.WindowControl(Name="HP Easy Shell").TextControl(Name='persistent').GetParentControl().GetParentControl().SetFocus()
