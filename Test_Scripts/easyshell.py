@@ -224,15 +224,21 @@ class EasyShellTest:
             if CommonLib.TextControl(Name=name).Exists(0, 0):
                 self.Logfile('Check {}-{} Not Exist Fail'.format(profile, name))
                 self.capture(profile, 'Check {}-{} Not Exist Fail'.format(profile, name))
-                return False
+                return ['Fail',
+                        'check {} not exist'.format(profile),
+                        'Check {}-{} Not Exist Fail'.format(profile, name), profile]
             else:
                 self.Logfile('Check {}-{} Not Exist PASS'.format(profile, name))
-                return True
+                return ['Pass',
+                        'check {} not exist'.format(profile),
+                        'Check {}-{} Not Exist PASS'.format(profile, name), profile]
         if CommonLib.TextControl(Name=name).Exists(0, 0):
             txt = CommonLib.TextControl(Name=name)
+            if op.upper() == "EXIST":
+                return ["PASS", "util check Exist", "{}-{} Exist".format(profile, name), profile]
         else:
             print("{}-{} Not Exist".format(profile, name))
-            return False
+            return ["Fail", "util check {}".format(op), "{}-{} Not Exist".format(profile, name), profile]
         if 'CONN' in item.upper():
             appControl = txt.GetParentControl()
         else:
@@ -265,13 +271,13 @@ class EasyShellTest:
                 delete.Click()
                 EasyshellLib.getElement('DeleteYes').Click()
                 EasyshellLib.getElement('APPLY').Click()
-                return True
+                return ['Pass', 'delete {}'.format(name), '[pass] delete {}-{} pass'.format(profile, name), profile]
             except:
                 self.Logfile("-->[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
                 self.capture(profile, "[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
-                return False
+                return ['Fail', 'delete {}'.format(name), '[Fail] delete {}-{} pass'.format(profile, name), profile]
         else:
-            return True
+            return ["Fail", "util operator {}".format(name), "Unknown parameter", profile]
 
 
 class UserInterfacSettings(EasyShellTest):
@@ -516,8 +522,8 @@ class UserInterfacSettings(EasyShellTest):
                             result_info += "[Fail]: {} is not shown\n".format(name)
                     # ---Label that display mac/time/version... at the bottom of UI -----
                     if name == 'DisplayTime':
-                        if not EasyshellLib.getElement('Time', regex=False, searchFromControl=EasyshellLib.getElement(
-                                "MAIN_WINDOW")).IsOffScreen:
+                        main_wnd = EasyshellLib.getElement("MAIN_WINDOW", regex=False)
+                        if not EasyshellLib.getElement('Time', searchFromControl=main_wnd).IsOffScreen:
                             self.Logfile("-->[PASS]: {} is shown".format(name))
                             result_info += "[PASS]: {} is shown\n".format(name)
                             real_time = EasyshellLib.CommonUtils.getLocalTime('%H:%M')
@@ -548,8 +554,8 @@ class UserInterfacSettings(EasyShellTest):
                             else:
                                 flag = False
                                 self.Logfile("-->[Fail]: {} real IP".format(name))
-                                self.capture(profile, "-->[Fail]: {} real IP".format(name))
-                                result_info += "[Fail]: {} real IP\n".format(name)
+                                self.capture(profile, "-->[Fail]: show IP:{} expect IP:{}".format(show_ip, real_ip))
+                                result_info += "[Fail]: show IP:{} expect IP:{}".format(show_ip, real_ip)
                         else:
                             flag = False
                             self.Logfile("-->[Fail]: {} is not shown".format(name))
@@ -754,8 +760,8 @@ class UserInterfacSettings(EasyShellTest):
                             result_info += "[Fail]: {} is shown\n".format(name)
                     # ---Label that display mac/time/version... at the bottom of UI -----
                     if name == 'DisplayTime':
-                        MainWnd = EasyshellLib.getElement("MAIN_WINDOW")
-                        if EasyshellLib.getElement('Time', searchFromControl=MainWnd, regex=False).IsOffScreen:
+                        MainWnd = EasyshellLib.getElement("MAIN_WINDOW", regex=False)
+                        if EasyshellLib.getElement('Time', searchFromControl=MainWnd).IsOffScreen:
                             self.Logfile("-->[PASS]: {} is not shown".format(name))
                             result_info += "[PASS]: {} is not shown\n".format(name)
                         else:
@@ -852,7 +858,8 @@ class UserSettings(EasyShellTest):
             else:
                 self.Logfile('-->[FAIL]:Allow User settings is OFF, But user setting is shown')
                 self.capture(profile, "[Fail]: Allow User settings is OFF, But user setting is shown")
-                return ["Fail", "Check User Settings", "[Fail]: Allow User settings is OFF, But user setting is shown", profile]
+                return ["Fail", "Check User Settings", "[Fail]: Allow User settings is OFF, But user setting is shown",
+                        profile]
         EasyshellLib.getElement('UserSettings').Click()
         for item in test:
             """
@@ -865,7 +872,7 @@ class UserSettings(EasyShellTest):
                 # ------------User Settings -----------------------------------
                 if name == 'AllowMouse':
                     if not EasyshellLib.getElement('SysMouseIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysMouseIcon').Click()
+                        EasyshellLib.getElement('SysMouseIcon').GetParentControl().Invoke()
                         time.sleep(2)
                         if EasyshellLib.getElement('MousedSetting').Exists():
                             EasyshellLib.getElement('MousedSetting').Close()
@@ -884,7 +891,7 @@ class UserSettings(EasyShellTest):
                         result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowKeyboard':
                     if not EasyshellLib.getElement('SysKeyboardIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysKeyboardIcon').Click()
+                        EasyshellLib.getElement('SysKeyboardIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('KeyboardSetting').Exists(3, 0):
                             EasyshellLib.getElement('KeyboardSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -903,7 +910,7 @@ class UserSettings(EasyShellTest):
                     logon_user = platform.version()
                     if logon_user.split(".")[0] == "10":
                         if not EasyshellLib.getElement('SysDisplayIcon').IsOffScreen:
-                            EasyshellLib.getElement('SysDisplayIcon').Click()
+                            EasyshellLib.getElement('SysDisplayIcon').GetParentControl().Invoke()
                             if EasyshellLib.getElement('DisplaySetting').Exists(3, 0):
                                 EasyshellLib.getElement('DisplaySetting').Close()
                                 self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -920,7 +927,7 @@ class UserSettings(EasyShellTest):
                             result_list += "[Fail]: {} is not shown\n".format(name)
                     else:
                         if not EasyshellLib.getElement('SysDisplayIcon').IsOffScreen:
-                            EasyshellLib.getElement('SysDisplayIcon').Click()
+                            EasyshellLib.getElement('SysDisplayIcon').GetParentControl().Invoke()
                             if EasyshellLib.getElement('DisplaySetting_7').Exists(3, 0):
                                 EasyshellLib.getElement('DisplaySetting_7').Close()
                                 self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -937,7 +944,7 @@ class UserSettings(EasyShellTest):
                             result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowSound':
                     if not EasyshellLib.getElement('SysSoundIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysSoundIcon').Click()
+                        EasyshellLib.getElement('SysSoundIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('SoundSetting').Exists(3, 0):
                             EasyshellLib.getElement('SoundSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -957,7 +964,7 @@ class UserSettings(EasyShellTest):
                     if logon_user.split(".")[0] == "10":
                         # _os = "WES10"
                         if not EasyshellLib.getElement('SysRegionIcon').IsOffScreen:
-                            EasyshellLib.getElement('SysRegionIcon').Click()
+                            EasyshellLib.getElement('SysRegionIcon').GetParentControl().Invoke()
                             if EasyshellLib.getElement('RegionSetting').Exists(3, 0):
                                 EasyshellLib.getElement('RegionSetting').Close()
                                 self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -975,7 +982,7 @@ class UserSettings(EasyShellTest):
                     else:
                         # _os = "WES7"
                         if not EasyshellLib.getElement('SysRegionIcon').IsOffScreen:
-                            EasyshellLib.getElement('SysRegionIcon').Click()
+                            EasyshellLib.getElement('SysRegionIcon').GetParentControl().Invoke()
                             if EasyshellLib.getElement('RegionSetting_7').Exists(3, 0):
                                 EasyshellLib.getElement('RegionSetting_7').Close()
                                 self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -992,7 +999,7 @@ class UserSettings(EasyShellTest):
                             result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowNetworkConn':
                     if not EasyshellLib.getElement('SysNetworkConnIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysNetworkConnIcon').Click()
+                        EasyshellLib.getElement('SysNetworkConnIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('NetworkSetting').Exists(3, 0):
                             EasyshellLib.getElement('NetworkSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -1009,7 +1016,7 @@ class UserSettings(EasyShellTest):
                         result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowDateTime':
                     if not EasyshellLib.getElement('SysDateTimeIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysDateTimeIcon').Click()
+                        EasyshellLib.getElement('SysDateTimeIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('DateTimeSetting').Exists(3, 0):
                             EasyshellLib.getElement('DateTimeSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -1026,7 +1033,7 @@ class UserSettings(EasyShellTest):
                         result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowEasyAccess':
                     if not EasyshellLib.getElement('SysEaseAccessCenterIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysEaseAccessCenterIcon').Click()
+                        EasyshellLib.getElement('SysEaseAccessCenterIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('EaseAccessSetting').Exists(3, 0):
                             EasyshellLib.getElement('EaseAccessSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -1043,7 +1050,7 @@ class UserSettings(EasyShellTest):
                         result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowIEProperty':
                     if not EasyshellLib.getElement('SysIEIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysIEIcon').Click()
+                        EasyshellLib.getElement('SysIEIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('InternetSetting').Exists(3, 0):
                             EasyshellLib.getElement('InternetSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -1060,7 +1067,7 @@ class UserSettings(EasyShellTest):
                         result_list += "[Fail]: {} is not shown\n".format(name)
                 if name == 'AllowWifiConfig':
                     if not EasyshellLib.getElement('SysWirelessIcon').IsOffScreen:
-                        EasyshellLib.getElement('SysWirelessIcon').Click()
+                        EasyshellLib.getElement('SysWirelessIcon').GetParentControl().Invoke()
                         if EasyshellLib.getElement('WirelessSetting').Exists(3, 0):
                             EasyshellLib.getElement('WirelessSetting').Close()
                             self.Logfile("-->[PASS]: {} is shown".format(name))
@@ -1394,7 +1401,7 @@ class Shell_Application(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayApp').Enable()
             EasyshellLib.getElement('Applications').Click()
-            if self.utils(profile, 'Exist'):
+            if self.utils(profile, 'Exist')[0].upper() == "PASS":
                 self.utils(profile, 'Delete')
             EasyshellLib.getElement('ApplicationAdd').Click()
             EasyshellLib.CommonUtils.Wait(5)
@@ -1492,7 +1499,7 @@ class Shell_Application(EasyShellTest):
             self.launch()
             EasyshellLib.getElement('Applications').Click()
             # Modify setting//////////////////////////////////////
-            if self.utils(newProfile, 'exist'):
+            if self.utils(newProfile, 'Exist')[0].upper() == "PASS":
                 self.utils(newProfile, 'delete')
             self.utils(oldProfile, 'edit')
             time.sleep(3)
@@ -1551,8 +1558,8 @@ class Shell_Application(EasyShellTest):
         except:
             self.Logfile("-->[FAIL]:App {} Edit\nErrors:\n{}\n".format(newProfile, traceback.format_exc()))
             self.capture("EditProfile", "[FAIL]:App {} Edit\nErrors:\n{}\n".format(newProfile, traceback.format_exc()))
-            return ['Pass', 'Edit application {}'.format(newName),
-                    "[FAIL]:App {} Edit\nErrors:\n{}\n".format(newProfile, traceback.format_exc()), "EditProfile"]
+            return ['FAIL', 'Edit application {}'.format(newProfile),
+                    "[FAIL]:App {} Edit\nErrors:\n{}\n".format(newProfile, traceback.format_exc()), newProfile]
 
 
 class Shell_Websites(EasyShellTest):
@@ -1584,7 +1591,7 @@ class Shell_Websites(EasyShellTest):
                 EasyshellLib.getElement('AllowUserSetting').Enable()
                 EasyshellLib.getElement('AllowDisplay').Enable()
                 EasyshellLib.getElement('WebSites').Click()
-                if self.utils(profile, 'Exist'):
+                if self.utils(profile, 'Exist')[0].upper() == "PASS":
                     self.utils(profile, 'Delete')
                 EasyshellLib.getElement('WebsiteAdd').Click()
                 time.sleep(3)
@@ -1626,24 +1633,30 @@ class Shell_Websites(EasyShellTest):
                     self.utils(profile, 'default')
                 EasyshellLib.getElement('APPLY').Click()
                 self.Logfile('-->[PASS] Create website {} test pass'.format(Name))
-                return True
+                return ['Pass', 'Create websites',
+                        '[PASS] Create website {} test pass'.format(Name), profile]
             except:
                 self.Logfile("-->[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
                 self.capture('CreateWebsite',
                              "[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
-                return False
+                return ['Fail', 'Create websites',
+                        'CreateWebsite', "[FAIL]:Website {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()),
+                        profile]
         except:
             self.Logfile("-->[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()))
             self.capture('CreateWebsite',
                          "[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()))
-            return False
+            return ['Fail', 'Create websites',
+                    "[FAIL]:Website {} Create\nErrors:\n{}\n".format(profile, traceback.format_exc()), profile]
 
     # ---------------- Website Check --------------------------------------
     def check(self, profile):
         flag = True
+        result_list = ''
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         test = self.sections[self.section_name][profile]
+        Name = test["Name"]
         DefaultHome = test['DefaultHome']
         UseIE = test['UseIE']
         IEFullScreen = test['IEFullScreen']
@@ -1654,9 +1667,10 @@ class Shell_Websites(EasyShellTest):
             CommonLib.WindowControl(RegexName='.*- Internet Explorer').Close()
         EasyshellLib.getElement('UserTitles').Click()
         if not self.utils(profile, 'launch'):
-            self.Logfile('-->[Fail] check website {} error:Launch website fail'.format(profile))
-            self.capture("CheckWeb", '[Fail] check website {} error:Launch website fail'.format(profile))
-            return False
+            self.Logfile('-->[Fail] check website {} error:Launch website fail'.format(Name))
+            self.capture("CheckWeb", '[Fail] check website {} error:Launch website fail'.format(Name))
+            return ['Fail', 'Check websites',
+                    '[Fail] check website {} error:Launch website fail'.format(Name), profile]
         time.sleep(5)
         if not UseIE:
             if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0) and not EasyshellLib.getElement(
@@ -1665,35 +1679,41 @@ class Shell_Websites(EasyShellTest):
                     EasyshellLib.getElement('WebHome').Click()
                     time.sleep(5)
                     if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0):
-                        self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                        self.Logfile("-->[PASS]: Websites {} Check".format(Name))
+                        return ['Pass', 'Check websites',
+                                "-->[PASS]: Websites {} Check".format(Name), profile]
                     else:
-                        flag = False
                         self.Logfile("-->[FAIL]: Websites {} Check".format(profile))
                         self.capture("CheckWeb", "[FAIL]: Websites {} Check DefaultHOme".format(profile))
-                else:
-                    self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                        return ['FAIL', 'Check websites',
+                                "[FAIL]: Websites {} Check DefaultHOme".format(Name), profile]
             else:
                 flag = False
                 self.Logfile("-->[FAIL]: Websites {} Check".format(profile))
                 self.capture("CheckWeb", "[FAIL]: Websites {} Check".format(profile))
+                result_list += "[FAIL]: Websites {} Check".format(Name)
         elif UseIE and not IEFullScreen:
             if CommonLib.WindowControl(RegexName=EmbaedPaneName).Exists(0, 0) and \
                     CommonLib.WindowControl(RegexName=EmbaedPaneName).PaneControl(AutomationId='41477').Exists():
                 self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                result_list += "[PASS]: Websites {} Check\n".format(Name)
             else:
                 flag = False
                 self.Logfile("-->[FAIL]: Websites {} Check".format(profile))
                 self.capture("CheckWeb", "[FAIL]: Websites {} Check".format(profile))
+                result_list += "[FAIL]: Websites {} Check\n".format(Name)
         elif UseIE and IEFullScreen and not EmbedIE:
             if CommonLib.WindowControl(RegexName=EmbaedPaneName).Exists(0, 0) and \
                     not (
                             CommonLib.WindowControl(RegexName=EmbaedPaneName).PaneControl(AutomationId='41477').Exists(
                                 0, 0)):
                 self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                result_list += "[PASS]: Websites {} Check\n".format(Name)
             else:
                 flag = False
                 self.Logfile("-->[FAIL]: Websites {} Check(110)".format(profile))
                 self.capture("CheckWeb", "[FAIL]: Websites {} Check 110".format(profile))
+                result_list += "[FAIL]: Websites {} Check 110\n".format(Name)
         elif UseIE and IEFullScreen and EmbedIE and not AllCloseEmbedIE:
             if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0) and \
                     EasyshellLib.getElement('AddressBar').IsOffScreen \
@@ -1703,16 +1723,20 @@ class Shell_Websites(EasyShellTest):
                     time.sleep(5)
                     if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0):
                         self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                        result_list += "[PASS]: Websites {} Check\n".format(Name)
                     else:
                         flag = False
                         self.Logfile("-->[FAIL]: Websites {} Home Check(1110)".format(profile))
                         self.capture("CheckWeb", "[FAIL]: Websites {} Home Check(1110)".format(profile))
+                        result_list += "[FAIL]: Websites {} Home Check(1110)\n".format(Name)
                 else:
                     self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                    result_list += "[PASS]: Websites {} Check\n".format(Name)
             else:
                 flag = False
                 self.Logfile("-->[FAIL]: Websites {} Check(1110)".format(profile))
                 self.capture("CheckWeb", "[FAIL]: Websites {} Check(1110)".format(profile))
+                result_list += "[FAIL]: Websites {} Check(1110)\n".format(Name)
         elif UseIE and IEFullScreen and EmbedIE and AllCloseEmbedIE:
             if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0) and \
                     EasyshellLib.getElement('AddressBar').IsOffScreen \
@@ -1722,21 +1746,26 @@ class Shell_Websites(EasyShellTest):
                     time.sleep(5)
                     if CommonLib.PaneControl(RegexName=EmbaedPaneName).Exists(0, 0):
                         self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                        result_list += "-->[PASS]: Websites {} Check\n".format(Name)
                     else:
                         flag = False
                         self.Logfile("-->[FAIL]: Websites {} Check(1111)".format(profile))
                         self.capture("CheckWeb", "[FAIL]: Websites {} Check(1111)".format(profile))
+                        result_list += "[FAIL]: Websites {} Check(1111)\n".format(Name)
                 else:
                     self.Logfile("-->[PASS]: Websites {} Check".format(profile))
+                    result_list += "[PASS]: Websites {} Check\n".format(Name)
             else:
                 flag = False
                 self.Logfile("-->[FAIL]: Websites {} Check(1111)".format(profile))
                 self.capture("CheckWeb", "[FAIL]: Websites {} Check(1111)".format(profile))
+                result_list += "[FAIL]: Websites {} Check(1111)\n".format(Name)
         else:
             flag = False
             self.Logfile("-->[FAIL]: Websites {} Parameter Error!".format(profile))
             self.capture("CheckWeb", "[FAIL]: Websites {} Parameter Error!".format(profile))
-        return flag
+            result_list += "[FAIL]: Websites {} Parameter Error!\n".format(Name)
+        return ["Pass" if flag else "Fail", "Check webisites", result_list, profile]
 
     def edit(self, newProfile, oldProfile):
         """
@@ -1762,13 +1791,14 @@ class Shell_Websites(EasyShellTest):
             self.Logfile('-----------Begin to Edit website -------------')
             self.launch()
             EasyshellLib.getElement('WebSites').Click()
-            if self.utils(newProfile, 'exist'):
+            if self.utils(newProfile, 'exist')[0].upper() == 'PASS':
                 self.utils(newProfile, 'delete')
-            if not self.utils(oldProfile, 'exist'):
+            if self.utils(oldProfile, 'exist')[0].upper() == "FAIL":
                 self.Logfile('-->[Fail]: Edit website with new profile {}, old profile not exist'.format(newName))
                 self.capture("EditWEB",
                              '[Fail]: Edit website with new profile {}, old profile not exist'.format(newName))
-                return False
+                return ["Fail", "edit websites",
+                        '[Fail]: Edit website with new profile {}, old profile not exist'.format(newName), newProfile]
             self.utils(oldProfile, 'Edit')
             time.sleep(3)
             ClearContent()
@@ -1789,7 +1819,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "Edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             else:
                 if newUseIE:
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -1800,7 +1831,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "Edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             if newIEFullScreen != oldIEFullScreen:
                 if newIEFullScreen:
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -1814,7 +1846,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             else:
                 if newIEFullScreen:
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -1825,7 +1858,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             if newEmbedIE != oldEmbedIE:
                 if newEmbedIE:
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -1838,7 +1872,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             else:
                 if newEmbedIE:
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -1849,7 +1884,8 @@ class Shell_Websites(EasyShellTest):
                         self.utils(newProfile, 'default')
                     EasyshellLib.getElement('APPLY').Click()
                     self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                    return True
+                    return ["PASS", "edit websites",
+                            '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             if newAllCloseEmbedIE != oldAllCloseEmbedIE:
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
@@ -1858,7 +1894,8 @@ class Shell_Websites(EasyShellTest):
                     self.utils(newProfile, 'default')
                 EasyshellLib.getElement('APPLY').Click()
                 self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                return True
+                return ["PASS", "edit websites",
+                        '[PASS] Edit website with new profile {}'.format(newName), newProfile]
             else:
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
@@ -1866,14 +1903,17 @@ class Shell_Websites(EasyShellTest):
                     self.utils(newProfile, 'default')
                 EasyshellLib.getElement('APPLY').Click()
                 self.Logfile('-->[PASS] Edit website with new profile {}'.format(newName))
-                return True
+                return ["PASS", "edit websites",
+                        '[PASS] Edit website with new profile {}'.format(newName), newProfile]
         except:
             self.Logfile(
                 '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName, traceback.format_exc()))
             self.capture("EditWEB",
                          '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName,
                                                                                         traceback.format_exc()))
-            return False
+            return ["Fail", "Edit websites",
+                    '[Fail]: Edit website with new profile {}, error: \n{}'.format(newName, traceback.format_exc()),
+                    newProfile]
 
 
 class Shell_StoreFront(EasyShellTest):
@@ -1905,7 +1945,7 @@ class Shell_StoreFront(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayStoreFront').Enable()
             EasyshellLib.getElement('StoreFront').Click()
-            if self.utils(profile, 'Exist'):
+            if self.utils(profile, 'exist')[0].upper() == 'PASS':
                 self.utils(profile, 'Delete')
             EasyshellLib.getElement('StoreFrontAdd').Click()
             time.sleep(5)
@@ -1968,10 +2008,12 @@ class Shell_StoreFront(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: Storefront Connection {} Create'.format(Name))
-            return True
+            return ["PASS", "Create storefront", '[PASS]: Storefront Connection {} Create'.format(Name), profile]
         except Exception as e:
             self.Logfile("-->[FAIL]:Storfront {} Create\nErrors:\n{}\n".format(Name, e))
-            return False
+            self.capture(profile, "[FAIL]:Storfront {} Create\nErrors:\n{}\n".format(Name, e))
+            return ["FAIL", "Create storefront", "[FAIL]:Storfront {} Create\nErrors:\n{}\n".format(Name, e),
+                    profile]
 
     def edit(self, newprofile, oldprofile):
         try:
@@ -1993,17 +2035,12 @@ class Shell_StoreFront(EasyShellTest):
             old = self.sections[self.section_name][oldprofile]
             oldName = old["Name"]
             oldURL = old['URL']
-            # oldSelectStore = old['SelectStore']
-            # oldStoreName = old['StoreName']
-            # oldLaunchdelay = old['Launchdelay']
-            # oldLogonMethod = old['LogonMethod']
             oldUsername = old['Username']
             oldPassword = old['Password']
             oldDomain = old['Domain']
             oldHideDomain = old['HideDomain']
             oldCustomLogon = old['CustomLogon']
             oldAutolaunch = old['Autolaunch']
-            # oldConnectionTimeout = old['ConnectionTimeout']
             oldDesktopToolbar = old['DesktopToolbar']
             self.launch()
             EasyshellLib.getElement('Settings').Click()
@@ -2011,14 +2048,14 @@ class Shell_StoreFront(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayStoreFront').Enable()
             EasyshellLib.getElement('StoreFront').Click()
-            if self.utils(newprofile, 'Exist'):
+            if self.utils(newprofile, 'exist')[0].upper() == 'PASS':
                 self.utils(newprofile, 'Delete')
-            if self.utils(oldprofile, 'exist'):
+            if self.utils(oldprofile, 'exist')[0].upper() == 'PASS':
                 self.utils(oldprofile, 'edit')
             else:
                 self.Logfile('-->[Fail]:Old StoreFont {} do not exist'.format(oldName))
                 self.capture('EditStorefont', '[Fail]:Old StoreFont {} do not exist'.format(oldName))
-                return False
+                return ["Fail", "Edit storefront", '[Fail]:Old StoreFont {} do not exist'.format(oldName), newprofile]
             ClearContent(len(oldName) + 5)
             CommonLib.SendKeys(newName)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -2073,42 +2110,48 @@ class Shell_StoreFront(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: View Connection {} Create'.format(newName))
-            return True
+            return ["PASS", "Edit storefront", '[PASS]: View Connection {} Create'.format(newName), newprofile]
 
         except:
-            self.Logfile('-->[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            self.capture('EditRDP', '[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            return False
+            self.Logfile('-->[Failed]: Storefront Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
+            self.capture("Editstorefront",
+                         '[Failed]: Storefront Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
+            return ["FAIL", "Edit storefront",
+                    '[Failed]: Storefront {} Edit\n{}'.format(oldprofile, traceback.format_exc()), "Editstorefront"]
 
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist'):
+        if self.utils(profile, 'exist')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:Storefront connection {} Check Exist'.format(profile))
             if self.__check_logon(profile):
                 self.Logfile('-->[PASS]:Storefront connection {} Logon Pass'.format(profile))
-                return True
+                return ["PASS", "Check storefront",
+                        '[PASS]:Storefront connection {} Logon Pass'.format(profile), profile]
             else:
                 self.Logfile('-->[FAIL]:Storefront connection {} Logon Fail'.format(profile))
-                self.capture('CheckRDP', '[FAIL]:Storefront connection {} Logon Fail'.format(profile))
-                return False
+                self.capture('Checkstorefront', '[FAIL]:Storefront connection {} Logon Fail'.format(profile))
+                return ["FAIL", "Check storefront",
+                        '[FAIL]:Storefront connection {} Logon Fail'.format(profile), profile]
         else:
             self.Logfile('-->[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
-            self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
-            return False
+            self.capture('Checkstorefront', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
+            return ["FAIL", "check storefront",
+                    '[FAIL]:Storefront connection {} Check Not Exist'.format(profile), profile]
 
     def check_connection(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist'):
+        if self.utils(profile, 'exist')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:Storefront connection {} Check Exist'.format(profile))
-            return True
+            return ["PASS", "Check storefront", '[PASS]:Storefront connection {} Check Exist'.format(profile), profile]
         else:
             self.Logfile('-->[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
-            self.capture('CheckRDP', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
-            return False
+            self.capture('Checkstorefront', '[FAIL]:Storefront connection {} Check Not Exist'.format(profile))
+            return ["PASS", "Check storefront",
+                    '[FAIL]:Storefront connection {} Check Not Exist'.format(profile), profile]
 
     def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
@@ -2157,7 +2200,7 @@ class Shell_View(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(profile, 'exist', 'connection'):
+            if self.utils(profile, 'exist', 'connection')[0].upper() == "PASS":
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('VMwareAdd').Click()
             time.sleep(5)
@@ -2210,12 +2253,13 @@ class Shell_View(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: View Connection {} Create'.format(Name))
-            return True
+            return ["PASS", "Create View {}".format(Name), '[PASS]: View Connection {} Create'.format(Name), profile]
         except:
             self.Logfile("-->[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
             self.capture('CreateView',
                          "[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()))
-            return False
+            return ["Fail", "Create View {}".format(Name),
+                    "[FAIL]: View Connection {} Create\nErrors:\n{}\n".format(Name, traceback.format_exc()), profile]
 
     @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newprofile, oldprofile):
@@ -2253,14 +2297,15 @@ class Shell_View(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(newprofile, 'exist', 'connection'):
+            if self.utils(newprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(newprofile, 'delete', 'connection')
-            if self.utils(oldprofile, 'exist', 'connection'):
+            if self.utils(oldprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(oldprofile, 'Edit', 'connection')
             else:
                 self.Logfile('-->[Fail]:Old View {} do not exist'.format(oldname))
                 self.capture('EditView', '[Fail]:Old View {} do not exist'.format(oldname))
-                return False
+                return ["Fail", "Edit View {}".format(oldname),
+                        'EditView', '[Fail]:Old View {} do not exist'.format(oldname), 'EditView']
             time.sleep(5)
             ClearContent(len(oldname) + 5)
             CommonLib.SendKeys(newname)
@@ -2314,42 +2359,44 @@ class Shell_View(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: View Connection {} Edit'.format(oldname))
-            return True
+            return ["PASS", "Edit View {}".format(oldname),
+                    '[PASS]: View Connection {} Edit'.format(oldname), "EditView"]
         except:
             self.Logfile('-->[Failed]: View Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             self.capture("EditView", '[Failed]: View Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            return False
+            return ["Fail", "Edit View {}".format(oldprofile),
+                    '[Failed]: View Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()), oldprofile]
 
     @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:View connection {} Check Exist'.format(profile))
             if self.__check_logon(profile):
                 self.Logfile('-->[PASS]:View connection {} Logon PASS'.format(profile))
-                return True
+                return ["PASS", "Check View", '[PASS]:View connection {} Logon PASS'.format(profile), profile]
             else:
                 self.capture('CheckView', '[FAIL]:View connection {} Logon Fail'.format(profile))
                 self.Logfile('-->[FAIL]:View connection {} Logon Fail'.format(profile))
-                return False
+                return ["FAIL", "Check View", '[FAIL]:View connection {} Logon Fail'.format(profile), profile]
         else:
-            self.capture('CheckView', '[FAIL]:View connection {} Check Not Exist'.format(profile))
-            self.Logfile('-->[FAIL]:View connection {} Check Not Exist'.format(profile))
-            return False
+            self.capture('CheckView', '[FAIL]:View connection {} Not Exist'.format(profile))
+            self.Logfile('-->[FAIL]:View connection {} Not Exist'.format(profile))
+            return ["FAIL", "Check View", '[FAIL]:View connection {} Not Exist'.format(profile), profile]
 
     def check_connection(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:View connection {} Check Exist'.format(profile))
-            return True
+            return ["PASS", "Check View", "[Pass] view connection {} exist".format(profile), profile]
         else:
             self.capture('CheckView', '[FAIL]:View connection {} Check Not Exist'.format(profile))
             self.Logfile('-->[FAIL]:View connection {} Check Not Exist'.format(profile))
-            return False
+            return ["Fail", "Check View", "[Fail] view connection {} not exist".format(profile), profile]
 
     def __check_logon(self, profile):
         test = self.sections['createView'][profile]
@@ -2395,7 +2442,7 @@ class Shell_RDP(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(profile, 'exist', 'connection'):
+            if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('RDPAdd').Click()
             time.sleep(5)
@@ -2441,50 +2488,52 @@ class Shell_RDP(EasyShellTest):
                                  '[Fail] Create RDP connection {}, customfile:{} not Exist'.format(name, customfile))
                     CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
                     CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
-                    return False
+                    return ["Fail", "create RDP {}".format(name), "{} not exist".format(customfile), "CreateRDP"]
                 CommonLib.SendKey(CommonLib.Keys.VK_TAB, count=2)
                 CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: Create RDP Connection {}'.format(name))
-            return True
+            return ["Pass", "create RDP {}".format(name), '[PASS]: Create RDP Connection {}'.format(name), 'createRDP']
         except:
             self.Logfile('-->[Fail]: Create RDP Connection {}\n{}'.format(name, traceback.format_exc()))
             self.capture('CreateRDP', '[Fail]: Create RDP Connection {}\n{}'.format(name, traceback.format_exc()))
-            return False
+            return ["Fail", "create RDP {}".format(name),
+                    '[Fail]: Create RDP Connection {}\n{}'.format(name, traceback.format_exc()), 'CreateRDP']
 
     @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newprofile, oldprofile):
+        new = self.sections[self.section_name][newprofile]
+        newname = new["Name"]
+        newhostname = new['Hostname']
+        newusername = new['Username']
+        newargument = new['Arguments']
+        newlaunchdelay = str(new['Launchdelay'])
+        newautolaunch = new['Autolaunch']
+        newpersistent = new['Persistent']
+        newcustomfile = new['Customfile']
+        old = self.sections[self.section_name][oldprofile]
+        oldname = old["Name"]
+        oldhostname = old['Hostname']
+        oldusername = old['Username']
+        oldargument = old['Arguments']
+        oldautolaunch = old['Autolaunch']
+        oldpersistent = old['Persistent']
+        oldcustomfile = old['Customfile']
         try:
-            new = self.sections[self.section_name][newprofile]
-            newname = new["Name"]
-            newhostname = new['Hostname']
-            newusername = new['Username']
-            newargument = new['Arguments']
-            newlaunchdelay = str(new['Launchdelay'])
-            newautolaunch = new['Autolaunch']
-            newpersistent = new['Persistent']
-            newcustomfile = new['Customfile']
-            old = self.sections[self.section_name][oldprofile]
-            oldname = old["Name"]
-            oldhostname = old['Hostname']
-            oldusername = old['Username']
-            oldargument = old['Arguments']
-            oldautolaunch = old['Autolaunch']
-            oldpersistent = old['Persistent']
-            oldcustomfile = old['Customfile']
             self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(newprofile, 'exist', 'connection'):
+            if self.utils(newprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(newprofile, 'delete', 'connection')
-            if self.utils(oldprofile, 'exist', 'connection'):
+            if self.utils(oldprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(oldprofile, 'Edit', 'connection')
             else:
                 self.Logfile('-->[Fail]:Old RDP {} do not exist'.format(oldname))
                 self.capture('EditRDP', '[Fail]:Old RDP {} do not exist'.format(oldname))
-                return False
+                return ["Fail", "Edit RDP {}".format(oldname),
+                        '[Fail]:Old RDP {} do not exist'.format(oldname), 'EditRDP']
             time.sleep(5)
             ClearContent(len(oldname) + 5)
             CommonLib.SendKeys(newname)
@@ -2533,42 +2582,48 @@ class Shell_RDP(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: RDP Connection {} Edit'.format(oldname))
-            return True
+            return ["Pass", "Edit RDP {}".format(oldname), '[PASS]: RDP Connection {} Edit'.format(oldname), oldprofile]
         except:
             self.Logfile('-->[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
             self.capture('EditRDP', '[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            return False
+            return ["Fail", "Edit RDP {}".format(oldname),
+                    '[Failed]: RDP Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()), "EditRDP"]
 
     @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:RDP connection {} Check Exist'.format(profile))
             if self.__check_logon(profile):
                 self.Logfile('-->[PASS]:RDP connection {} Logon Pass'.format(profile))
-                return True
+                return ["PASS", "Check RDP {}".format(profile),
+                        '[PASS]:RDP connection {} Logon Pass'.format(profile), profile]
             else:
                 self.Logfile('-->[FAIL]:RDP connection {} logon Fail'.format(profile))
                 self.capture('RDPCheck', '[FAIL]:RDP connection {} logon Fail'.format(profile))
-                return False
+                return ["FAIL", "Check RDP {}".format(profile),
+                        '[FAIL]:RDP connection {} logon Fail'.format(profile), "RDPCheck"]
         else:
             self.Logfile('-->[FAIL]:RDP connection {} Check Not Exist'.format(profile))
-            self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
-            return False
+            self.capture('RDPCheck', '[FAIL]:RDP connection {} Not Exist'.format(profile))
+            return ["FAIL", "Check RDP {}".format(profile),
+                    '[FAIL]:RDP connection {} Not Exist'.format(profile), "RDPCheck"]
 
     def check_connection(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:RDP connection {} Check Exist'.format(profile))
-            return True
+            return ["PASS", "Check RDP {}".format(profile),
+                    '[PASS]:RDP connection {} Exist'.format(profile), profile]
         else:
             self.Logfile('-->[FAIL]:RDP connection {} Check Not Exist'.format(profile))
             self.capture('RDPCheck', '[FAIL]:RDP connection {} Check Not Exist'.format(profile))
-            return False
+            return ["FAIL", "Check RDP {}".format(profile),
+                    '[FAIL]:RDP connection {} Exist'.format(profile), "RDPCheck"]
 
     def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
@@ -2607,7 +2662,7 @@ class Shell_Citrix(EasyShellTest):
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(profile, 'exist', 'connection'):
+            if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(profile, 'Delete', 'connection')
             EasyshellLib.getElement('CitrixICAAdd').Click()
             time.sleep(5)
@@ -2617,7 +2672,7 @@ class Shell_Citrix(EasyShellTest):
                 self.Logfile('-->[Fail]: Citrix Edit Window not launched')
                 self.capture('CitrixCreate',
                              "[FAIL]: Citrix Edit Window not launched")
-                return False
+                return ["FAIL", "Create Citrix {}".format(name), "[FAIL]: Citrix Edit Window not shown", 'CitrixCreate']
             CommonLib.SendKeys(name)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
             CommonLib.SendKeys(hostname)
@@ -2642,51 +2697,55 @@ class Shell_Citrix(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: Citrix Connection {} Create'.format(name))
-            return True
+            return ["PASS", "Create Citrix {}".format(name), '[PASS]: Citrix Connection {} Create'.format(name), name]
         except:
             self.Logfile("-->[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
             self.capture('CitrixCreate',
                          "[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()))
-            return False
+            return ["FAIL", "Create Citrix {}".format(name),
+                    "[FAIL]: Citrix Connection {} Create\nErrors:\n{}\n".format(name, traceback.format_exc()),
+                    'CitrixCreate']
 
     @pysnooper.snoop(EasyShellTest().debug)
     def edit(self, newprofile, oldprofile):
+        new = self.sections[self.section_name][newprofile]
+        newname = new["Name"]
+        newhostname = new['Hostname']
+        newusername = new['Username']
+        newdomain = new['Domain']
+        newlaunchdelay = str(new['Launchdelay'])
+        newautolaunch = new['Autolaunch']
+        newpersistent = new['Persistent']
+        old = self.sections[self.section_name][oldprofile]
+        oldname = old["Name"]
+        oldhostname = old['Hostname']
+        oldusername = old['Username']
+        oldautolaunch = old['Autolaunch']
+        oldpersistent = old['Persistent']
         try:
-            new = self.sections[self.section_name][newprofile]
-            newname = new["Name"]
-            newhostname = new['Hostname']
-            newusername = new['Username']
-            newdomain = new['Domain']
-            newlaunchdelay = str(new['Launchdelay'])
-            newautolaunch = new['Autolaunch']
-            newpersistent = new['Persistent']
-            old = self.sections[self.section_name][oldprofile]
-            oldname = old["Name"]
-            oldhostname = old['Hostname']
-            oldusername = old['Username']
-            oldautolaunch = old['Autolaunch']
-            oldpersistent = old['Persistent']
             self.launch()
             EasyshellLib.getElement('KioskMode').Enable()
             EasyshellLib.getElement('DisplayTitle').Enable()
             EasyshellLib.getElement('DisplayConnections').Enable()
             EasyshellLib.getElement('Connections').Click()
-            if self.utils(newprofile, 'exist', 'connection'):
+            if self.utils(newprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(newprofile, 'delete', 'connection')
-            if self.utils(oldprofile, 'exist', 'connection'):
+            if self.utils(oldprofile, 'exist', 'connection')[0].upper() == 'PASS':
                 self.utils(oldprofile, 'Edit', 'connection')
             else:
                 self.Logfile('-->[Fail]:Old CitrixICA {} do not exist'.format(oldname))
                 self.capture('CitrixEdit', '[Fail]:Old CitrixICA {} do not exist'.format(oldname))
-                return False
+                return ["Fail", "Edit Citrix {}".format(oldname),
+                        '[Fail]:Old CitrixICA {} do not exist'.format(oldname), 'CitrixEdit']
             time.sleep(5)
             if EasyshellLib.getElement('CITRIX_EDIT').Exists(3, 3):
                 EasyshellLib.getElement('CITRIX_EDIT').SetFocus()
             else:
                 self.Logfile('-->[Fail]: Citrix Edit Window not launched')
-                self.capture('CitrixCreate',
+                self.capture('CitrixEdit',
                              "[FAIL]: Citrix Edit Window not launched")
-                return False
+                return ["Fail", "Edit Citrix {}".format(oldname),
+                        "[FAIL]: Citrix Edit Window not launched", 'CitrixEdit']
             ClearContent(len(oldname) + 5)
             CommonLib.SendKeys(newname)
             CommonLib.SendKey(CommonLib.Keys.VK_TAB)
@@ -2716,43 +2775,50 @@ class Shell_Citrix(EasyShellTest):
             CommonLib.SendKey(CommonLib.Keys.VK_SPACE)
             EasyshellLib.getElement('APPLY').Click()
             self.Logfile('-->[PASS]: Citrix Connection {} Edit'.format(oldname))
-            return True
+            return ["PASS", "Edit Citrix {}".format(oldname),
+                    '[PASS]: Citrix Connection {} Edit'.format(oldname), oldprofile]
         except:
-            self.Logfile('-->[Failed]: Citrix Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
+            self.Logfile('-->[Failed]: Citrix Connection {} Edit\n{}'.format(oldname, traceback.format_exc()))
             self.capture('CitrixEdit',
-                         '[Failed]: Citrix Connection {} Edit\n{}'.format(oldprofile, traceback.format_exc()))
-            return False
+                         '[Failed]: Citrix Connection {} Edit\n{}'.format(oldname, traceback.format_exc()))
+            return ['Fail', "Edit Citrix {}".format(oldname),
+                    '[Failed]: Citrix Connection {} Edit\n{}'.format(oldname, traceback.format_exc()), 'CitrixEdit']
 
     @pysnooper.snoop(EasyShellTest().debug)
     def check(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:CitrixICA connection {} Check Exist'.format(profile))
             if self.__check_logon(profile):
                 self.Logfile('-->[PASS]:CitrixICA connection {} Logon Pass'.format(profile))
-                return True
+                return ['Pass', 'Check Citrix {}'.format(profile),
+                        '[PASS]:CitrixICA connection {} Logon Pass'.format(profile), profile]
             else:
                 self.Logfile('-->[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
                 self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Logon Fail'.format(profile))
-                return False
+                return ['Fail', "check Citrix {}".format(profile),
+                        '[FAIL]:CitrixICA connection {} Logon Fail'.format(profile), 'CitrixCheck']
         else:
             self.Logfile('-->[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
-            return False
+            return ['Fail', "check Citrix {}".format(profile),
+                    '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile), 'CitrixCheck']
 
     def check_connection(self, profile):
         if EasyshellLib.getElement('MAIN_WINDOW').Exists():
             EasyshellLib.getElement('MAIN_WINDOW').SetFocus()
         EasyshellLib.getElement('UserTitles').Click()
-        if self.utils(profile, 'exist', 'connection'):
+        if self.utils(profile, 'exist', 'connection')[0].upper() == 'PASS':
             self.Logfile('-->[PASS]:CitrixICA connection {} Check Exist'.format(profile))
-            return True
+            return ['PASS', 'Check Citrix'.format(profile),
+                    '[PASS]:CitrixICA connection {} Exist'.format(profile), profile]
         else:
             self.Logfile('-->[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
             self.capture('CitrixCheck', '[FAIL]:CitrixICA connection {} Check Not Exist'.format(profile))
-            return False
+            return ['PASS', 'Check Citrix'.format(profile),
+                    '[FAIL]:CitrixICA connection {} Not Exist'.format(profile), 'CitrixCheck']
 
     def __check_logon(self, profile):
         test = self.sections[self.section_name][profile]
@@ -2773,6 +2839,7 @@ class Shell_Citrix(EasyShellTest):
 
 class TaskSwitcher(EasyShellTest):
     def __init__(self):
+        self.result_list = ''
         EasyShellTest.__init__(self)
 
     def __prepare(self):
@@ -2789,7 +2856,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("-->[Fail]: enable Task Switcher")
-            self.capture("[Fail]: enable Task Switcher")
+            self.capture("enableTask", "[Fail]: enable Task Switcher")
             return False
 
     def disable(self):
@@ -2801,7 +2868,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("-->[Fail]: Disable Task Switcher")
-            self.capture("[Fail]: Disable Task Switcher")
+            self.capture("disableTask", "[Fail]: Disable Task Switcher")
             return False
 
     def enablePermanent(self):
@@ -2812,7 +2879,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("-->[Fail]: enable Task Switcher")
-            self.capture("[Fail]: enable Task Switcher")
+            self.capture("EnablePermanent", "[Fail]: enable Task Switcher")
             return False
 
     def disablePermanent(self):
@@ -2823,7 +2890,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile('-->[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
-            self.capture('[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
+            self.capture("DisablePermanent", '[Fail]: Enable permanently\n {}'.format(traceback.format_exc()))
             return False
 
     def enableNotificationTray(self):
@@ -2843,7 +2910,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("-->[Fail]: enable display Switcher Time")
-            self.capture("[Fail]: enable display Switcher Time")
+            self.capture("EnableDisplayTime", "[Fail]: enable display Switcher Time")
             return False
 
     def disableDisplayTime(self):
@@ -2854,7 +2921,7 @@ class TaskSwitcher(EasyShellTest):
             return True
         except:
             self.Logfile("-->[Fail]: enable display Switcher Time")
-            self.capture("[Fail]: enable display Switcher Time")
+            self.capture("DisableDisplayTime", "[Fail]: enable display Switcher Time")
             return False
 
     def checkDisplayTime(self, exist=True):
@@ -2862,47 +2929,52 @@ class TaskSwitcher(EasyShellTest):
         if exist:
             if EasyshellLib.getElement('Time', searchFromControl=switchBar).Exists():
                 self.Logfile("-->[PASS]: Task SwitcherBar Time is shown")
-                return True
+                return ["Pass" "check display time", "[PASS]: Task SwitcherBar Time is shown", "None"]
             else:
                 self.Logfile("-->[Fail]: Task SwitcherBar Time is not shown, Expect shown")
-                self.capture("[Fail]: Task switcherBar Time is not Shown, Expect shown")
-                return False
+                self.capture("CheckDisplayTime", "[Fail]: Task switcherBar Time is not Shown, Expect shown")
+                return ["Fail", "check display time",
+                        "[Fail]: Task switcherBar Time is not Shown, Expect shown", 'CheckDisplayTime']
         else:
             if EasyshellLib.getElement('Time', searchFromControl=switchBar).Exists():
                 self.Logfile("-->[PASS]: Task SwitcherBar Time is not shown")
-                return True
+                return ["Pass" "check display time", "[PASS]: Task SwitcherBar Time is not shown", "None"]
             else:
                 self.Logfile("-->[Fail]: Task SwitcherBar Time is shown, Expect not shown")
-                self.capture("[Fail]: Task switcherBar Time is Shown, Expect not shown")
-                return False
+                self.capture("CheckDisplayTime", "[Fail]: Task switcherBar Time is Shown, Expect not shown")
+                return ["Fail", "Check display time",
+                        "[Fail]: Task switcherBar Time is Shown, Expect not shown", 'CheckDisplayTime']
 
     def checkPermanent(self):
         if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
             self.Logfile("-->[Fail]: Task SwitcherBar is not shown")
-            self.capture("[Fail]: Task switcherBar is not Shown")
-            return False
+            self.capture("checkPermanent", "[Fail]: Task switcherBar is not Shown")
+            return ["Fail", "check permanent", "[Fail]: Task switcherBar is not Shown", "checkPermanent"]
         time.sleep(15)
         if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
             self.Logfile("-->[PASS]: Task SwitcherBar is permanent")
-            return True
+            return ["PAss", "check permanent", "[PASS]: Task SwitcherBar is permanent", "none"]
         else:
-            self.capture("[Fail]: Task SwitcherBar is not permanent, expect permanent")
+            self.capture("checkPermanent", "[Fail]: Task SwitcherBar is not permanent, expect permanent")
             self.Logfile("-->[Fail]: Task SwitcherBar is not permanent, expect permanent")
-            return False
+            return ["Fail", "check permanent",
+                    "[Fail]: Task SwitcherBar is not permanent, expect permanent", "checkPermanent"]
 
     def checkNoPermanent(self):
         if not EasyshellLib.getElement("TASK_SWITCHER").Exists(1, 1):
             self.Logfile("-->[Fail]: Task SwitcherBar is shown, expect No permanent")
-            self.capture("[Fail]: Task SwitcherBar is shown, expect No permanent")
-            return False
+            self.capture("CheckNoPermanent", "[Fail]: Task SwitcherBar is shown, expect No permanent")
+            return ["Fail", "check Not permanent",
+                    "[Fail]: Task SwitcherBar is shown, expect No permanent", "CheckNoPermanent"]
         time.sleep(15)
         if EasyshellLib.getElement("TASK_SWITCHER").BoundingRectangle[0] == 0:
             self.Logfile("-->[Fail]: Task SwitcherBar is permanent, expect no permanent")
-            self.capture("[Fail]: Task SwitcherBar is permanent, expect no permanent")
-            return False
+            self.capture("CheckNoPermanent", "[Fail]: Task SwitcherBar is permanent, expect no permanent")
+            return ["Fail", "check not permanent",
+                    "[Fail]: Task SwitcherBar is permanent, expect no permanent", 'CheckNoPermanent']
         else:
             self.Logfile("-->[PASS]: Task SwitcherBar is not permanent")
-            return True
+            return ["Pass", "check not permanent", "[PASS]: Task SwitcherBar is not permanent", "None"]
 
     def enableSoundIconReadOnly(self):
         self.enable()
@@ -2916,11 +2988,12 @@ class TaskSwitcher(EasyShellTest):
         EasyshellLib.getElement('SoundIcon').Click()
         if EasyshellLib.getElement('SoundAdjust').IsOffScreen:
             self.Logfile("-->[PASS]: sound value is not shown")
-            return True
+            return ["Pass", "check sound readonly", "[PASS]: sound value is not shown", "None"]
         else:
             self.Logfile("-->[Fail]: sound value is shown, Expect not shown")
             self.capture('SoundReadOnly', "[Fail]: sound value is shown, expect not shown")
-            return False
+            return ["Pass", "check sound readonly",
+                    "[Fail]: sound value is shown, expect not shown", "SoundReadOnly"]
 
     def enableSoundInteraction(self):
         self.enable()
@@ -2952,32 +3025,39 @@ class TaskSwitcher(EasyShellTest):
                 finalVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if finalVol != tempVol:
                     self.Logfile("-->[PASS]: Sound Adjust by Keyboard")
-                    return True
+                    return ["Pass", "check sound interaction by keyboard",
+                            "[PASS]: Sound Adjust by Keyboard", "None"]
                 else:
                     self.Logfile(
                         "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol))
                     self.capture('SoundInteraction_Key',
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,
                                                                                                        finalVol))
-                    return False
+                    return ["Fail", "check sound interaction by keyboard",
+                            "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol),
+                            "SoundInteraction_Key"]
             else:
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 CommonLib.SendKey(CommonLib.Keys.VK_LEFT, count=3)
                 finalVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if finalVol != tempVol:
-                    self.Logfile("-->[PASS]: {} Sound Adjust by Keyboard")
-                    return True
+                    self.Logfile("-->[PASS]: Sound Adjust by Keyboard")
+                    return ["Pass", "check sound interaction by keyboard",
+                            "[PASS]: Sound Adjust by Keyboard", "None"]
                 else:
-                    self.Logfile("-->[FAIL]: {} Sound Adjust by Keyboard")
+                    self.Logfile("-->[FAIL]: Sound Adjust by Keyboard")
                     self.capture('SoundInteraction_Key',
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol,
                                                                                                        finalVol))
-                    return False
+                    return ["Fail", "check sound interaction by keyboard",
+                            "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(tempVol, finalVol),
+                            "SoundInteraction_Key"]
         else:
             self.Logfile("-->[Fail]: sound value is not shown")
             self.capture('SoundInteraction_Key',
                          "[FAIL]: Sound adjust bar is not shown")
-            return False
+            return ["Fail", "check sound interaction by keyboard",
+                    "[Fail]: sound value is not shown", 'SoundInteraction_Key']
 
     def check_SoundInteraction_mouse(self):
         """
@@ -3006,35 +3086,43 @@ class TaskSwitcher(EasyShellTest):
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("-->[PASS]: Sound Adjusted by Mouse")
-                    return True
+                    return ['Pass', 'check sound interaction by mouse',
+                            "[PASS]: Sound Adjusted by Mouse", 'None']
                 else:
                     self.capture("SoundInteraction_Mosue",
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
                                                                                                        tempVol))
                     self.Logfile(
-                        "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
-                    return False
+                        "-->[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    return ['Fail', 'check sound interaction by mouse',
+                            "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol),
+                            'SoundInteraction_Mosue']
             else:
                 CommonLib.DragDrop(current_x, current_y, current_x - 10, current_y)
                 tempVol = EasyshellLib.getElement('SoundAdjust').AccessibleCurrentValue()
                 if currentVol != tempVol:
                     self.Logfile("-->[PASS]: Sound Adjust by Mouse")
-                    return True
+                    return ['Pass', 'check sound interaction by mouse',
+                            "[PASS]: Sound Adjusted by Mouse", 'None']
                 else:
                     self.capture("SoundInteraction_Mosue",
                                  "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol,
                                                                                                        tempVol))
                     self.Logfile(
-                        "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
-                    return False
+                        "-->[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol))
+                    return ['Fail', 'check sound interaction by mouse',
+                            "[FAIL]: Sound Adjust by Keyboard, before vol:{},after vol:{}".format(currentVol, tempVol),
+                            'SoundInteraction_Mosue']
         else:
             self.Logfile("-->[FAIL]: sound adjust bar is not shown")
             self.capture("SoundInteraction_Mouse", "[FAIL]: sound adjust bar is not shown")
-            return False
+            return ["Fail", 'check sound interaction by mouse',
+                    "[FAIL]: sound adjust bar is not shown", 'SoundInteraction_Mouse']
 
 
 class General_Test(EasyShellTest):
     def __init__(self):
+        self.result_list = ''
         EasyShellTest.__init__(self)
 
     @staticmethod
@@ -3056,6 +3144,33 @@ class General_Test(EasyShellTest):
         if key:
             reg.create_value(key, 'KioskMode', 0, 'True')
             reg.close(key)
+
+    def check_element_exist(self, element, exists=True):
+        try:
+            if exists:
+                if element.Exists():
+                    self.Logfile("[PASS][{} {}]:Exist".format(element.Name, element.AutomationId))
+                    return ["PASS", "check exist", "[PASS][{} {}]:Exist".format(element.Name, element.AutomationId),
+                            'checkExist']
+                else:
+                    self.Logfile("[Fail][{} {}]:Not Exist".format(element.Name, element.AutomationId))
+                    self.capture('checkExist', "[Fail][{} {}]:Not Exist".format(element.Name, element.AutomationId))
+                    return ["Fail", "check exist",
+                            "[Fail][{} {}]:Not Exist".format(element.Name, element.AutomationId), 'checkExist']
+            else:
+                if not element.Exists():
+                    self.Logfile("[PASS][{} {}]:Exist".format(element.Name, element.AutomationId))
+                    return ["PASS", "check not exist",
+                            "[PASS][{} {}]:Exist".format(element.Name, element.AutomationId), 'checkNotExist']
+                else:
+                    self.Logfile("[Fail][{} {}]: Exist".format(element.Name, element.AutomationId))
+                    self.capture('checkNotExist', "[Fail][{} {}]:Exist".format(element.Name, element.AutomationId))
+                    return ["Fail", "check not exist",
+                            "[Fail][{} {}]: Exist".format(element.Name, element.AutomationId), 'checkNotExist']
+        except:
+            self.Logfile("[Exception]Check Exist")
+            self.capture('checkExist', "[Exception]Check Exist")
+            return ["Fail", "check exist", "[Exception]Check Exist:\n".format(traceback.format_exc()), 'checkExist']
 
     def reg_export(self):
         if not os.path.exists(r'c:\temp'):
@@ -3135,10 +3250,12 @@ class General_Test(EasyShellTest):
         time.sleep(1)
         if EasyshellLib.getElement('ExitSave').Exists():
             self.Logfile('-->[PASS]: Exit Menu Test Pass, save dialog pops up')
+            self.result_list += '[PASS]: Exit Menu Test Pass, save dialog pops up'
             return True
         else:
             self.Logfile('-->[FAIL]: Exist Menu Test Fail, save dialog not pop up')
             self.capture('Exit_Menu', '[FAIL]: Exist Menu Test Fail, save dialog not pop up')
+            self.result_list += '[FAIL]: Exist Menu Test Fail, save dialog not pop up'
             return False
 
     def __exit_button(self):
@@ -3146,10 +3263,12 @@ class General_Test(EasyShellTest):
         time.sleep(1)
         if EasyshellLib.getElement('ExitSave').Exists():
             self.Logfile('-->[PASS]: Exit Button Test Pass, save dialog pops up')
+            self.result_list += '[PASS]: Exit Button Test Pass, save dialog pops up'
             return True
         else:
             self.Logfile('-->[FAIL]: Exist Button Test Fail, save dialog not pop up')
             self.capture('Exit_Button', '[FAIL]: Exist Button Test Fail, save dialog not pop up')
+            self.result_list += '[FAIL]: Exist Button Test Fail, save dialog not pop up'
             return False
 
     def __exit_check(self, item, button, state):
@@ -3159,34 +3278,41 @@ class General_Test(EasyShellTest):
             if EasyshellLib.getElement('AllowLock').GetStatus() != state:
                 EasyshellLib.getElement('Exit').Click()
                 self.Logfile('-->[PASS]: Exist {} Test PASS'.format(item))
-                return True
+                self.result_list += '[PASS]: Exist {} Test PASS'.format(item)
+                return ['Pass', 'check {} exit'.format(item), self.result_list, 'Exit_{}'.format(item)]
             else:
                 EasyshellLib.getElement('Exit').Click()
                 self.Logfile('-->[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
                              ''.format(item, 'Enable' if state == 1 else 'Disabled'))
                 self.capture('Exit_{}'.format(item), '[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
                                                      ''.format(item, 'Enable' if state == 1 else 'Disabled'))
-                return False
+                self.result_list += '[FAIL]: Exit {}, Expect AllowLock button {}'.format(item,
+                                                                             'Enable' if state == 1 else 'Disabled')
+                return ['Pass', 'check {} exit'.format(item), self.result_list, 'Exit_{}'.format(item)]
         elif button.upper() == 'NO':
             EasyshellLib.getElement('ButtonNO').Click()
             self.launch()
             if EasyshellLib.getElement('AllowLock').GetStatus() == state:
                 EasyshellLib.getElement('Exit').Click()
                 self.Logfile('-->[PASS]: Exit {} Test PASS'.format(item))
-                return True
+                self.result_list += '[PASS]: Exist {} Test PASS'.format(item)
+                return ['Pass', 'check {} exit'.format(item),self.result_list, 'Exit_{}'.format(item)]
             else:
                 EasyshellLib.getElement('Exit').Click()
                 self.Logfile('-->[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
                              ''.format(item, 'Enable' if state == 1 else 'Disabled'))
                 self.capture('Exit_{}'.format(item), '[FAIL]: Exit {} Test Fail, Expect AllowLock button {}'
                                                      ''.format(item, 'Enable' if state == 1 else 'Disabled'))
-                return False
+                self.result_list += '[FAIL]: Exit {}, Expect AllowLock button {}'.format(item,
+                                                                             'Enable' if state == 1 else 'Disabled')
+                return ['Pass', 'check {} exit'.format(item), self.result_list, 'Exit_{}'.format(item)]
         else:
             print('aaa')
             pass
 
     def exit_button(self, button):
         self.launch()
+        # random set allowlock button, change the status
         state = EasyshellLib.getElement('AllowLock').GetStatus()
         print(type(state))
         if state:
@@ -3197,7 +3323,7 @@ class General_Test(EasyShellTest):
         if self.__exit_button():
             return self.__exit_check('button', button, state)
         else:
-            return False
+            return ['Fail', 'check button exit', self.result_list, 'exit_button']
 
     def exit_menu(self, button):
         self.launch()
@@ -3210,7 +3336,7 @@ class General_Test(EasyShellTest):
         if self.__exit_menu():
             return self.__exit_check('menu', button, state)
         else:
-            return False
+            return ['Fail', 'check button exit', self.result_list, 'exit_menu']
 
     def set_hide_during_session(self, state):
         General_Test().resetEasyshell()
@@ -3254,17 +3380,20 @@ class General_Test(EasyShellTest):
             if version not in ver:
                 flag = False
                 self.Logfile('-->[FAIL]:Version Check Fail, expect:{}'.format(version))
-                self.capture('check_version', '[FAIL]:Version Check Fail, expect:{}'.format(version))
+                self.capture('check_copyright', '[FAIL]:Version Check Fail, expect:{}'.format(version))
+                self.result_list += '[FAIL]:Version Check Fail, expect:{}'.format(version)
         if copy != self.sections['copyright']:
             flag = False
             self.Logfile('-->[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
             self.capture('check_copyright', '[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
+            self.result_list += '[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright'])
         if comp != self.sections['company']:
             flag = False
             self.Logfile('-->[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
-            self.capture('check_company', '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
+            self.capture('check_copyright', '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
+            self.result_list += '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company'])
         EasyshellLib.getElement('Exit').Click()
-        return flag
+        return ["PASS" if flag else "Fail", 'Check copyright', self.result_list, 'check_copyright']
 
     def __check_hotkey_manager(self):
         isExist_file = os.path.exists(r'c:\windows\sysnative\HPHotkeyFilterCPL.exe')
@@ -3278,7 +3407,7 @@ class General_Test(EasyShellTest):
                     return True
                 else:
                     self.Logfile('-->[Fail]: Hotkey Filter is installed, but cannot be launched')
-                    self.capture('Integrated_check_hotkey',
+                    self.capture('intergratedTool',
                                  '[Fail]: Hotkey Filter is installed, but cannot be launched')
                     return False
             else:
@@ -3286,7 +3415,7 @@ class General_Test(EasyShellTest):
                 return True
         else:
             self.Logfile('-->[Fail]: Hotkey Filter file do not match with UI')
-            self.capture('Integrated_check_hotkey', '[Fail]: Hotkey Filter file do not match with UI')
+            self.capture('intergratedTool', '[Fail]: Hotkey Filter file do not match with UI')
             return False
 
     def __check_logon_manager(self):
@@ -3301,7 +3430,7 @@ class General_Test(EasyShellTest):
                     return True
                 else:
                     self.Logfile('-->[Fail]: Logon Manager is installed, but cannot be launched')
-                    self.capture('Integrated_check_logonmgr',
+                    self.capture('intergratedTool',
                                  '[Fail]: Logon manager is installed, but cannot be launched')
                     return False
             else:
@@ -3309,7 +3438,7 @@ class General_Test(EasyShellTest):
                 return True
         else:
             self.Logfile('-->[Fail]: Logon manager file do not match with UI')
-            self.capture('Integrated_check_logonmgr', '[Fail]: Logon Manager file do not match with UI')
+            self.capture('intergratedTool', '[Fail]: Logon Manager file do not match with UI')
             return False
 
     def check_integrated_tool(self):
@@ -3317,17 +3446,20 @@ class General_Test(EasyShellTest):
         EasyshellLib.getElement('Advanced').Click(waitTime=2)
         if not self.__check_logon_manager():
             flag = False
+            self.result_list += '[Fail]: logon manage Check Fail'
         if not self.__check_hotkey_manager():
             flag = False
+            self.result_list += '[Fail]: hotkey check Fail'
         EasyshellLib.getElement('ButtonClose').Click()
         EasyshellLib.getElement('Exit').Click()
-        return flag
+        return ["Pass" if flag else "Fail", 'check intergrated tool', self.result_list, 'intergratedTool']
 
 
 class Background(EasyShellTest):
     def __init__(self):
         EasyShellTest.__init__(self)
         self.section_name = 'background'
+        self.result_list = ''
 
     def __random_value(self):
         return random.randint(5, 88)
@@ -3354,11 +3486,12 @@ class Background(EasyShellTest):
             EasyshellLib.getElement('ButtonOK').Click()
             EasyshellLib.getElement('APPLY').Click()
             EasyshellLib.getElement('Exit').Click()
-            return True
+            return ['Pass', 'select theme {}'.format(theme), '[Pass]Select theme {}'.format(theme), 'select_theme']
         except:
             self.Logfile('-->[FAIL]: {} Select theme fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} Select theme fail:\n{}'.format(theme, traceback.format_exc()))
-            return False
+            return ['Fail', 'select theme {}'.format(theme),
+                    '[FAIL]: {} Select theme fail:\n{}'.format(theme, traceback.format_exc()), 'select_theme']
 
     def get_colors(self):
         EasyshellLib.getElement('SelectTheme').Click()
@@ -3400,14 +3533,17 @@ class Background(EasyShellTest):
             flag = False
             self.Logfile('-->[FAIL]: {} color title check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color title check fail'.format(theme))
+            self.result_list += '[FAIL]: {} color title check fail'.format(theme)
         if self.compare_RGB(text_pix, color_data[theme]['text']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color text foreground check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color text foreground check fail'.format(theme))
+            self.result_list += '[FAIL]: {} color text foreground check fail'.format(theme)
         if self.compare_RGB(active_pix, color_data[theme]['active']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color active status check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color active status check fail'.format(theme))
+            self.result_list += '[FAIL]: {} color active status check fail'.format(theme)
         if self.compare_RGB(main1_pix, main_color) < 0.98 or \
                 self.compare_RGB(main2_pix, main_color) < 0.98 or \
                 self.compare_RGB(main3_pix, main_color) < 0.98 or \
@@ -3415,11 +3551,13 @@ class Background(EasyShellTest):
             flag = False
             self.Logfile('-->[FAIL]: {} color main background check fail'.format(theme))
             self.capture('theme_color', '[FAIL]: {} color main background check fail'.format(theme))
+            self.result_list += '[FAIL]: {} color main background check fail'.format(theme)
         # print(img1.getpixel((size[0] - 1, size[1] - 1)))
         if flag:
             self.Logfile('-->[PASS]: {} color title check PASS'.format(theme))
+            self.result_list += '[PASS]: {} color title check PASS'.format(theme)
         os.remove('temp_color.png')
-        return flag
+        return ['Pass' if flag else 'Fail', 'check theme color', self.result_list, 'theme_color']
 
     @staticmethod
     def compare_RGB(rgb1, rgb2):
@@ -3436,21 +3574,29 @@ class Background(EasyShellTest):
         return [int(i, 16) for i in splited]
 
     def set_bg_pic(self, pic_name='custom_bg.jpg'):
-        pic_path = r"C:\Users\user\Desktop\{}".format(pic_name)
-        shutil.copyfile(os.path.join(self.data, pic_name), r"C:\Users\user\Desktop\{}".format(pic_name))
-        self.resetEasyshell()
-        self.launch()
-        EasyshellLib.getElement('EnableCustom').Enable()
-        EasyshellLib.getElement('BGFileLocationButton').Click(waitTime=2)
-        if EasyshellLib.getElement("RDP_ERROR").Exists():
-            EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
-        EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_path))
-        # above rdpbrowserfile has the same automationid with this edit selection
-        CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
-        time.sleep(2)
-        EasyshellLib.getElement('APPLY').Click()
-        EasyshellLib.getElement('Exit').Click()
-        return True
+        try:
+            pic_path = r"C:\Users\user\Desktop\{}".format(pic_name)
+            shutil.copyfile(os.path.join(self.data, pic_name), r"C:\Users\user\Desktop\{}".format(pic_name))
+            self.resetEasyshell()
+            self.launch()
+            EasyshellLib.getElement('EnableCustom').Enable()
+            EasyshellLib.getElement('BGFileLocationButton').Click(waitTime=2)
+            if EasyshellLib.getElement("RDP_ERROR").Exists():
+                EasyshellLib.getElement('ButtonOK').Click(waitTime=1)
+            EasyshellLib.getElement('RDPBrowserFile').SetValue(os.path.join(self.data, pic_path))
+            # above rdpbrowserfile has the same automationid with this edit selection
+            CommonLib.SendKey(CommonLib.Keys.VK_ENTER)
+            time.sleep(2)
+            EasyshellLib.getElement('APPLY').Click()
+            EasyshellLib.getElement('Exit').Click()
+            return ['PASS', 'set background picture', '[PASS]background picture is save', 'setbgpic']
+        except:
+            self.Logfile('-->[FAIL]: Meet exception during setting bg picture:\n{}'.format(traceback.format_exc()))
+            self.capture('setbgpic',
+                         '[FAIL]: Meet exception during setting bg picture:\n{}'.format(traceback.format_exc()))
+            return ['Fail', 'set background picture',
+                    '[FAIL]: Meet exception during setting bg picture:\n{}'.format(traceback.format_exc()),
+                    'setbgpic']
 
     def check_bg_pic(self, profile):
         flag = True
@@ -3475,42 +3621,52 @@ class Background(EasyShellTest):
             flag = False
             self.Logfile('-->[FAIL]: {} color top_left check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color top_left check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color top_left check fail'.format(profile)
         if self.compare_RGB(top_mid, color_data[profile]['top_mid']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color top_mid check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color top_mid check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color top_mid check fail'.format(profile)
         if self.compare_RGB(top_right, color_data[profile]['top_right']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color top_right check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color top_right check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color top_right check fail'.format(profile)
         if self.compare_RGB(mid_left, color_data[profile]['mid_left']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color mid_left check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color mid_left check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color mid_left check fail'.format(profile)
         if self.compare_RGB(mid_center, color_data[profile]['mid_center']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color mid_center check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color mid_center check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color mid_center check fail'.format(profile)
         if self.compare_RGB(mid_right, color_data[profile]['mid_right']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color mid_right check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color mid_right check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color mid_right check fail'.format(profile)
         if self.compare_RGB(bottom_left, color_data[profile]['bottom_left']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color bottom_left check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color bottom_left check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color bottom_left check fail'.format(profile)
         if self.compare_RGB(bottom_mid, color_data[profile]['bottom_mid']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color bottom_mid check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color bottom_mid check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color bottom_mid check fail'.format(profile)
         if self.compare_RGB(bottom_right, color_data[profile]['bottom_right']) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color bottom_right check fail'.format(profile))
             self.capture('bg_color', '[FAIL]: {} color bottom_right check fail'.format(profile))
+            self.result_list += '[FAIL]: {} color bottom_right check fail'.format(profile)
         if flag:
             self.Logfile('-->[PASS]: {} custom background picture check PASS'.format(profile))
+            self.result_list += '[PASS]: {} custom background picture check PASS'.format(profile)
         os.remove('temp_color.png')
-        return flag
+        return ['Pass' if flag else 'Fail', 'check background picture', self.result_list, 'bg_color']
 
     # -------------------------------back ground ---------------------------------------
     def set_background(self, bg='Custom'):
@@ -3540,11 +3696,13 @@ class Background(EasyShellTest):
                 f.write('main_color:{}\ntile_color:{}\ntext_color:{}'
                         '\ntileactive_color:{}\n'.format(main_color, tile_color, text_color, activetile_color))
             self.Logfile('-->[PASS]: Set {} Background \n'.format(bg))
-            return True
+            self.result_list += '[PASS]: Set {} Background \n'.format(bg)
+            return ['Pass', 'set theme background color', self.result_list, 'background']
         except:
             self.Logfile('-->[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
             self.capture("background", '[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
-            return False
+            self.result_list += '[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc())
+            return ['Fail', 'set theme background color', self.result_list, 'background']
 
     def check_background(self, bg='custom'):
         # This is for theme
@@ -3556,7 +3714,8 @@ class Background(EasyShellTest):
         if not os.path.exists(os.path.join(self.log_path, 'temp_color.txt')):
             self.Logfile('-->[FAIL]: Set {} Background\n{}\n'.format(bg, traceback.format_exc()))
             self.capture("background", '[FAIL]: check {} Background, custom color file not exist\n'.format(bg))
-            return False
+            return ['Fail', 'check theme',
+                    '[FAIL]: check {} Background, custom color file not exist\n'.format(bg), 'background']
         with open(os.path.join(self.log_path, 'temp_color.txt')) as f:
             colors = f.readlines()
         for color in colors:
@@ -3591,17 +3750,19 @@ class Background(EasyShellTest):
         # img1 = ImageGrab.grab()
         if self.compare_RGB(title_pix, tile_color) < 0.98:
             flag = False
-            print(title_pix, tile_color)
             self.Logfile('-->[FAIL]: {} color title check fail'.format(bg))
             self.capture('theme_color', '[FAIL]: {} color title check fail'.format(bg))
+            self.result_list = '[FAIL]: {} color title check fail'.format(bg)
         if self.compare_RGB(text_pix, text_color) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color text foreground check fail'.format(bg))
             self.capture('theme_color', '[FAIL]: {} color text foreground check fail'.format(bg))
+            self.result_list = '[FAIL]: {} color text foreground check fail'.format(bg)
         if self.compare_RGB(active_pix, tileactive_color) < 0.98:
             flag = False
             self.Logfile('-->[FAIL]: {} color active status check fail'.format(bg))
             self.capture('theme_color', '[FAIL]: {} color active status check fail'.format(bg))
+            self.result_list = '[FAIL]: {} color active status check fail'.format(bg)
         if self.compare_RGB(main1_pix, main_color) < 0.98 or \
                 self.compare_RGB(main2_pix, main_color) < 0.98 or \
                 self.compare_RGB(main3_pix, main_color) < 0.98 or \
@@ -3609,12 +3770,14 @@ class Background(EasyShellTest):
             flag = False
             self.Logfile('-->[FAIL]: {} color main background check fail'.format(bg))
             self.capture('theme_color', '[FAIL]: {} color main background check fail'.format(bg))
+            self.result_list = '[FAIL]: {} color main background check fail'.format(bg)
         # print(img1.getpixel((size[0] - 1, size[1] - 1)))
         if flag:
             self.Logfile('-->[PASS]: {} color title check PASS'.format(bg))
+            self.result_list = '-->[PASS]: {} color title check PASS'.format(bg)
         os.remove('temp_color.png')
         os.remove(os.path.join(self.log_path, 'temp_color.txt'))
-        return flag
+        return ['Pass' if flag else 'Fail', 'check theme', self.result_list, 'theme_color']
 
 
 class Wifi(TaskSwitcher):
@@ -3766,3 +3929,4 @@ if __name__ == '__main__':
     # UserSettings().edit('test_off')
     General_Test().create_admin()
     General_Test().create_user()
+    General_Test().check_element_exist(EasyshellLib.getElement('MAIN_WINDOW').Exists())
