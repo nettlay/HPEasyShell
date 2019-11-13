@@ -505,8 +505,6 @@ class YmlUtils:
     def write(self, msg):
         with open(self.__fiename, 'w', encoding='utf-8') as f:
             yaml.safe_dump(msg, f)
-            f.flush()
-            f.close()
 # yml = YmlUtils("Z:\\workspace3\\hpeasyshell\\test_report\\result.yml")
 # case = yml.get_item()
 # if not case:
