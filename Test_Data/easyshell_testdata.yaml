@@ -64,7 +64,7 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     persistent:
-        WindowName: C:.*cmd.exe
+        WindowName: .*cmd.exe
         Name: persistent
         Path: 
             - C:\windows\system32\cmd.exe
