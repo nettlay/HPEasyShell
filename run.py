@@ -169,8 +169,8 @@ class Test:
         else:
             os_version = "Wes7"
         product_name, copy_right, company = General_Test().check_copyright()
-        txt = "Attachment is HP EasyShell Test Result</br>Name:{}</br>copyright:{}</br>company:{}".format(
-            product_name, copy_right, company)
+        txt = "Attachment is HP EasyShell Test Result</br></br><h4>Name &nbsp&nbsp&nbsp&nbsp&nbsp : {}</br>copyright:" \
+              " {}</br>company : {}</h4>".format(product_name, copy_right, company)
         subject = "{} Test Result for {} {}".format(product_name, getPN(), os_version)  # pn: platform
         # mail_list = ["balance.cheng@hp.com"]
         self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
