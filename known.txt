@@ -1,4 +1,0 @@
-usersettings:
-            wes10                                   WES7E
-display:    build-in DisplaySetting                 WIndows resolution window
-Region:     Region                                  Region and launguage

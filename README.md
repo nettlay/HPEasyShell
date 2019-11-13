@@ -1,1 +1,0 @@
-# Functional-dell-Easy-Shell-Test
