@@ -11,7 +11,7 @@ import pysnooper
 from PIL import ImageGrab, ImageDraw, ImageFont, Image
 import pywifi
 from subprocess import check_output
-from connection import RDPLogon, CitrixLogon, ViewLogon, StoreLogon
+from Test_Scripts.connection import RDPLogon, CitrixLogon, ViewLogon, StoreLogon
 import requests
 from Library import CommonLib
 
@@ -32,11 +32,12 @@ class EasyShellTest:
         self.section_name = 'createApp'
         #  ---------------------------------
         self.log_path = os.path.join(self.path, 'Test_Report')
+        self.config_path = os.path.join(self.path, 'Configuration')
         self.misc = os.path.join(self.path, 'Misc')
         self.data = os.path.join(self.path, 'Test_Data')
         self.casepath = os.path.join(self.path, 'Test_Suite')
         self.testing = os.path.join(self.path, 'Testing')
-        self.testset = os.path.join(self.path, 'testset.xlsx')
+        self.testset = os.path.join(self.data, 'testset.xlsx')
         self.sections = CommonLib.YmlUtils(os.path.join(self.data, "easyshell_testdata.yaml")).get_item()
         self.appPath = self.sections['appPath']['easyShellPath']
         self.debug = os.path.join(self.log_path, 'debug.log')
@@ -194,19 +195,20 @@ class EasyShellTest:
     def capture(self, filename, txt=""):
         if not os.path.exists(self.log_path):
             os.mkdir(self.log_path)
-        if not os.path.exists(os.path.join(self.log_path, 'screenshot')):
-            os.mkdir(os.path.join(self.log_path, 'screenshot'))
+        if not os.path.exists(os.path.join(self.log_path, 'actual_img')):
+            os.mkdir(os.path.join(self.log_path, 'actual_img'))
         name = filename
         im = ImageGrab.grab()
         draw = ImageDraw.Draw(im)
         fnt = ImageFont.truetype(r'C:\Windows\Fonts\Tahoma.TTF', 24)
         draw.text((5, 5), txt, fill='red', font=fnt)
         for i in range(20):
-            if os.path.exists("{}\\screenshot\\{}.jpg".format(self.log_path, name)):
+            if os.path.exists("{}\\actual_img\\{}.jpg".format(self.log_path, name)):
                 name = filename + str(i)
             else:
                 break
-        im.save("{}\\screenshot\\{}.jpg".format(self.log_path, name))
+        im.save("{}\\actual_img\\{}.jpg".format(self.log_path, name))
+        return '{}.jpg'.format(name)
 
     # @pysnooper.snoop(os.path.join(__file__, 'Test_report\\debug.log'))
     def utils(self, profile='', op='exist', item='normal'):
@@ -223,22 +225,21 @@ class EasyShellTest:
         if op.upper() == 'NOTEXIST':
             if CommonLib.TextControl(Name=name).Exists(0, 0):
                 self.Logfile('Check {}-{} Not Exist Fail'.format(profile, name))
-                self.capture(profile, 'Check {}-{} Not Exist Fail'.format(profile, name))
+                pic_path = self.capture(profile, 'Check {}-{} Not Exist Fail'.format(profile, name))
                 return ['Fail',
                         'check {} not exist'.format(profile),
-                        'Check {}-{} Not Exist Fail'.format(profile, name), profile]
+                        'Check {}-{} Not Exist Fail'.format(profile, name), pic_path]
             else:
                 self.Logfile('Check {}-{} Not Exist PASS'.format(profile, name))
                 return ['Pass',
                         'check {} not exist'.format(profile),
-                        'Check {}-{} Not Exist PASS'.format(profile, name), profile]
+                        'Check {}-{} Not Exist PASS'.format(profile, name), ""]
         if CommonLib.TextControl(Name=name).Exists(0, 0):
             txt = CommonLib.TextControl(Name=name)
             if op.upper() == "EXIST":
-                return ["PASS", "util check Exist", "{}-{} Exist".format(profile, name), profile]
+                return ["PASS", "util check Exist", "[Pass]{}-{} Exist".format(profile, name), ""]
         else:
-            print("{}-{} Not Exist".format(profile, name))
-            return ["Fail", "util check {}".format(op), "{}-{} Not Exist".format(profile, name), profile]
+            return ["Fail", "util check {}".format(op), "[Fail]{}-{} Not Exist".format(profile, name), ""]
         if 'CONN' in item.upper():
             appControl = txt.GetParentControl()
         else:
@@ -271,13 +272,13 @@ class EasyShellTest:
                 delete.Click()
                 EasyshellLib.getElement('DeleteYes').Click()
                 EasyshellLib.getElement('APPLY').Click()
-                return ['Pass', 'delete {}'.format(name), '[pass] delete {}-{} pass'.format(profile, name), profile]
+                return ['Pass', 'delete {}'.format(name), '[pass] delete {}-{} pass'.format(profile, name), ""]
             except:
                 self.Logfile("-->[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
-                self.capture(profile, "[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
-                return ['Fail', 'delete {}'.format(name), '[Fail] delete {}-{} pass'.format(profile, name), profile]
+                pic_path = self.capture(profile, "[FAIL]:App {} Delete\nErrors:\n{}\n".format(name, traceback.format_exc()))
+                return ['Fail', 'delete {}'.format(name), '[Fail] delete {}-{} pass'.format(profile, name), pic_path]
         else:
-            return ["Fail", "util operator {}".format(name), "Unknown parameter", profile]
+            return ["Fail", "util operator {}".format(name), "Unknown parameter", ""]
 
 
 class UserInterfacSettings(EasyShellTest):
@@ -567,14 +568,17 @@ class UserInterfacSettings(EasyShellTest):
                             result_info += "[PASS]: {} is shown\n".format(name)
                             real_mac = EasyshellLib.CommonUtils.getNetInfo()['MAC']
                             show_mac = EasyshellLib.getElement('MACAddr').Name
-                            if real_mac == show_mac:
+                            if re.match(r'\w{2}:\w{2}:\w{2}:\w{2}:\w{2}:\w{2}', show_mac):
                                 self.Logfile("-->[PASS]: {} real mac".format(name))
                                 result_info += "[PASS]: {} real mac\n".format(name)
                             else:
                                 flag = False
-                                self.Logfile("-->[Fail]: {} real mac".format(name))
-                                self.capture(profile, "[Fail]: {} real mac".format(name))
-                                result_info += "[Fail]: {} real mac\n".format(name)
+                                self.Logfile("-->[Fail]: {} real mac, expect:{},"
+                                             " actual:{}".format(name, real_mac, show_mac))
+                                self.capture(profile, "[Fail]: {} real mac, "
+                                                      "expect:{}, actual:{}".format(name, real_mac, show_mac))
+                                result_info += "[Fail]: {} real mac, expect:{}," \
+                                               " actual:{}".format(name, real_mac, show_mac)
 
                         else:
                             flag = False
@@ -1337,7 +1341,6 @@ class Shell_Application(EasyShellTest):
                 if CommonLib.WindowControl(RegexName=WindowName).Exists():
                     CommonLib.WindowControl(RegexName=WindowName).Close()
                 else:
-                    flag = False
                     self.Logfile("-->[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
                     self.capture(profile,
                                  "[Failed]:App {} not Persistent, app {} is not launched".format(Name, WindowName))
@@ -3314,7 +3317,6 @@ class General_Test(EasyShellTest):
         self.launch()
         # random set allowlock button, change the status
         state = EasyshellLib.getElement('AllowLock').GetStatus()
-        print(type(state))
         if state:
             EasyshellLib.getElement('AllowLock').Disable()
         else:
@@ -3370,30 +3372,12 @@ class General_Test(EasyShellTest):
 
     def check_copyright(self):
         self.launch()
-        flag = True
         version = EasyshellLib.getElement('CopyRight').Name
         ver = re.findall(r'(.*)Copy.*', version)[0].replace('-', '').strip()
         copy = re.findall(r'.* Copyright(.*)HP', version)[0][3:].strip()
         comp = re.findall(r'.*-\d\d\d\d(.*)', version)[0].strip()
-        with open(os.path.join(self.path, 'version.txt')) as f:
-            version = f.read()
-            if version not in ver:
-                flag = False
-                self.Logfile('-->[FAIL]:Version Check Fail, expect:{}'.format(version))
-                self.capture('check_copyright', '[FAIL]:Version Check Fail, expect:{}'.format(version))
-                self.result_list += '[FAIL]:Version Check Fail, expect:{}'.format(version)
-        if copy != self.sections['copyright']:
-            flag = False
-            self.Logfile('-->[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
-            self.capture('check_copyright', '[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright']))
-            self.result_list += '[FAIL]:copyright Check Fail, expect:{}'.format(self.sections['copyright'])
-        if comp != self.sections['company']:
-            flag = False
-            self.Logfile('-->[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
-            self.capture('check_copyright', '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company']))
-            self.result_list += '[FAIL]:company Check Fail, expect:{}'.format(self.sections['company'])
         EasyshellLib.getElement('Exit').Click()
-        return ["PASS" if flag else "Fail", 'Check copyright', self.result_list, 'check_copyright']
+        return ver, copy, comp
 
     def __check_hotkey_manager(self):
         isExist_file = os.path.exists(r'c:\windows\sysnative\HPHotkeyFilterCPL.exe')

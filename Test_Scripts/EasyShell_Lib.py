@@ -1,11 +1,74 @@
 import platform
-from Library.CommonLib import QAUtils, TxtUtils, getElementByType
+import shutil
+import sys
+import traceback
+from Library.CommonLib import QAUtils, TxtUtils, getElementByType, Reg_Utils, YmlUtils
 import os
+import openpyxl
 
-if not os.path.exists('c:\\svc'):
-    os.mkdir("C:\\svc")
-if not os.path.exists('c:\\svc\\svcconfig.ini'):
-    os.system('echo {}\\test.txt>c:\\svc\\svcconfig.ini'.format(os.getcwd()))
+
+def setup():
+    """
+    Initial test environment before test
+    include :
+    copy this folder to c:\svc\hpeasyshell
+    install services
+    disable firewall
+    disable UAC
+    reboot
+    """
+    if sys.argv[0].upper() == 'RUN.EXE':
+        self_path = os.getcwd()
+    else:
+        self_path = os.path.dirname(sys.argv[0])
+    print(self_path)
+    # ========================================
+    # setup
+    # ========================================
+    try:
+        if not os.path.exists(r'c:\svc'):
+            os.mkdir(r'c:\svc')
+        if os.path.exists(r'c:\svc\hpeasyshell'):
+            if os.path.normcase(self_path) == os.path.normcase(r'c:\svc\hpeasyshell'):
+                if not os.path.exists(r'c:\svc\hpeasyshell\test_data\testset.xlsx'):
+                    shutil.copy(r'c:\svc\hpeasyshell\test_data\testsetbak.xlsx',
+                                r'c:\svc\hpeasyshell\test_data\testset.xlsx')
+                return
+            else:
+                shutil.rmtree(r'c:\svc\hpeasyshell')
+        shutil.copytree(self_path, r"C:\svc\hpeasyshell")
+        shutil.copy(r'c:\svc\hpeasyshell\services\svcconfig.ini', r'c:\svc\svcconfig.ini')
+        shutil.copy(r'c:\svc\hpeasyshell\services\runappasService.exe', r'c:\svc\runappasService.exe')
+        os.system(r'c:\svc\runappasService.exe --startup auto install')
+        # ----create test plan excel from scripts.yml
+        if os.path.exists(r'c:\svc\hpeasyshell\test_data\script.yml'):
+            yml = YmlUtils(r'c:\svc\hpeasyshell\test_data\script.yml')
+            items = yml.get_item()
+            wb = openpyxl.Workbook()
+            sheet = wb.create_sheet(index=0, title='Test_Suite')
+            sheet.cell(1, 1).value = "TestName"
+            sheet.cell(1, 2).value = "TestResult"
+            for index in range(len(items)):
+                sheet.cell(index + 2, 1).value = list(items[index].keys())[0]
+            wb.save(r'c:\svc\hpeasyshell\test_data\testset.xlsx')
+        else:
+            if not os.path.exists(r'c:\svc\hpeasyshell\test_data\testset.xlsx'):
+                shutil.copy(r'c:\svc\hpeasyshell\test_data\testsetbak.xlsx', r'c:\svc\hpeasyshell\test_data\testset.xlsx')
+        # ---UAC----
+        reg = Reg_Utils()
+        key = reg.open(r'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
+        reg.create_value(key=key, valueName='EnableLUA', regType=1, content=0)
+        reg.close(key)
+        # ---Firewall----
+        os.system('netsh advfirewall set publicprofile state off')
+        os.system('netsh advfirewall set privateprofile state off')
+        os.system('shutdown -r -t 5')
+    except:
+        with open(r'c:\svc\debug.txt', 'w') as f:
+            f.write(traceback.format_exc())
+
+
+setup()  # initial test envrionment on TC
 file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip().split(':', 1)[1]
 print(file_path)
 file_path = os.path.dirname(file_path)
