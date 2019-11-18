@@ -10,6 +10,11 @@ import yaml
 # import ruamel.yaml as yaml
 import re
 
+from win32com.client import DispatchEx
+
+a = DispatchEx('Quicktest.Application', '15.83.248.230')
+
+
 
 # def logoff():
 #     os.system('echo test_logon_pass >test_rdp_result.txt')

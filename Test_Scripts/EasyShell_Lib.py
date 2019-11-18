@@ -34,7 +34,7 @@ def setup():
                 if not os.path.exists(r'c:\svc\hpeasyshell\test_data\testset.xlsx'):
                     shutil.copy(r'c:\svc\hpeasyshell\test_data\testsetbak.xlsx',
                                 r'c:\svc\hpeasyshell\test_data\testset.xlsx')
-                return
+                return None
             else:
                 shutil.rmtree(r'c:\svc\hpeasyshell')
         try:
@@ -67,14 +67,16 @@ def setup():
         os.system('netsh advfirewall set publicprofile state off')
         os.system('netsh advfirewall set privateprofile state off')
         os.system('shutdown -r -t 5')
+        return self_path
     except:
         with open(r'c:\svc\debug.txt', 'w') as f:
             f.write(traceback.format_exc())
 
 
-setup()  # initial test envrionment on TC
+is_from_frame = setup()  # initial test envrionment on TC
 file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip().split(':', 1)[1]
-print(file_path)
+
+
 file_path = os.path.dirname(file_path)
 ElementlibPath = os.path.join(file_path, 'Configuration\\elementLib.ini')
 
