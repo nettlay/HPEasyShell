@@ -30,7 +30,6 @@ def setup():
             os.mkdir(r'c:\svc')
         if os.path.exists(r'c:\svc\hpeasyshell'):
             if os.path.normcase(self_path) == os.path.normcase(r'c:\svc\hpeasyshell'):
-                print(os.path.normcase(self_path), "====r'c:\svc\hpeasyshell'")
                 if not os.path.exists(r'c:\svc\hpeasyshell\test_data\testset.xlsx'):
                     shutil.copy(r'c:\svc\hpeasyshell\test_data\testsetbak.xlsx',
                                 r'c:\svc\hpeasyshell\test_data\testset.xlsx')
@@ -64,16 +63,16 @@ def setup():
         reg.create_value(key=key, valueName='EnableLUA', regType=1, content=0)
         reg.close(key)
         # ---Firewall----
+        os.system('echo {}>c:\\svc\\hpeasyshell\\task_name.txt'.format(self_path))
         os.system('netsh advfirewall set publicprofile state off')
         os.system('netsh advfirewall set privateprofile state off')
         os.system('shutdown -r -t 5')
-        return self_path
     except:
         with open(r'c:\svc\debug.txt', 'w') as f:
             f.write(traceback.format_exc())
 
 
-is_from_frame = setup()  # initial test envrionment on TC
+setup()  # initial test envrionment on TC
 file_path = TxtUtils('c:\\svc\\svcconfig.ini').get_source().strip().split(':', 1)[1]
 
 

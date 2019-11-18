@@ -176,10 +176,13 @@ class Test:
         self.sendMail(mail_list, subject, txt, self.testset, os.path.join(self.path, 'report.zip'))
         os.remove(os.path.join(self.path, 'report.zip'))
         os.system("echo Test Finished>{}".format(os.path.join(self.path, 'flag.txt')))
-        if EasyshellLib.is_from_frame:
+        if os.path.exists(r'c:\svc\hpeasyshell\task_name.txt'):
             # check if test from framework, if yes copy report and result to c:\temp\taskname\
-            shutil.copy(r'c:\svc\hpeasyshell\flag.txt', r'{}\flag.txt'.format(EasyshellLib.is_from_frame))
-            shutil.copytree(r'c:\svc\hpeasyshell\test_report', EasyshellLib.is_from_frame)
+            with open(r'c:\svc\hpeasyshell\task_name.txt') as f:
+                task_name = f.readlines()[0].strip()
+            shutil.copy(r'c:\svc\hpeasyshell\flag.txt', r'{}\flag.txt'.format(task_name))
+            shutil.rmtree(r'{}\test_report', ignore_errors=True)
+            shutil.copytree(r'c:\svc\hpeasyshell\test_report', r'{}\test_report'.format(task_name))
 
     def runTestcase(self, name, current_case_rs):
         wb = load_workbook(name)
