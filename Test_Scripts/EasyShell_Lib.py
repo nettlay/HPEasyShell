@@ -30,15 +30,19 @@ def setup():
             os.mkdir(r'c:\svc')
         if os.path.exists(r'c:\svc\hpeasyshell'):
             if os.path.normcase(self_path) == os.path.normcase(r'c:\svc\hpeasyshell'):
+                print(os.path.normcase(self_path), "====r'c:\svc\hpeasyshell'")
                 if not os.path.exists(r'c:\svc\hpeasyshell\test_data\testset.xlsx'):
                     shutil.copy(r'c:\svc\hpeasyshell\test_data\testsetbak.xlsx',
                                 r'c:\svc\hpeasyshell\test_data\testset.xlsx')
                 return
             else:
                 shutil.rmtree(r'c:\svc\hpeasyshell')
-        shutil.copytree(self_path, r"C:\svc\hpeasyshell")
-        shutil.copy(r'c:\svc\hpeasyshell\services\svcconfig.ini', r'c:\svc\svcconfig.ini')
-        shutil.copy(r'c:\svc\hpeasyshell\services\runappasService.exe', r'c:\svc\runappasService.exe')
+        try:
+            shutil.copytree(self_path, r"C:\svc\hpeasyshell")
+            shutil.copy(r'c:\svc\hpeasyshell\services\svcconfig.ini', r'c:\svc\svcconfig.ini')
+            shutil.copy(r'c:\svc\hpeasyshell\services\runappasService.exe', r'c:\svc\runappasService.exe')
+        except:
+            print("May be some file exist or running, can not be replace, so skip this copy")
         os.system(r'c:\svc\runappasService.exe --startup auto install')
         # ----create test plan excel from scripts.yml
         if os.path.exists(r'c:\svc\hpeasyshell\test_data\script.yml'):
