@@ -62,9 +62,9 @@ class Test:
         self.misc = easyshelltest.misc
         self.testset = easyshelltest.testset
         self.testing = easyshelltest.testing
-        self.rs_yml = CommonLib.YmlUtils(os.path.join(self.logpath, 'result.yml'))
-        self.case_result = self.rs_yml.get_item()
         self.current_ip = EasyshellLib.CommonUtils.getNetInfo()['IP']
+        self.rs_yml = CommonLib.YmlUtils(os.path.join(self.logpath, '{}.yaml'.format(self.current_ip)))
+        self.case_result = self.rs_yml.get_item()
 
     def getAttachment(self, attachmentFilePath):
         attachment = MIMEText(open(attachmentFilePath, 'rb').read(), 'base64', 'utf-8')
@@ -244,7 +244,7 @@ class Test:
                         wb.save(name)
                         EasyShellTest().Logfile("[{}]:{} check, Actual:{}".format(step_rs, command, rs))
                         current_case_rs['steps'].append(
-                            {"step_name": step_name, 'actual': pic_path if step_rs.upper() == "PASS" else "",
+                            {"step_name": step_name, 'actual': "" if step_rs.upper() == "PASS" else pic_path,
                              'expect': "", 'result': step_rs,
                              'note': step_info})
                         self.rs_yml.write(self.case_result)

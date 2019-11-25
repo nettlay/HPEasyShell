@@ -15,7 +15,7 @@ import win32net
 import win32netcon
 import subprocess
 import platform
-import ruamel.yaml as yaml
+import yaml
 import re
 '''
 Some element might mistake recognize automationId or Name:
@@ -505,7 +505,7 @@ class YmlUtils:
     def write(self, msg):
         with open(self.__fiename, 'w', encoding='utf-8') as f:
             yaml.safe_dump(msg, f)
-# yml = YmlUtils("Z:\\workspace3\\hpeasyshell\\test_report\\result.yml")
+# yml = YmlUtils("Z:\\workspace3\\hpeasyshell\\test_report\\15.83.248.208.yaml")
 # case = yml.get_item()
 # if not case:
 #     yml.write([{'case_name': 'test2', 'result': '', 'steps': [], 'uut_name': '145666'}])

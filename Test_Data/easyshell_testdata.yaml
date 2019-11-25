@@ -1,5 +1,5 @@
 appPath:
-    easyShellPath: [C:\Program Files\HP\HP Easy Shell\HPEasyShellConfig.exe]
+    easyShellPath: ['C:\Program Files\HP\HP Easy Shell\HPEasyShellConfig.exe']
 version: HP Easy Shell 3.6.19.0
 copyright: 2012-2019
 company: HP Development Company, L.P.
@@ -7,7 +7,7 @@ createWebsites:
     HPDTO_Default:
         EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTOTest_Default
-        Address: http://15.83.240.126
+        Address: 'http://15.83.240.126'
         DefaultHome: True
         UseIE: False
         IEFullScreen: False
@@ -16,7 +16,7 @@ createWebsites:
     HPDTO_EmbedIE:
         EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTO_EmbedIE
-        Address: http://15.83.240.126
+        Address: 'http://15.83.240.126'
         DefaultHome: True
         UseIE: True
         IEFullScreen: True
@@ -25,7 +25,7 @@ createWebsites:
     editWebsite:
         EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTOEditTest
-        Address: http://15.83.240.126
+        Address: 'http://15.83.240.126'
         DefaultHome: False
         UseIE: True
         IEFullScreen: True
@@ -34,7 +34,7 @@ createWebsites:
     standardWebsite:
         EmbaedPaneName: HP DTO Performance test.* query.*
         Name: HPDTOStandard
-        Address: http://15.83.240.126
+        Address: 'http://15.83.240.126'
         DefaultHome: False
         UseIE: False
         IEFullScreen: False
@@ -43,7 +43,7 @@ createWebsites:
     resetweb:
         EmbaedPaneName: test
         Name: test_web
-        Address: http://15.83.240.126
+        Address: 'http://15.83.240.126'
         DefaultHome: False
         UseIE: False
         IEFullScreen: False
@@ -54,7 +54,7 @@ createApp:
         WindowName: .*- Notepad
         Name: Manual_launch
         Path: 
-            - C:\windows\system32\notepad.exe
+            - 'C:\windows\system32\notepad.exe'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -67,7 +67,7 @@ createApp:
         WindowName: .*cmd.exe
         Name: persistent
         Path: 
-            - C:\windows\system32\cmd.exe
+            - 'C:\windows\system32\cmd.exe'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -80,8 +80,8 @@ createApp:
         WindowName: HP DTO Performance.* - Internet Explorer
         Name: IExplore_argument
         Path: 
-            - C:\Program Files\internet explorer\iexplore.exe
-        Argument: http://15.83.240.126
+            - 'C:\Program Files\internet explorer\iexplore.exe'
+        Argument: 'http://15.83.240.126'
         Launchdelay: 0
         Exitaction: None
         Autolaunch: 1
@@ -93,7 +93,7 @@ createApp:
         WindowName: .*Paint
         Name: Mspaint_autolaunch
         Path:
-          - C:\Windows\system32\mspaint.exe
+          - 'C:\Windows\system32\mspaint.exe'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -106,8 +106,8 @@ createApp:
         WindowName: VMware Horizon Client
         Name: VMware
         Path: 
-            - C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe
-            - C:\Program Files\VMware\VMware Horizon View Client\vmware-view.exe
+            - 'C:\Program Files (x86)\VMware\VMware Horizon View Client\vmware-view.exe'
+            - 'C:\Program Files\VMware\VMware Horizon View Client\vmware-view.exe'
         Argument: None
         Launchdelay: 20
         Exitaction: None
@@ -120,7 +120,7 @@ createApp:
         WindowName: .*- Notepad
         Name: Notepad-AdminOnly
         Path: 
-            - C:\windows\system32\notepad.exe
+            - 'C:\windows\system32\notepad.exe'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -133,7 +133,7 @@ createApp:
         WindowName: Administrator.*
         Name: CMD-HideMissApp
         Path: 
-            - C:\Eroorpath
+            - 'C:\Eroorpath'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -146,7 +146,7 @@ createApp:
         WindowName: .*Paint
         Name: Mspaint_edit
         Path: 
-            - C:\Windows\system32\mspaint.exe
+            - 'C:\Windows\system32\mspaint.exe'
         Argument: None
         Launchdelay: 20
         Exitaction: None
@@ -156,10 +156,10 @@ createApp:
         Adminonly: 0
         Hidemissapp: 0
     standardApp: # This is for create a application demo
-        WindowName: .*- Notepad
+        WindowName: '.*- Notepad'
         Name: StandardApp
         Path: 
-            - C:\windows\system32\notepad.exe
+            - 'C:\windows\system32\notepad.exe'
         Argument: None
         Launchdelay: 0
         Exitaction: None
@@ -454,9 +454,9 @@ userSettings:
 createRDP:
     standardRDP:
         Name: standard_RFXWin10
-        Hostname: rfxw10-2.sh.dto
-        Username: sh\cheng.balance
-        Password: password.321
+        Hostname: 'rfxw10-2.sh.dto'
+        Username: 'sh\cheng.balance'
+        Password: 'password.321'
         Launchdelay: 0
         Arguments: None
         Autolaunch: OFF
@@ -464,7 +464,7 @@ createRDP:
         Customfile: OFF
     standardRDP1:
         Name: standard_RFXWin10
-        Hostname: rfxw10-1.sh.dto
+        Hostname: 'rfxw10-1.sh.dto'
         Username: sh\cheng.balance
         Password: password.321
         Launchdelay: 0
@@ -474,9 +474,9 @@ createRDP:
         Customfile: OFF
     standardRDP2:
         Name: standard_RFXWin10
-        Hostname: rfxw10-2.sh.dto
-        Username: sh\cheng.balance
-        Password: password.321
+        Hostname: 'rfxw10-2.sh.dto'
+        Username: 'sh\cheng.balance'
+        Password: 'password.321'
         Launchdelay: 0
         Arguments: None
         Autolaunch: OFF
@@ -491,21 +491,21 @@ createRDP:
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
-        Customfile: C:\svc\hpeasyshell\test_data\DEFAULT.rdp
+        Customfile: 'C:\svc\hpeasyshell\test_data\DEFAULT.rdp'
     test1_RDP:
         Name: edit_RFXWin10
-        Hostname: rfxw10-1.sh.dto
-        Username: zhao.sam
-        Password: zhao123
+        Hostname: 'rfxw10-1.sh.dto'
+        Username: 'zhao.sam'
+        Password: 'zhao123'
         Launchdelay: 30
         Arguments: None
         Autolaunch: OFF
         Persistent: OFF
-        Customfile: C:\svc\hpeasyshell\test_data\DEFAULT.rdp
+        Customfile: 'C:\svc\hpeasyshell\test_data\DEFAULT.rdp'
 createView:
     standardView:
         Name: standardView
-        Hostname: vnsvr.sh.dto
+        Hostname: 'vnsvr.sh.dto'
         Launchdelay: 0
         Argument: None
         Autolaunch: OFF
@@ -517,11 +517,11 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
-        SelDesktopName: B-W764
+        SelDesktopName: 'B-W764'
         AppName: None
     editView:
         Name: editView
-        Hostname: vnsvr.sh.dto
+        Hostname: 'vnsvr.sh.dto'
         Launchdelay: 5
         Argument: None
         Autolaunch: OFF
@@ -533,12 +533,12 @@ createView:
         Password: zhao123
         Domain: sh.dto
         DesktopName: None
-        SelDesktopName: B-W764
+        SelDesktopName: 'B-W764'
         AppName: None
 createCitrix:
     standardCitrix:
         Name: standard_citrix
-        Hostname: XA65FP2SVR03.SH.DTO
+        Hostname: 'XA65FP2SVR03.SH.DTO'
         Username: zhao.sam
         Password: zhaopass
         Domain: sh.dto
@@ -561,14 +561,14 @@ createCitrix:
 createStoreFront:
     standardStore:
         Name: standardStore
-        URL: https://fcxds.sh.dto/citrix/newstore
+        URL: 'https://fcxds.sh.dto/citrix/newstore'
         SelectStore: False
-        StoreName: fcxds.sh.dto
+        StoreName: 'fcxds.sh.dto'
         Launchdelay: 0
-        LogonMethod: Username and password
-        Username: cheng.balance
-        Password: password.321
-        Domain: sh.dto
+        LogonMethod: 'Username and password'
+        Username: 'cheng.balance'
+        Password: 'password.321'
+        Domain: 'sh.dto'
         HideDomain: OFF
         CustomLogon: None
         Autolaunch: OFF
@@ -579,11 +579,11 @@ createStoreFront:
         AppName: None
     editStore:
         Name: editStore
-        URL: edittest.sh.dto
+        URL: 'edittest.sh.dto'
         SelectStore: False
         StoreName: fcxds.sh.dto
         Launchdelay: 0
-        LogonMethod: Username and password
+        LogonMethod: 'Username and password'
         Username: edittest
         Password: passwd
         Domain: sh.dto
@@ -601,7 +601,7 @@ createStoreFront:
         SelectStore: False
         StoreName: fcxds.sh.dto
         Launchdelay: 0
-        LogonMethod: Username and password
+        LogonMethod: 'Username and password'
         Username: test
         Password: test
         Domain: sh.dto
@@ -620,13 +620,13 @@ wifi:
     EncryptionType: AES
     SecurityKey: Shanghai2014
   WPA2P24G:
-    NetworkName: R1-Function-2.4G
+    NetworkName: 'R1-Function-2.4G'
     SecurityType: WPA2-Personal
     EncryptionType: AES
     SecurityKey: Shanghai2014
   WPAP24G:
     NetworkName: R1-TC_2.4G_g_WPAP
-    SecurityType: WPA-Personal
+    SecurityType: 'WPA-Personal'
     EncryptionType: TKIP
     SecurityKey: neoware1234
   WPA2E5G:
@@ -635,7 +635,7 @@ wifi:
     EncryptionType: AES
     SecurityKey: neoware1234
   WPA2PCH:
-    NetworkName: R1-TC-中文-SSID
+    NetworkName: 'R1-TC-中文-SSID'
     SecurityType: WPA2-Personal
     EncryptionType: AES
     SecurityKey: neoware1234

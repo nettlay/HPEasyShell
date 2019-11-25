@@ -21,7 +21,6 @@ def setup():
         self_path = os.getcwd()
     else:
         self_path = os.path.dirname(sys.argv[0])
-    print(self_path)
     # ========================================
     # setup
     # ========================================
@@ -35,7 +34,7 @@ def setup():
                                 r'c:\svc\hpeasyshell\test_data\testset.xlsx')
                 return None
             else:
-                shutil.rmtree(r'c:\svc\hpeasyshell')
+                shutil.rmtree(r'c:\svc\hpeasyshell', ignore_errors=True)
         try:
             shutil.copytree(self_path, r"C:\svc\hpeasyshell")
             shutil.copy(r'c:\svc\hpeasyshell\services\svcconfig.ini', r'c:\svc\svcconfig.ini')
@@ -43,6 +42,10 @@ def setup():
         except:
             print("May be some file exist or running, can not be replace, so skip this copy")
         os.system(r'c:\svc\runappasService.exe --startup auto install')
+        if os.path.exists(os.path.join(self_path, 'flag.txt')):
+            os.remove(os.path.join(self_path, 'flag.txt'))
+        if os.path.exists(os.path.join(self_path, 'test_report')):
+            shutil.rmtree(os.path.join(self_path, 'test_report'))
         # ----create test plan excel from scripts.yml
         if os.path.exists(r'c:\svc\hpeasyshell\test_data\script.yml'):
             yml = YmlUtils(r'c:\svc\hpeasyshell\test_data\script.yml')
